@@ -18,5 +18,14 @@ namespace SpacifyAPI.Controllers
 
             return "Rezerwacje sal konferencyjnych";
         }
+
+        [Authorize(Roles = $"{RoleNames.Administrator},{RoleNames.Leader}")]
+        [HttpGet("/conferenceRoomReservations")]
+        public async Task<string> GetConferenceRoomReservationById()
+        {
+
+            return "Pobranie rezerwacji sali konferenyjnej po id";
+        }
+
     }
 }
