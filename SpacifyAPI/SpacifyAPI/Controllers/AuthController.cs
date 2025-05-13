@@ -39,14 +39,14 @@ namespace SpacifyAPI.Controllers
         }
 
         [HttpPost("refresh-token")]
-        public async Task<ActionResult<TokenResponse>> RefreshToken(RefreshTokenRequest request)
+        public async Task<ActionResult<TokenResponse>> RefreshToken()
         {
-            var result = await _authService.RefreshTokensAsync(request);
+            var result = await _authService.RefreshTokensAsync();
 
-            if(result is null || result.AccessToken is null || result.RefreshToken is null)
-            {
-                throw new UnauthorizedAccessException("Invalid token");
-            }
+            //if(result is null || result.AccessToken is null || result.RefreshToken is null)
+            //{
+            //    throw new UnauthorizedAccessException("Invalid token");
+            //}
 
             return Ok(result);
         }

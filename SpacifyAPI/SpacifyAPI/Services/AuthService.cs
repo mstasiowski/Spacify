@@ -15,7 +15,7 @@ using System.Text;
 
 namespace SpacifyAPI.Services
 {
-    public class AuthService(SpacifyDbContext _context, IConfiguration _configuration) : IAuthService
+    public class AuthService(SpacifyDbContext _context, IConfiguration _configuration,IHttpContextAccessor _httpContextAccessor) : IAuthService
     {
         public async Task<RegisterUserResponse?> RegisterAsync(RegisterUserRequest request)
         {
@@ -88,6 +88,12 @@ namespace SpacifyAPI.Services
 
         public async Task<TokenResponse?> LoginAsync(LoginUserRequest request)
         {
+            if (request == null)
+            {
+                throw new BadRequestException("Request cannot be null");
+            }
+
+
             var dbUser = await _context.Users
                 .FirstOrDefaultAsync(u => u.Username == request.Username);
 
@@ -144,14 +150,29 @@ namespace SpacifyAPI.Services
         }
 
 
-        public async Task<TokenResponse?> RefreshTokensAsync(RefreshTokenRequest request)
+        public async Task<TokenResponse?> RefreshTokensAsync()
         {
-            var user = await ValidateRefreshTokenAsync(request.UserId, request.RefreshToken);
+
+            var context = _httpContextAccessor.HttpContext;
+            if (context?.Request == null)
+            {
+                throw new UnauthorizedAccessToDataException("No refresh token provided");
+            }
+
+            var refreshToken = context.Request.Cookies["refreshToken"];
+
+            if(string.IsNullOrEmpty(refreshToken))
+            {
+                throw new UnauthorizedAccessToDataException("No refresh token provided");
+            }
+
+            var user = await ValidateRefreshTokenAsync(refreshToken);
 
             if (user == null)
             {
-                throw new BadRequestException("Invalid refresh token");
+                throw new ForbiddenAccessToData("Invalid refresh token");
             }
+
 
             return await CreateTokenResponse(user);
         }
@@ -159,7 +180,10 @@ namespace SpacifyAPI.Services
         public async Task LogoutAsync(Guid userId)
         {
             var user = await _context.Users.FindAsync(userId);
-            
+
+            var context = _httpContextAccessor.HttpContext;
+            context?.Response.Cookies.Delete("refreshToken");
+
             if (user != null)
             {
                 user.RefreshToken = null;
@@ -176,12 +200,31 @@ namespace SpacifyAPI.Services
                 throw new BadRequestException("Problem with creating a response with a token");
             }
 
+           var refreshToken = await GenerateAndSaveRefreshTokenAsync(dbUser);
+
+           var context = _httpContextAccessor.HttpContext;
+
+            context?.Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = DateTime.UtcNow.AddDays(7),
+                SameSite = SameSiteMode.Strict,
+                Secure = true
+            });
+
+            
+
 
             return new TokenResponse
             {
-                AccessToken = CreateToken(dbUser),
-                RefreshToken = await GenerateAndSaveRefreshTokenAsync(dbUser)
+                AccessToken = CreateToken(dbUser)
             };
+
+            //return new TokenResponse
+            //{
+            //    AccessToken = CreateToken(dbUser),
+            //    RefreshToken = await GenerateAndSaveRefreshTokenAsync(dbUser)
+            //};
         }
 
 
@@ -236,21 +279,30 @@ namespace SpacifyAPI.Services
             return refreshToken;
         }
 
-        private async Task<User?> ValidateRefreshTokenAsync(Guid userId ,string refreshToken)
+        private async Task<User?> ValidateRefreshTokenAsync(string refreshToken)
         {
-            var user = await _context.Users.FindAsync(userId);
+            var hashedRefreshToken = HashRefreshToken(refreshToken);
 
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.RefreshToken == hashedRefreshToken
+                && u.RefreshTokenExpirationTime > DateTime.UtcNow);
+
+            return user;
+
+            //var user = await _context.Users.FindAsync(userId);
+
+            ///
             //if (user is null || user.RefreshToken != refreshToken || user.RefreshTokenExpirationTime <= DateTime.UtcNow)
             //{
             //    return null;
             //}
 
-            if (user is null || user.RefreshToken != HashRefreshToken(refreshToken) || user.RefreshTokenExpirationTime <= DateTime.UtcNow)
-            {
-                return null;
-            }
+            //if (user is null || user.RefreshToken != HashRefreshToken(refreshToken) || user.RefreshTokenExpirationTime <= DateTime.UtcNow)
+            //{
+            //    return null;
+            //}
 
-            return user;
+            //return user;
         }
 
         private string HashRefreshToken(string input)
@@ -262,6 +314,7 @@ namespace SpacifyAPI.Services
             }
         }
 
+       
         public string FormatName(string input)
         {
             if (string.IsNullOrEmpty(input))

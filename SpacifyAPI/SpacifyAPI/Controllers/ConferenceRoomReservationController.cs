@@ -20,11 +20,11 @@ namespace SpacifyAPI.Controllers
         }
 
         [Authorize(Roles = $"{RoleNames.Administrator},{RoleNames.Leader}")]
-        [HttpGet("/conferenceRoomReservations")]
-        public async Task<string> GetConferenceRoomReservationById()
+        [HttpGet("/conferenceRoomReservationById/{id}")]
+        public async Task<string> GetConferenceRoomReservationById(int id)
         {
 
-            return "Pobranie rezerwacji sali konferenyjnej po id";
+            return $"Pobranie rezerwacji sali konferenyjnej po {id}";
         }
 
     }

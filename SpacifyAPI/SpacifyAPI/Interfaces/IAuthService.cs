@@ -8,7 +8,7 @@ namespace SpacifyAPI.Interfaces
     {
         Task<RegisterUserResponse?> RegisterAsync(RegisterUserRequest request);
         Task<TokenResponse?> LoginAsync(LoginUserRequest request);
-        Task<TokenResponse?> RefreshTokensAsync(RefreshTokenRequest request);
+        Task<TokenResponse?> RefreshTokensAsync();
         Task LogoutAsync(Guid userId);
 
         string FormatName(string input);

@@ -19,9 +19,24 @@ namespace SpacifyAPI
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+
+            //Cors
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAngularF", policy =>
+                {
+                    policy.WithOrigins("https://localhost:4200", "http://localhost:4200")
+                          .AllowAnyMethod()
+                          .AllowAnyHeader()
+                          .AllowCredentials();
+                });
+            });
+
+                // Add services to the container.
 
             builder.Services.AddControllers();
+
+            builder.Services.AddHttpContextAccessor();
 
             builder.Services.Configure<ApiBehaviorOptions>(options =>
             {
@@ -132,6 +147,25 @@ namespace SpacifyAPI
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            // Middleware do ustawienia nag³ówka CSP
+            //Tutaj ten unsafe-inline jest tylko dla dev, w produkcji powinno byæ bez tego
+            app.Use(async (context, next) =>
+            {
+               var cspPolicy =
+                    "default-src 'none'; " +               // Domyœlnie wszystko zablokowane
+                    "script-src 'self'; " +                 // Skrypty tylko z backendu
+                    "style-src 'self' 'unsafe-inline'; " +  // Style z backendu i inline (dla dev)
+                    "img-src 'self' data:; " +              // Obrazy z backendu oraz base64
+                    "font-src 'self'; " +                   // Fonty tylko z backendu
+                    "connect-src 'self' http://localhost:4200; " +  // Dozwolone po³¹czenia z frontendem Angular
+                    "frame-ancestors 'none';";            // Blokuje osadzanie w iframe (ochrona przed clickjackingiem)
+
+                context.Response.Headers.Append("Content-Security-Policy", cspPolicy);
+
+                await next();
+            });
+
 
             app.UseHttpsRedirection();
 
