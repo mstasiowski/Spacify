@@ -23,7 +23,7 @@ namespace SpacifyAPI
             //Cors
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowAngularF", policy =>
+                options.AddPolicy("AllowAngularFrontend", policy =>
                 {
                     policy.WithOrigins("https://localhost:4200", "http://localhost:4200")
                           .AllowAnyMethod()
@@ -168,7 +168,7 @@ namespace SpacifyAPI
 
 
             app.UseHttpsRedirection();
-
+            app.UseCors("AllowAngularFrontend");
             app.UseAuthentication();
             app.UseAuthorization();
 
