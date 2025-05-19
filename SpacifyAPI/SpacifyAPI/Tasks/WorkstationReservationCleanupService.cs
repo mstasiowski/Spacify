@@ -26,7 +26,7 @@ namespace SpacifyAPI.Tasks
                     try
                     {
                         var reservation = scope.ServiceProvider.GetRequiredService<IWorkstationReservationService>();
-                        _logger.LogInformation("Cleaning up expired workstation reservations...");
+                        _logger.LogInformation($"[{DateTime.Now}] Cleaning up expired workstation reservations...");
                         await reservation.RemoveExpiredUnconfirmedReservationsAsync();
                         _logger.LogInformation("Expired workstation reservations cleaned up successfully.");
                     }

@@ -52,10 +52,10 @@ namespace SpacifyAPI.Controllers
         }
 
         [HttpPost("logout")]
-        public async Task<ActionResult> Logout([FromBody] Guid userId)
+        public async Task<ActionResult> Logout()
         {
-            await _authService.LogoutAsync(userId);
-            return Ok("Logged out successfully");
+            await _authService.LogoutAsync();
+            return NoContent();
         }
 
 

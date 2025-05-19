@@ -17,6 +17,8 @@ namespace SpacifyAPI.Services
 {
     public class AuthService(SpacifyDbContext _context, IConfiguration _configuration,IHttpContextAccessor _httpContextAccessor) : IAuthService
     {
+       
+
         public async Task<RegisterUserResponse?> RegisterAsync(RegisterUserRequest request)
         {
             if (request == null)
@@ -156,41 +158,73 @@ namespace SpacifyAPI.Services
             var context = _httpContextAccessor.HttpContext;
             if (context?.Request == null)
             {
-                throw new UnauthorizedAccessToDataException("No refresh token provided");
+                throw new UnauthorizedAccessToDataException("No HTTP context available for authentication.");
             }
 
             var refreshToken = context.Request.Cookies["refreshToken"];
 
             if(string.IsNullOrEmpty(refreshToken))
             {
-                throw new UnauthorizedAccessToDataException("No refresh token provided");
+                throw new UnauthorizedAccessToDataException("Missing refresh token cookie.");
             }
 
             var user = await ValidateRefreshTokenAsync(refreshToken);
 
             if (user == null)
             {
-                throw new ForbiddenAccessToData("Invalid refresh token");
+                throw new ForbiddenAccessToData("Invalid or expired refresh token.");
             }
 
 
             return await CreateTokenResponse(user);
         }
 
-        public async Task LogoutAsync(Guid userId)
+        //public async Task LogoutAsync(logoutRequest request)
+        //{
+        //    var user = await _context.Users.FindAsync(request.UserId);
+
+        //    var context = _httpContextAccessor.HttpContext;
+        //    context?.Response.Cookies.Delete("refreshToken");
+
+        //    if (user != null)
+        //    {
+        //        user.RefreshToken = null;
+        //        user.RefreshTokenExpirationTime = null;
+        //        await _context.SaveChangesAsync();
+        //    }
+        //}
+
+        public async Task LogoutAsync()
         {
-            var user = await _context.Users.FindAsync(userId);
-
             var context = _httpContextAccessor.HttpContext;
-            context?.Response.Cookies.Delete("refreshToken");
 
-            if (user != null)
+            if (context == null || context.Request == null)
             {
-                user.RefreshToken = null;
-                user.RefreshTokenExpirationTime = null;
-                await _context.SaveChangesAsync();
+                throw new UnauthorizedAccessToDataException("Invalid HTTP context.");
             }
+
+            var refreshToken = context.Request.Cookies["refreshToken"];
+
+            if (string.IsNullOrEmpty(refreshToken))
+            {
+                throw new UnauthorizedAccessToDataException("No refresh token provided.");
+            }
+
+            var user = await ValidateRefreshTokenAsync(refreshToken);
+
+            if (user == null)
+            {
+                throw new ForbiddenAccessToData("Invalid refresh token.");
+            }
+
+            context.Response.Cookies.Delete("refreshToken");
+
+            user.RefreshToken = null;
+            user.RefreshTokenExpirationTime = null;
+
+            await _context.SaveChangesAsync();
         }
+
 
 
         private async Task<TokenResponse> CreateTokenResponse(User? dbUser)
@@ -207,7 +241,7 @@ namespace SpacifyAPI.Services
             context?.Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
             {
                 HttpOnly = true,
-                Expires = DateTime.UtcNow.AddDays(7),
+                Expires = GetRefreshTokenExpiration(),
                 SameSite = SameSiteMode.Strict,
                 Secure = true
             });
@@ -245,7 +279,7 @@ namespace SpacifyAPI.Services
                issuer: _configuration.GetValue<string>("AppSettings:Issuer"),
                audience: _configuration.GetValue<string>("AppSettings:Audience"),
                claims: claims,
-               expires: DateTime.UtcNow.AddMinutes(15),
+               expires: GetAccessTokenExpiration(),
                signingCredentials: creds
                );
 
@@ -273,7 +307,7 @@ namespace SpacifyAPI.Services
             var hashedRefreshToken = HashRefreshToken(refreshToken);
 
             user.RefreshToken = hashedRefreshToken;
-            user.RefreshTokenExpirationTime = DateTime.UtcNow.AddDays(7);
+            user.RefreshTokenExpirationTime = GetRefreshTokenExpiration();
             await _context.SaveChangesAsync();
 
             return refreshToken;
@@ -364,6 +398,9 @@ namespace SpacifyAPI.Services
         {
             return string.IsNullOrWhiteSpace(email)? string.Empty: email.Trim().ToLowerInvariant();
         }
+
+        private DateTime GetAccessTokenExpiration() => DateTime.UtcNow.AddMinutes(15);
+        private DateTime GetRefreshTokenExpiration() => DateTime.UtcNow.AddDays(7);
 
 
     }

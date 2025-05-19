@@ -132,6 +132,7 @@ namespace SpacifyAPI
 
             //Tasks
             builder.Services.AddHostedService<WorkstationReservationCleanupService>();
+            builder.Services.AddHostedService<RefreshTokenCleanupService>();
 
             // max request body size
             builder.WebHost.ConfigureKestrel(options =>

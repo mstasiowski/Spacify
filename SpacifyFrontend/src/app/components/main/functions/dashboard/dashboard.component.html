@@ -1,0 +1,35 @@
+<ng-container *ngIf="authService.userSignal()">
+  <p>{{ currentUser?.username }}</p>
+
+  <button
+    type="button"
+    (click)="refreshAction()"
+    class="bg-red-500 border border-black text-sm text-white rounded-sm p-2 m-2"
+  >
+    Refresh
+  </button>
+
+  <button
+    type="button"
+    (click)="getConferenceAction()"
+    class="bg-green-500 border border-black text-sm text-white rounded-sm p-2 m-2"
+  >
+    Conference
+  </button>
+
+  <button
+    type="button"
+    (click)="getWorkstation()"
+    class="bg-pink-500 border border-black text-sm text-white rounded-sm p-2 m-2"
+  >
+    Workstations
+  </button>
+
+  <button
+    type="button"
+    (click)="logoutAction()"
+    class="bg-blue-500 border border-black text-sm text-white rounded-sm p-2 m-2"
+  >
+    logout
+  </button>
+</ng-container>

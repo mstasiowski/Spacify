@@ -1,0 +1,110 @@
+<div
+  class="flex flex-col items-center justify-center min-h-screen bg-gray-100 px-4"
+>
+  <!--info Nagłówek aplikacji -->
+  <div class="text-center mb-8">
+    <h1 class="text-4xl font-bold text-indigo-700">Spacify</h1>
+    <p class="text-sm text-gray-600 mt-1.5">
+      System do zarządzania przestrzenią biurową
+    </p>
+  </div>
+  <!--info Formularz logowania -->
+  <form
+    [formGroup]="loginForm"
+    (ngSubmit)="onSubmit()"
+    class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 space-y-6"
+  >
+    <div>
+      <h2 class="text-2xl font-bold text-gray-800">Logowanie</h2>
+      <p class="text-sm text-gray-500 mt-1.5">
+        Wprowadź swoje dane, aby uzyskać dostęp do konta
+      </p>
+    </div>
+
+    <div class="space-y-4">
+      <div>
+        <label for="username" class="block text-sm font-medium text-gray-700">
+          Login
+        </label>
+        <input
+          id="username"
+          type="text"
+          formControlName="username"
+          class="mt-1 w-full px-4 py-2 bg-gray-50 placeholder-gray-400 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+          placeholder="login"
+          autocomplete="user-login"
+        />
+        <div
+          *ngIf="f['username'].touched && f['username'].errors"
+          class="text-red-500 text-sm"
+        >
+          <div *ngIf="f && f['username'].errors['required']">
+            Login jest wymagany
+          </div>
+
+          <div
+            *ngIf="
+              f['username'].errors['hasSpaces'] ||
+              f['username'].errors['hasSpecialChars']
+            "
+          >
+            Login jest niepoprawny
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-700">
+          Hasło
+        </label>
+        <div class="relative">
+          <input
+            id="password"
+            [type]="showPassword ? 'text' : 'password'"
+            formControlName="password"
+            class="mt-1 w-full px-4 py-2 pr-10 bg-gray-50 placeholder-gray-400 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+            placeholder="••••••••"
+            autocomplete="current-password"
+          />
+
+          <button
+            *ngIf="f['password'].value"
+            type="button"
+            (click)="togglePasswordVisibility()"
+            class="absolute right-2 top-6 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none cursor-pointer"
+          >
+            <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+          </button>
+        </div>
+        <div
+          *ngIf="f['password'].touched && f['password'].errors"
+          class="text-red-500 text-sm"
+        >
+          Hasło jest wymagane.
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="errorMessage" class="text-red-500 text-sm text-center">
+      {{ errorMessage }}
+    </div>
+
+    <button
+      type="submit"
+      [disabled]="loginForm.invalid || isSubmitting"
+      class="w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none cursor-pointer"
+    >
+      {{ isSubmitting ? "Logowanie..." : "Zaloguj" }}
+    </button>
+
+    <p class="text-sm text-center text-gray-500">
+      Nie masz konta?
+      <a
+        routerLink="/register"
+        class="text-indigo-600 hover:underline cursor-pointer"
+      >
+        Zarejestruj się
+      </a>
+    </p>
+  </form>
+</div>

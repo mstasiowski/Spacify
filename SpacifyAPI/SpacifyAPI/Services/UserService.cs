@@ -438,6 +438,8 @@ namespace SpacifyAPI.Services
             var passwordVerification = new PasswordHasher<User>()
                 .VerifyHashedPassword(dbUser, dbUser.PasswordHash, request.CurrentPassword);
 
+            
+
             if (passwordVerification == PasswordVerificationResult.Failed)
             {
                 dbUser.FailedLoginAttempts++;
@@ -447,7 +449,7 @@ namespace SpacifyAPI.Services
                 {
                     dbUser.IsBlocked = true;
                     dbUser.AccountBlockedUntil = DateTime.UtcNow.AddMinutes(5);
-                    await _authService.LogoutAsync(request.UserId);
+                    await _authService.LogoutAsync();
                 }
 
                 await _context.SaveChangesAsync();

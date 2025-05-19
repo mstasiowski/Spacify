@@ -9,7 +9,7 @@ namespace SpacifyAPI.Interfaces
         Task<RegisterUserResponse?> RegisterAsync(RegisterUserRequest request);
         Task<TokenResponse?> LoginAsync(LoginUserRequest request);
         Task<TokenResponse?> RefreshTokensAsync();
-        Task LogoutAsync(Guid userId);
+        Task LogoutAsync();
 
         string FormatName(string input);
         bool IsPasswordValid(string password);

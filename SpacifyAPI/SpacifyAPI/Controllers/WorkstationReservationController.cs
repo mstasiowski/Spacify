@@ -11,7 +11,8 @@ using System.Security.Claims;
 
 namespace SpacifyAPI.Controllers
 {
-    [Route("[controller]")]
+    //[Route("[controller]")]
+    [Route("workstation/reservation")]
     [ApiController]
     public class WorkstationReservationController : ControllerBase
     {
@@ -23,7 +24,7 @@ namespace SpacifyAPI.Controllers
         }
 
         [Authorize]
-        [HttpGet]
+        [HttpGet("/workstation/reservations")]
         public async Task<ActionResult<List<WorkstationReservationResponse>>> GetAllWorkstationReservations()
         {
             var dbWorkstationReservations = await _workstationReservationService.GetAllWorkstationReservationsAsync();
@@ -121,8 +122,17 @@ namespace SpacifyAPI.Controllers
 
         [Authorize]
         [HttpPatch("{reservationId}/confirm")]
-        public async Task<ActionResult> ConfirmWorkstationReservation(int reservationId, Guid userId)
+        public async Task<ActionResult<WorkstationReservationResponse>> ConfirmWorkstationReservation(int reservationId)
         {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim))
+            {
+                return Unauthorized();
+            }
+
+            var userId = Guid.Parse(userIdClaim);
+
             var dbWorkstationReservation = await _workstationReservationService.ConfirmWorkstationReservationAsync(reservationId, userId);
             return Ok(dbWorkstationReservation);
         }
