@@ -6,7 +6,8 @@ namespace SpacifyAPI.Interfaces
 {
     public interface IUserService
     {
-        Task<List<UserResponseForAdmin>> GetAllUsersAsync();
+        Task<List<UserResponseForAdmin>> GetAllUsersAdminAsync();
+        Task<List<UserResponse>> GetAllUsersAsync();
         Task<UserResponseForAdmin> GetUserByIdAdminAsync(Guid userId);
         Task<UserResponse> GetUserByIdAsync(Guid userId);
         Task<UserResponseForAdmin> GetUserByEmailAsync(string email);

@@ -14,6 +14,8 @@ import {
   strongPasswordValidator,
   noNumbersValidator,
 } from '../../helpers/validators';
+import { NotificationService } from '../../services/notification.service';
+import { RegisterUserResponse } from '../../models/response/register-user-response';
 
 @Component({
   selector: 'app-register',
@@ -30,6 +32,7 @@ export class RegisterComponent {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
+    private notificationService: NotificationService,
     private router: Router
   ) {
     this.registerForm = this.fb.group({
@@ -73,9 +76,13 @@ export class RegisterComponent {
     if (this.registerForm.invalid) return;
 
     this.authService.register(this.registerForm.value).subscribe({
-      next: () => {
+      next: (res: RegisterUserResponse) => {
         this.successMessage = 'Rejestracja zakończona sukcesem!';
         this.errorMessage = '';
+
+        this.notificationService.showInfo(`Twoj login to: ${res.username}`);
+        this.notificationService.showSuccess(`Witaj ${res.name}!`);
+
         this.registerForm.reset();
         this.submitted = false;
         this.router.navigateByUrl('/login');
@@ -83,6 +90,9 @@ export class RegisterComponent {
       error: (err) => {
         this.errorMessage = 'Rejestracja nie powiodła się.';
         this.successMessage = '';
+        this.notificationService.showError(
+          'Formularz rejestracji jest niepoprawny'
+        );
       },
     });
   }

@@ -10,6 +10,7 @@ using SpacifyAPI.Middlewares;
 using SpacifyAPI.Services;
 using SpacifyAPI.Tasks;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace SpacifyAPI
 {
@@ -34,7 +35,12 @@ namespace SpacifyAPI
 
                 // Add services to the container.
 
-            builder.Services.AddControllers();
+            builder.Services
+                .AddControllers()
+                .AddJsonOptions(options =>
+                 {
+                     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                 });
 
             builder.Services.AddHttpContextAccessor();
 

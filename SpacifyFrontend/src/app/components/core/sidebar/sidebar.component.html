@@ -1,0 +1,66 @@
+<!-- Todo test sidebar -->
+<div class="sidebar-container" [ngClass]="{ open: isOpen }">
+  <div class="logo">Spacify</div>
+
+  <nav class="sidebar">
+    <div
+      class="sidebar-close nav-link"
+      (click)="closeSidebar()"
+      *ngIf="isMobileView"
+    >
+      <i class="sideIcon fa fa-times"></i>
+      <span class="sideText">Zamknij</span>
+    </div>
+    <a
+      routerLink="/dashboard"
+      routerLinkActive="active"
+      ariaCurrentWhenActive="page"
+      class="nav-link"
+    >
+      <i class="sideIcon fa-solid fa-desktop"></i>
+      <span class="sideText">Panel główny</span>
+    </a>
+
+    <a
+      *ngIf="currentUser?.role === roles.Administrator"
+      routerLink="/admin"
+      routerLinkActive="active"
+      class="nav-link"
+    >
+      <i class="sideIcon fa-solid fa-user-gear"></i>
+      <span class="sideText">Panel administratora</span>
+    </a>
+
+    <a
+      routerLink="/workstation-reservation"
+      routerLinkActive="active"
+      class="nav-link"
+    >
+      <i class="sideIcon fa-solid fa-location-dot"></i>
+      <span class="sideText">Rezerwacja stanowiska</span>
+    </a>
+
+    <a
+      *ngIf="
+        currentUser?.role === roles.Administrator ||
+        currentUser?.role === roles.Leader
+      "
+      routerLink="/conferenceroom-reservation"
+      routerLinkActive="active"
+      class="nav-link"
+    >
+      <i class="sideIcon fa fa-solid fa-people-group"></i>
+      <span class="sideText">Sale konferencyjne</span>
+    </a>
+
+    <a routerLink="/my-reservation" routerLinkActive="active" class="nav-link">
+      <i class="sideIcon fa-regular fa-calendar"></i>
+      <span class="sideText">Moje rezerwacje</span>
+    </a>
+
+    <a routerLink="/settings" routerLinkActive="active" class="nav-link">
+      <i class="sideIcon fa fa-solid fa-gear"></i>
+      <span class="sideText">Ustawienia</span>
+    </a>
+  </nav>
+</div>

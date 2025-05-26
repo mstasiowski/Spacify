@@ -11,7 +11,7 @@ using System.Security.Claims;
 
 namespace SpacifyAPI.Controllers
 {
-    [Route("[controller]")]
+    [Route("user")]
     [ApiController]
     public class UserController : ControllerBase
     {
@@ -23,8 +23,16 @@ namespace SpacifyAPI.Controllers
         }
 
         [Authorize(Roles = RoleNames.Administrator)]
+        [HttpGet("/users/admin")]
+        public async Task<ActionResult<List<UserResponseForAdmin>>> GetAllUsersAdmin()
+        {
+            var dbUsers = await _userService.GetAllUsersAdminAsync();
+            return Ok(dbUsers);
+        }
+
+        [Authorize]
         [HttpGet("/users")]
-        public async Task<ActionResult<List<UserResponseForAdmin>>> GetAllUsers()
+        public async Task<ActionResult<List<UserResponse>>> GetAllUsers()
         {
             var dbUsers = await _userService.GetAllUsersAsync();
             return Ok(dbUsers);

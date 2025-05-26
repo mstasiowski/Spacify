@@ -1,0 +1,120 @@
+// Todo test sidebar
+$blue: #3b82f6;
+$blue-light: #dbeafe;
+$gray: #4a5565;
+$hover-bg: #f9fafb;
+
+.sidebar-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+
+  @media (min-width: 1024px) {
+    width: 16rem;
+  }
+
+  .logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: $blue;
+    // padding: 1.2rem;
+    background-color: white;
+    border-bottom: 1px solid #e5e7eb;
+    // border-right: 1px solid #e5e7eb;
+    height: 7vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .sidebar {
+    flex: 1;
+    background-color: white;
+    border-right: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem;
+    gap: 0.5rem;
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      color: $gray;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background 0.2s, color 0.2s;
+      white-space: nowrap;
+
+      i {
+        font-size: 1.5rem;
+      }
+      .sideIcon {
+        width: 2rem;
+        height: 2rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+      }
+
+      .sideText {
+      }
+
+      &:hover {
+        background-color: $hover-bg;
+        color: $blue;
+      }
+
+      &.active {
+        background-color: $blue-light;
+        color: $blue;
+
+        i {
+          color: $blue;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 1023px) {
+  .sidebar-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 70%;
+    max-width: 250px;
+    background: white;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 200;
+
+    &.open {
+      transform: translate(0);
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .sidebar-container {
+    max-width: 120px;
+  }
+
+  .sidebar {
+    .sideText {
+      display: none;
+    }
+
+    .nav-link {
+      justify-content: center;
+      padding: 0.5rem;
+    }
+  }
+}

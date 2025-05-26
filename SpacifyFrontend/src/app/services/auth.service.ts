@@ -18,6 +18,7 @@ import { LoginUserRequest } from '../models/request/login-user-request';
 import { User } from '../models/user';
 import { Router } from '@angular/router';
 import { UserRole } from '../enums/user-role.enum';
+import { UserService } from './user.service';
 
 @Injectable({
   providedIn: 'root',
@@ -25,7 +26,11 @@ import { UserRole } from '../enums/user-role.enum';
 export class AuthService {
   private apiUrl = `${environment.apiUrl}/Auth`;
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private userService: UserService
+  ) {}
 
   userSignal = signal<User | undefined | null>(undefined);
 
@@ -96,6 +101,9 @@ export class AuthService {
           'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'
         ] as UserRole,
         exp: new Date(payload.exp * 1000),
+        name: '',
+        surname: '',
+        email: '',
       };
 
       return user;
@@ -111,6 +119,31 @@ export class AuthService {
     if (accessToken === null) return null;
 
     return this.decodeUserFromToken(accessToken);
+  }
+
+  refreshAndFetchUser(): Observable<User> {
+    return this.refreshToken().pipe(
+      switchMap((tokenRes: TokenResponse) => {
+        const userFromToken = this.decodeUserFromToken(tokenRes.accessToken);
+
+        if (!userFromToken?.id) {
+          throw new Error('Brak ID użytkownika w tokenie');
+        }
+
+        return this.userService.getUserById(userFromToken.id).pipe(
+          tap((userFromApi) => {
+            const finalUser: User = {
+              ...userFromApi,
+              username: userFromToken.username,
+              role: userFromToken.role,
+              exp: userFromToken.exp,
+            };
+
+            this.userSignal.set(finalUser);
+          })
+        );
+      })
+    );
   }
 
   //Info <Do usunięcia>

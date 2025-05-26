@@ -1,6 +1,4 @@
 <ng-container *ngIf="authService.userSignal()">
-  <p>{{ currentUser?.username }}</p>
-
   <button
     type="button"
     (click)="refreshAction()"
@@ -27,9 +25,21 @@
 
   <button
     type="button"
+    (click)="getUserInformation()"
+    class="bg-orange-500 border border-black text-sm text-white rounded-sm p-2 m-2"
+  >
+    get user signal
+  </button>
+
+  <button
+    type="button"
     (click)="logoutAction()"
     class="bg-blue-500 border border-black text-sm text-white rounded-sm p-2 m-2"
   >
     logout
   </button>
 </ng-container>
+
+<br />
+<br />
+<!-- Todo test serwisu workstation reservation -->

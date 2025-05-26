@@ -1,0 +1,28 @@
+<!-- Todo navbar -->
+
+<header class="header">
+  <button class="hamburger" (click)="onToggleSidebar()" aria-label="Menu">
+    <i class="fa-solid fa-bars"></i>
+  </button>
+
+  <div class="user-menu" (click)="toggleDropdown()" tabindex="0">
+    <span class="username">{{ currentUser?.username }}</span>
+
+    <div class="dropdown" *ngIf="isDropdownOpen">
+      <div class="dropdown-header">
+        <div class="user-role">{{ translateRoles(currentUser?.role) }}</div>
+
+        <div class="user-email">{{ currentUser?.email }}</div>
+      </div>
+      <div class="dropdown-separator"></div>
+      <a routerLink="/settings" class="dropdown-item">
+        <i class="fa-solid fa-gear"></i>
+        Ustawienia
+      </a>
+      <button (click)="logout()" class="dropdown-item">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        Wyloguj się
+      </button>
+    </div>
+  </div>
+</header>

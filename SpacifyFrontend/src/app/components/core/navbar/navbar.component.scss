@@ -1,0 +1,114 @@
+// Todo navbar
+
+$blue: #3b82f6;
+$gray: #4a5565;
+$gray-light: #f9fafb;
+$gray-lighter: #f3f4f6;
+// $shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+$shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+
+.hamburger {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: $gray;
+  margin-right: auto;
+  display: none;
+
+  @media (max-width: 1023px) {
+    display: block;
+  }
+
+  i {
+    pointer-events: none;
+  }
+}
+
+.header {
+  background-color: white;
+  box-shadow: $shadow;
+  border-bottom: 1px solid #e5e7eb;
+
+  height: 7vh;
+  padding: 0 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  position: relative;
+  z-index: 100;
+
+  .user-menu {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+    color: $gray;
+    font-weight: 500;
+
+    .dropdown {
+      display: block;
+      position: absolute;
+      top: 120%;
+      right: 0;
+      background-color: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      min-width: 220px;
+      overflow: hidden;
+      z-index: 10;
+
+      .dropdown-header {
+        padding: 1rem;
+        background-color: $gray-lighter;
+
+        .user-role {
+          font-weight: 600;
+          color: $blue;
+          font-size: 0.875rem;
+        }
+
+        .user-email {
+          font-size: 0.75rem;
+          color: $gray;
+          margin-top: 0.25rem;
+        }
+      }
+
+      .dropdown-separator {
+        height: 1px;
+        background-color: #e5e7eb;
+        margin: 0;
+      }
+
+      .dropdown-item {
+        padding: 0.75rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.875rem;
+        color: $gray;
+        background-color: white;
+        border: none;
+        width: 100%;
+        text-align: left;
+        cursor: pointer;
+
+        i {
+          color: $gray;
+        }
+
+        &:hover {
+          background-color: $gray-light;
+          color: $blue;
+
+          i {
+            color: $blue;
+          }
+        }
+      }
+    }
+  }
+}

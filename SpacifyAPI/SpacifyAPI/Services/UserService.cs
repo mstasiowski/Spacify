@@ -25,7 +25,7 @@ namespace SpacifyAPI.Services
         }
 
 
-        public async Task<List<UserResponseForAdmin>> GetAllUsersAsync()
+        public async Task<List<UserResponseForAdmin>> GetAllUsersAdminAsync()
         {
             var dbUsers = await _context.Users.ToListAsync();
 
@@ -41,13 +41,33 @@ namespace SpacifyAPI.Services
                Surname = u.Surname,
                Email = u.Email,
                Username = u.Username,
-               Role = u.Role,
+               Role = u.Role.ToString(),
                AccountBlockedUntil = u.AccountBlockedUntil,
                IsBlocked = u.IsBlocked,
                CreatedAt = u.CreatedAt,
                UpdatedAt = u.UpdatedAt,
                LastLoginAt = u.LastLoginAt
            }));
+        }
+
+        public async Task<List<UserResponse>> GetAllUsersAsync()
+        {
+            var dbUsers = await _context.Users.ToListAsync();
+
+            if (dbUsers == null || dbUsers.Count == 0)
+            {
+                throw new NotFoundException("No users found in the database.");
+            }
+
+            return new List<UserResponse>(dbUsers.Select(u => new UserResponse
+            {
+                Id = u.Id,
+                Name = u.Name,
+                Surname = u.Surname,
+                Email = u.Email,
+                Username = u.Username,
+                Role = u.Role.ToString(),
+            }));
         }
 
         public async Task<UserResponseForAdmin> GetUserByIdAdminAsync(Guid userId)
@@ -69,7 +89,7 @@ namespace SpacifyAPI.Services
                 Surname = dbUser.Surname,
                 Email = dbUser.Email,
                 Username = dbUser.Username,
-                Role = dbUser.Role,
+                Role = dbUser.Role.ToString(),
                 AccountBlockedUntil = dbUser.AccountBlockedUntil,
                 IsBlocked = dbUser.IsBlocked,
                 CreatedAt = dbUser.CreatedAt,
@@ -96,7 +116,8 @@ namespace SpacifyAPI.Services
                 Name = dbUser.Name,
                 Surname = dbUser.Surname,
                 Email = dbUser.Email,
-                Username = dbUser.Username    
+                Username = dbUser.Username,
+                Role = dbUser.Role.ToString(),
             };
         }
 
@@ -118,7 +139,7 @@ namespace SpacifyAPI.Services
                 Surname = dbUser.Surname,
                 Email = dbUser.Email,
                 Username = dbUser.Username,
-                Role = dbUser.Role,
+                Role = dbUser.Role.ToString(),
                 AccountBlockedUntil = dbUser.AccountBlockedUntil,
                 IsBlocked = dbUser.IsBlocked,
                 CreatedAt = dbUser.CreatedAt,
@@ -145,7 +166,7 @@ namespace SpacifyAPI.Services
                 Surname = dbUser.Surname,
                 Email = dbUser.Email,
                 Username = dbUser.Username,
-                Role = dbUser.Role,
+                Role = dbUser.Role.ToString(),
                 AccountBlockedUntil = dbUser.AccountBlockedUntil,
                 IsBlocked = dbUser.IsBlocked,
                 CreatedAt = dbUser.CreatedAt,
@@ -241,7 +262,7 @@ namespace SpacifyAPI.Services
                 Surname = dbUser.Surname,
                 Email = dbUser.Email,
                 Username = dbUser.Username,
-                Role = dbUser.Role,
+                Role = dbUser.Role.ToString(),
                 AccountBlockedUntil = dbUser.AccountBlockedUntil,
                 IsBlocked = dbUser.IsBlocked,
                 CreatedAt = dbUser.CreatedAt,
@@ -319,7 +340,7 @@ namespace SpacifyAPI.Services
                 Surname = dbUser.Surname,
                 Email = dbUser.Email,
                 Username = dbUser.Username,
-                Role = dbUser.Role,
+                Role = dbUser.Role.ToString(),
                 AccountBlockedUntil = dbUser.AccountBlockedUntil,
                 IsBlocked = dbUser.IsBlocked
             };
@@ -346,7 +367,7 @@ namespace SpacifyAPI.Services
                 Surname = dbUser.Surname,
                 Email = dbUser.Email,
                 Username = dbUser.Username,
-                Role = dbUser.Role,
+                Role = dbUser.Role.ToString(),
                 AccountBlockedUntil = dbUser.AccountBlockedUntil,
                 IsBlocked = dbUser.IsBlocked
             };
@@ -388,7 +409,8 @@ namespace SpacifyAPI.Services
                 Name = dbUser.Name,
                 Surname = dbUser.Surname,
                 Email = dbUser.Email,
-                Username = dbUser.Username
+                Username = dbUser.Username,
+                Role = dbUser.Role.ToString(),
             };
         }
 
@@ -483,8 +505,6 @@ namespace SpacifyAPI.Services
 
         }
 
-
-      
-
+        
     }
 }

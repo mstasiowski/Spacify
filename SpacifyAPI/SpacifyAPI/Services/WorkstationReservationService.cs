@@ -473,13 +473,13 @@ namespace SpacifyAPI.Services
         {
             return new WorkstationReservationResponse
             {
-                //Wywalic to local jak coś
+                //Wywalic to localTime jak coś
                 Id = reservation.Id,
                 UserId = reservation.UserId,
                 WorkstationId = reservation.WorkstationId,
-                ReservationStart = reservation.ReservationStart.ToLocalTime(),
-                ReservationEnd = reservation.ReservationEnd.ToLocalTime(),
-                CreatedAt = reservation.CreatedAt.ToLocalTime(),
+                ReservationStart = reservation.ReservationStart,
+                ReservationEnd = reservation.ReservationEnd,
+                CreatedAt = reservation.CreatedAt,
                 IsConfirmed = reservation.IsConfirmed
             };
         }

@@ -1,0 +1,324 @@
+<div class="max-w-4xl mx-auto p-6 space-y-10">
+  <h2 class="text-3xl font-bold text-center text-purple-700">
+    Rezerwacje Stanowisk
+  </h2>
+
+  <!-- Sekcja akcji -->
+  <section class="bg-white shadow-md rounded-2xl p-6 space-y-4">
+    <h3 class="text-xl font-semibold text-blue-600">Pobierz wszystkie</h3>
+    <button
+      (click)="getAllReservations()"
+      class="bg-purple-600 hover:bg-purple-700 text-white text-sm px-4 py-2 rounded-lg shadow"
+    >
+      Pobierz wszystkie
+    </button>
+  </section>
+
+  <!-- Pobierz po ID -->
+  <section class="bg-white shadow-md rounded-2xl p-6 space-y-4">
+    <h3 class="text-xl font-semibold text-blue-600">Pobierz po ID</h3>
+    <div class="flex items-center gap-4">
+      <input
+        type="number"
+        [(ngModel)]="reservationId"
+        placeholder="ID rezerwacji"
+        class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm"
+      />
+      <button
+        (click)="getReservationById()"
+        class="bg-purple-600 hover:bg-purple-700 text-white text-sm px-4 py-2 rounded-lg shadow"
+      >
+        Pobierz
+      </button>
+    </div>
+  </section>
+
+  <!-- Pobierz po UserId -->
+  <section class="bg-white shadow-md rounded-2xl p-6 space-y-4">
+    <h3 class="text-xl font-semibold text-blue-600">Pobierz po UserId</h3>
+    <div class="flex items-center gap-4">
+      <input
+        type="text"
+        [(ngModel)]="userId"
+        placeholder="User ID (GUID)"
+        class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm"
+      />
+      <button
+        (click)="getReservationsByUserId()"
+        class="bg-purple-600 hover:bg-purple-700 text-white text-sm px-4 py-2 rounded-lg shadow"
+      >
+        Pobierz
+      </button>
+    </div>
+  </section>
+
+  <!-- Pobierz po dacie -->
+  <section class="bg-white shadow-md rounded-2xl p-6 space-y-4">
+    <h3 class="text-xl font-semibold text-blue-600">Pobierz po dacie</h3>
+    <div class="flex items-center gap-4">
+      <input
+        type="date"
+        [(ngModel)]="date"
+        class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm"
+      />
+      <button
+        (click)="getReservationsByDate()"
+        class="bg-purple-600 hover:bg-purple-700 text-white text-sm px-4 py-2 rounded-lg shadow"
+      >
+        Pobierz
+      </button>
+    </div>
+  </section>
+
+  <!-- Pobierz po zakresie dat -->
+  <section class="bg-white shadow-md rounded-2xl p-6 space-y-4">
+    <h3 class="text-xl font-semibold text-blue-600">Pobierz po zakresie dat</h3>
+    <div class="flex flex-col md:flex-row gap-4">
+      <input
+        type="datetime-local"
+        [(ngModel)]="startDateLocal"
+        class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm"
+      />
+      <input
+        type="datetime-local"
+        [(ngModel)]="endDateLocal"
+        class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm"
+      />
+      <button
+        (click)="getReservationsByDateRange()"
+        class="bg-purple-600 hover:bg-purple-700 text-white text-sm px-4 py-2 rounded-lg shadow"
+      >
+        Pobierz
+      </button>
+    </div>
+  </section>
+
+  <!-- Dzisiejsze rezerwacje -->
+  <section class="bg-white shadow-md rounded-2xl p-6 space-y-4">
+    <h3 class="text-xl font-semibold text-blue-600">Dzisiejsze rezerwacje</h3>
+    <button
+      (click)="getTodaysReservations()"
+      class="bg-purple-600 hover:bg-purple-700 text-white text-sm px-4 py-2 rounded-lg shadow"
+    >
+      Pobierz
+    </button>
+  </section>
+
+  <hr />
+
+  <!-- Utwórz rezerwację -->
+  <section class="bg-white shadow-md rounded-2xl p-6 space-y-4">
+    <h3 class="text-xl font-semibold text-blue-600">Utwórz rezerwację</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <input
+        type="text"
+        [(ngModel)]="createRequest.userId"
+        placeholder="User ID"
+        class="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+      />
+      <input
+        type="number"
+        [(ngModel)]="createRequest.workstationId"
+        placeholder="Workstation ID"
+        class="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+      />
+      <input
+        type="datetime-local"
+        [(ngModel)]="startDateLocal"
+        placeholder="Start"
+        class="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+      />
+      <input
+        type="datetime-local"
+        [(ngModel)]="endDateLocal"
+        placeholder="End"
+        class="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+      />
+    </div>
+    <button
+      (click)="createReservation()"
+      class="mt-4 bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded-lg shadow"
+    >
+      Utwórz
+    </button>
+  </section>
+
+  <!-- Edytuj rezerwację -->
+  <section class="bg-white shadow-md rounded-2xl p-6 space-y-4">
+    <h3 class="text-xl font-semibold text-blue-600">Edytuj rezerwację</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <input
+        type="number"
+        [(ngModel)]="reservationId"
+        placeholder="ID rezerwacji"
+        class="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+      />
+      <input
+        type="text"
+        [(ngModel)]="modifyRequest.userId"
+        placeholder="User ID"
+        class="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+      />
+      <input
+        type="number"
+        [(ngModel)]="modifyRequest.workstationId"
+        placeholder="Workstation ID"
+        class="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+      />
+      <input
+        type="datetime-local"
+        [(ngModel)]="startDateLocal"
+        placeholder="Start"
+        class="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+      />
+      <input
+        type="datetime-local"
+        [(ngModel)]="endDateLocal"
+        placeholder="End"
+        class="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+      />
+    </div>
+    <button
+      (click)="modifyReservation()"
+      class="mt-4 bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-4 py-2 rounded-lg shadow"
+    >
+      Zmień
+    </button>
+  </section>
+
+  <!-- Potwierdź -->
+  <section class="bg-white shadow-md rounded-2xl p-6 space-y-4">
+    <h3 class="text-xl font-semibold text-blue-600">Potwierdź rezerwację</h3>
+    <div class="flex items-center gap-4">
+      <input
+        type="number"
+        [(ngModel)]="reservationId"
+        placeholder="ID rezerwacji"
+        class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm"
+      />
+      <button
+        (click)="confirmReservation()"
+        class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg shadow"
+      >
+        Potwierdź
+      </button>
+    </div>
+  </section>
+
+  <!-- Usuń -->
+  <section class="bg-white shadow-md rounded-2xl p-6 space-y-4">
+    <h3 class="text-xl font-semibold text-blue-600">Usuń rezerwację</h3>
+    <div class="flex items-center gap-4">
+      <input
+        type="number"
+        [(ngModel)]="reservationId"
+        placeholder="ID rezerwacji"
+        class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm"
+      />
+      <button
+        (click)="deleteReservation()"
+        class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2 rounded-lg shadow"
+      >
+        Usuń
+      </button>
+    </div>
+  </section>
+
+  <hr />
+
+  <!-- Wyświetlanie JSON -->
+  <section class="bg-white shadow-md rounded-2xl p-6">
+    <h3 class="text-xl font-semibold text-blue-600">Aktualna rezerwacja</h3>
+    <pre class="text-sm bg-gray-100 p-4 rounded-md overflow-auto">{{
+      reservation | json
+    }}</pre>
+  </section>
+
+  <section class="bg-white shadow-md rounded-2xl p-6">
+    <h3 class="text-xl font-semibold text-blue-600">Lista rezerwacji</h3>
+    <pre class="text-sm bg-gray-100 p-4 rounded-md overflow-auto">{{
+      reservations | json
+    }}</pre>
+  </section>
+</div>
+
+<!-- Todo -->
+
+<header class="bg-white shadow-sm">
+  <div class="container mx-auto h-16 flex items-center justify-between px-4">
+    <div class="flex items-center gap-6">
+      <a routerLink="/dashboard" class="text-xl font-bold text-blue-600">
+        Office Space
+      </a>
+    </div>
+    <div class="flex items-center space-x-4">
+      <div class="relative">
+        <button class="relative h-10 w-10 rounded-full focus:outline-none">
+          <img
+            class="h-10 w-10 rounded-full"
+            [src]="'https://avatar.vercel.sh/' + currentUser?.username"
+            alt="Avatar"
+          />
+        </button>
+        <!-- Dropdown menu -->
+        <div
+          class="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-50"
+        >
+          <div class="p-4">
+            <p class="text-sm font-medium">{{ currentUser?.username }}</p>
+            <p class="text-xs text-gray-500">email</p>
+          </div>
+          <div class="border-t border-gray-200"></div>
+          <a
+            routerLink="/profile"
+            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+            >Profil</a
+          >
+          <a
+            routerLink="/settings"
+            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+            >Ustawienia</a
+          >
+          <button
+            (click)="logout()"
+            class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+          >
+            Wyloguj
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Todo -->
+
+<div class="hidden lg:flex flex-col w-64 bg-white border-r border-gray-200">
+  <div class="p-4 border-b border-gray-200">
+    <div class="flex items-center justify-center">
+      <h1 class="text-xl font-bold text-blue-600">Office Space</h1>
+    </div>
+  </div>
+  <nav class="flex-1 p-4 space-y-1">
+    <a
+      *ngFor="let item of sidebarItems"
+      routerLink="/login"
+      class="flex items-center px-4 py-3 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-100"
+    >
+      <span class="mr-3">{{ item.icon }}</span>
+      {{ item.title }}
+    </a>
+  </nav>
+  <div class="p-4 border-t border-gray-200 text-xs text-gray-500">
+    &copy; 2025 Office Space
+  </div>
+</div>
+
+<!-- Todo  -->
+
+<div class="bg-white shadow-md rounded-lg p-6">
+  <h2 class="text-2xl font-bold mb-4">Witamy w panelu administracyjnym</h2>
+  <p class="text-gray-700">
+    Tutaj możesz zarządzać rezerwacjami i ustawieniami aplikacji.
+  </p>
+</div>

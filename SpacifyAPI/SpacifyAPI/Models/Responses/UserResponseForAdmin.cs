@@ -7,18 +7,12 @@ namespace SpacifyAPI.Models.Responses
     public class UserResponseForAdmin
     {
         public Guid Id { get; set; }
-        [Required, StringLength(50)]
         public string Name { get; set; } = string.Empty;
-        [Required, StringLength(50)]
         public string Surname { get; set; } = string.Empty;
-        [Required, EmailAddress, StringLength(100)]
         public string Email { get; set; } = string.Empty;
-        [StringLength(100)]
         public string Username { get; set; } = string.Empty;
-        [Required]
-        public UserRole Role { get; set; } = UserRole.Employee;
+        public string? Role { get; set; }
 
-        [Range(0, 5)]
         public int FailedLoginAttempts { get; set; } = 0;
         public DateTime? AccountBlockedUntil { get; set; } = null;
 

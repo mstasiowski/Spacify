@@ -1,4 +1,6 @@
 ﻿using SpacifyAPI.Entities;
+using SpacifyAPI.Helpers;
+using SpacifyAPI.Models.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace SpacifyAPI.Models.Responses
@@ -10,6 +12,8 @@ namespace SpacifyAPI.Models.Responses
         public string Surname { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string Username { get; set; } = string.Empty;
+        public string? Role { get; set; }
+
 
 
         //public List<WorkstationReservation>? WorkstationReservations { get; set; } = new List<WorkstationReservation>();

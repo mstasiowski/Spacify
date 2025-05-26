@@ -1,0 +1,59 @@
+$error-color: #ff6b6b;
+$bg-color: #f8f9fa;
+$text-color: #343a40;
+$button-bg: #007bff;
+$button-hover: darken($button-bg, 10%);
+$font-stack: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+
+:host {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: $bg-color;
+  color: $text-color;
+  font-family: $font-stack;
+}
+
+.error-container {
+  text-align: center;
+  padding: 2rem;
+
+  .error-code {
+    font-size: 10rem;
+    font-weight: bold;
+    color: $error-color;
+    animation: pulse 2s infinite ease-in-out;
+  }
+
+  .error-message {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .home-button {
+    background-color: $button-bg;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    font-size: 1rem;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: $button-hover;
+    }
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+}

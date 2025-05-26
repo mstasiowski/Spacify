@@ -87,6 +87,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       if (error.status === 401) {
         return handle401Error(req, next, authService, router);
       }
+
+      console.log(error.status, 'Pierwszy wyłapany error poza ifem');
       return throwError(() => error);
     })
   );
@@ -114,10 +116,16 @@ function handle401Error(
     }),
     catchError((refreshError) => {
       // Jeśli refreshToken również zwraca 401/403
-      console.log('eror dziala');
-      authService.clearAccessToken();
-      authService.userSignal.set(null);
-      router.navigateByUrl('/login');
+
+      if (req.url.includes('/Auth/refresh-token')) {
+        console.log('error dziala');
+        authService.clearAccessToken();
+        authService.userSignal.set(null);
+        router.navigateByUrl('/login');
+      } else {
+        console.log('inny error przy handle401Error()');
+      }
+
       return throwError(() => refreshError);
     })
   );
