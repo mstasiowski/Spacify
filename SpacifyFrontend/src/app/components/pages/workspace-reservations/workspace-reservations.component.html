@@ -1,10 +1,203 @@
-<div class="max-w-4xl mx-auto p-6 space-y-10">
+<!--Info Main  -->
+<div id="container">
+  <div id="h1-section">
+    <h1>Rezerwacja stanowisk pracy</h1>
+    <span
+      >Wybierz datę, godziny i stanowisko pracy z interaktywnego planu
+      biura</span
+    >
+  </div>
+
+  <div id="calendarContainer">
+    <div class="topTitle">
+      <i class="fa-solid fa-calendar-days"></i>
+      <h2>Wybierz termin</h2>
+    </div>
+
+    <div class="calendar-wrapper">
+      <!--! LEWA STRONA: Kalendarz -->
+      <div class="calendar-section">
+        <mat-calendar
+          [(selected)]="selectedDate"
+          (selectedChange)="onDateChange($event)"
+        ></mat-calendar>
+      </div>
+
+      <!--! PRAWA STRONA: Rezerwacja -->
+      <div class="reservation-section" *ngIf="selectedDate">
+        <h2>Rezerwacja stanowiska</h2>
+
+        <!-- TODO formularz rezerwacji -->
+
+        <form [formGroup]="reservationForm" id="reservationFormContainer">
+          <mat-form-field appearance="outline">
+            <mat-label>Godzina rozpoczęcia</mat-label>
+            <input
+              matInput
+              formControlName="startTime"
+              [matTimepicker]="pickerStart"
+              matTimepickerMin="8:00"
+              matTimepickerMax="18:00"
+            />
+            <mat-timepicker-toggle matIconSuffix [for]="pickerStart" />
+            <mat-timepicker interval="30m" #pickerStart />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Godzina zakończenia</mat-label>
+            <input
+              matInput
+              formControlName="endTime"
+              [matTimepicker]="pickerEnd"
+              matTimepickerMin="8:00"
+              matTimepickerMax="18:00"
+            />
+            <mat-timepicker-toggle matIconSuffix [for]="pickerEnd" />
+            <mat-timepicker interval="30m" #pickerEnd />
+          </mat-form-field>
+        </form>
+
+        @if (reservationForm.get('startTime')?.errors?.['required'] ||
+        reservationForm.get('endTime')?.errors?.['required']) {
+        <div class="custom-error-message">
+          Podaj godzinę rozpoczęcia i zakończenia.
+        </div>
+        } @if (reservationForm.get('startTime')?.errors?.['notFullOrHalfHour']
+        || reservationForm.get('endTime')?.errors?.['notFullOrHalfHour']) {
+        <div class="custom-error-message">
+          Godzina musi kończyć się na :00 lub :30 (np. 15:00, 15:30).
+        </div>
+        } @if (reservationForm.get('startTime')?.errors?.['matTimepickerMin'] ||
+        reservationForm.get('endTime')?.errors?.['matTimepickerMin']) {
+        <div class="custom-error-message">
+          Godzina poza dozwolonym zakresem (8:00–18:00).
+        </div>
+        } @if (reservationForm.get('startTime')?.errors?.['matTimepickerMax'] ||
+        reservationForm.get('endTime')?.errors?.['matTimepickerMax']) {
+        <div class="custom-error-message">
+          Godzina poza dozwolonym zakresem (8:00–18:00).
+        </div>
+        } @if (reservationForm.get('startTime')?.errors?.['matTimepickerParse']
+        || reservationForm.get('endTime')?.errors?.['matTimepickerParse']) {
+        <div class="custom-error-message">
+          Wybrano nieprawidłowy format godziny.
+        </div>
+        } @if (reservationForm.errors?.['sameStartEndTime']) {
+        <div class="custom-error-message">
+          Godzina rozpoczęcia i zakończenia nie mogą być takie same.
+        </div>
+        }@if (reservationForm.errors?.['endBeforeStart']) {
+        <div class="custom-error-message">
+          Godzina zakończenia musi być późniejsza niż godzina rozpoczęcia.
+        </div>
+        }
+
+        <!-- TODO formularz rezerwacji -->
+
+        <!--! Dół: Podsumowanie -->
+        <div class="summary-section" *ngIf="selectedDate">
+          <h3>Wybrany termin:</h3>
+          <ng-container
+            *ngIf="
+              reservationForm.get('startTime')?.value &&
+                reservationForm.get('endTime')?.value;
+              else noRange
+            "
+          >
+            <ng-container *ngIf="!isTimeRangeInvalid; else invalidRange">
+              {{ formattedDate }} <br />
+              {{ formattedStartTime }} - {{ formattedEndTime }}
+            </ng-container>
+          </ng-container>
+          <ng-template #noRange>
+            <p>Nie podano zakresu</p>
+          </ng-template>
+          <ng-template #invalidRange>
+            <p>Podano zły zakres</p>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="planContainer">
+    <div id="planTopSection">
+      <div class="topTitle" id="planTopTitle">
+        <i class="fa-solid fa-location-dot"></i>
+        <h2>Plan biura</h2>
+      </div>
+      <div id="floorBtns">
+        <mat-button-toggle-group
+          name="floorToggle"
+          [(value)]="selectedFloorId"
+          (change)="onFloorChange($event.value)"
+          class="floor-toggle-group"
+          [hideSingleSelectionIndicator]="true"
+        >
+          <mat-button-toggle
+            *ngFor="let floor of floors"
+            [value]="floor.id"
+            class="floor-toggle"
+          >
+            {{ floor.name }}
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
+    </div>
+
+    <div id="planSection">
+      <div #floorPlan class="floorPlanContainer"></div>
+    </div>
+  </div>
+
+  <!-- todo -->
+  <div
+    class="summary-container"
+    *ngIf="
+      reservationForm.get('startTime')?.valid &&
+      reservationForm.get('endTime')?.valid &&
+      !isTimeRangeInvalid &&
+      selectedWorkstationId
+    "
+  >
+    <div class="topTitle summary-title">
+      <i class="fa-solid fa-clipboard-list"></i>
+      <h2>Podsumowanie rezerwacji</h2>
+    </div>
+    <div class="summary-content">
+      <p>
+        <span> <strong>Data:</strong> {{ formattedDate }} </span>
+
+        <span>
+          <strong>Godzina:</strong> {{ formattedStartTime }} -
+          {{ formattedEndTime }}
+        </span>
+
+        <span> <strong>Stanowisko:</strong> {{ selectedDeskNumber }} </span>
+        <span>
+          <strong>Piętro:</strong>
+          {{ selectedFloorName }}
+        </span>
+      </p>
+      <button mat-raised-button (click)="confirmReservation()">
+        Zarezerwuj
+      </button>
+    </div>
+  </div>
+  <!--todo  -->
+</div>
+
+<!--Info Main  -->
+
+<!--! Title  -->
+
+<!-- <div class="max-w-4xl mx-auto p-6 space-y-10">
   <h2 class="text-3xl font-bold text-center text-purple-700">
     Rezerwacje Stanowisk
-  </h2>
+  </h2> -->
 
-  <!-- Sekcja akcji -->
-  <section class="bg-white shadow-md rounded-2xl p-6 space-y-4">
+<!--! Sekcja akcji -->
+<!-- <section class="bg-white shadow-md rounded-2xl p-6 space-y-4">
     <h3 class="text-xl font-semibold text-blue-600">Pobierz wszystkie</h3>
     <button
       (click)="getAllReservations()"
@@ -12,10 +205,10 @@
     >
       Pobierz wszystkie
     </button>
-  </section>
+  </section> -->
 
-  <!-- Pobierz po ID -->
-  <section class="bg-white shadow-md rounded-2xl p-6 space-y-4">
+<!--! Pobierz po ID -->
+<!-- <section class="bg-white shadow-md rounded-2xl p-6 space-y-4">
     <h3 class="text-xl font-semibold text-blue-600">Pobierz po ID</h3>
     <div class="flex items-center gap-4">
       <input
@@ -31,10 +224,10 @@
         Pobierz
       </button>
     </div>
-  </section>
+  </section> -->
 
-  <!-- Pobierz po UserId -->
-  <section class="bg-white shadow-md rounded-2xl p-6 space-y-4">
+<!--! Pobierz po UserId -->
+<!-- <section class="bg-white shadow-md rounded-2xl p-6 space-y-4">
     <h3 class="text-xl font-semibold text-blue-600">Pobierz po UserId</h3>
     <div class="flex items-center gap-4">
       <input
@@ -50,10 +243,10 @@
         Pobierz
       </button>
     </div>
-  </section>
+  </section> -->
 
-  <!-- Pobierz po dacie -->
-  <section class="bg-white shadow-md rounded-2xl p-6 space-y-4">
+<!--! Pobierz po dacie -->
+<!-- <section class="bg-white shadow-md rounded-2xl p-6 space-y-4">
     <h3 class="text-xl font-semibold text-blue-600">Pobierz po dacie</h3>
     <div class="flex items-center gap-4">
       <input
@@ -68,10 +261,10 @@
         Pobierz
       </button>
     </div>
-  </section>
+  </section> -->
 
-  <!-- Pobierz po zakresie dat -->
-  <section class="bg-white shadow-md rounded-2xl p-6 space-y-4">
+<!--! Pobierz po zakresie dat -->
+<!-- <section class="bg-white shadow-md rounded-2xl p-6 space-y-4">
     <h3 class="text-xl font-semibold text-blue-600">Pobierz po zakresie dat</h3>
     <div class="flex flex-col md:flex-row gap-4">
       <input
@@ -91,10 +284,10 @@
         Pobierz
       </button>
     </div>
-  </section>
+  </section> -->
 
-  <!-- Dzisiejsze rezerwacje -->
-  <section class="bg-white shadow-md rounded-2xl p-6 space-y-4">
+<!--! Dzisiejsze rezerwacje -->
+<!-- <section class="bg-white shadow-md rounded-2xl p-6 space-y-4">
     <h3 class="text-xl font-semibold text-blue-600">Dzisiejsze rezerwacje</h3>
     <button
       (click)="getTodaysReservations()"
@@ -104,10 +297,10 @@
     </button>
   </section>
 
-  <hr />
+  <hr /> -->
 
-  <!-- Utwórz rezerwację -->
-  <section class="bg-white shadow-md rounded-2xl p-6 space-y-4">
+<!--! Utwórz rezerwację -->
+<!-- <section class="bg-white shadow-md rounded-2xl p-6 space-y-4">
     <h3 class="text-xl font-semibold text-blue-600">Utwórz rezerwację</h3>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <input
@@ -141,10 +334,10 @@
     >
       Utwórz
     </button>
-  </section>
+  </section> -->
 
-  <!-- Edytuj rezerwację -->
-  <section class="bg-white shadow-md rounded-2xl p-6 space-y-4">
+<!--! Edytuj rezerwację -->
+<!-- <section class="bg-white shadow-md rounded-2xl p-6 space-y-4">
     <h3 class="text-xl font-semibold text-blue-600">Edytuj rezerwację</h3>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <input
@@ -184,10 +377,10 @@
     >
       Zmień
     </button>
-  </section>
+  </section> -->
 
-  <!-- Potwierdź -->
-  <section class="bg-white shadow-md rounded-2xl p-6 space-y-4">
+<!--! Potwierdź -->
+<!-- <section class="bg-white shadow-md rounded-2xl p-6 space-y-4">
     <h3 class="text-xl font-semibold text-blue-600">Potwierdź rezerwację</h3>
     <div class="flex items-center gap-4">
       <input
@@ -203,10 +396,10 @@
         Potwierdź
       </button>
     </div>
-  </section>
+  </section> -->
 
-  <!-- Usuń -->
-  <section class="bg-white shadow-md rounded-2xl p-6 space-y-4">
+<!--! Usuń -->
+<!-- <section class="bg-white shadow-md rounded-2xl p-6 space-y-4">
     <h3 class="text-xl font-semibold text-blue-600">Usuń rezerwację</h3>
     <div class="flex items-center gap-4">
       <input
@@ -224,10 +417,10 @@
     </div>
   </section>
 
-  <hr />
+  <hr /> -->
 
-  <!-- Wyświetlanie JSON -->
-  <section class="bg-white shadow-md rounded-2xl p-6">
+<!--! Wyświetlanie JSON -->
+<!-- <section class="bg-white shadow-md rounded-2xl p-6">
     <h3 class="text-xl font-semibold text-blue-600">Aktualna rezerwacja</h3>
     <pre class="text-sm bg-gray-100 p-4 rounded-md overflow-auto">{{
       reservation | json
@@ -240,85 +433,9 @@
       reservations | json
     }}</pre>
   </section>
-</div>
-
-<!-- Todo -->
-
-<header class="bg-white shadow-sm">
-  <div class="container mx-auto h-16 flex items-center justify-between px-4">
-    <div class="flex items-center gap-6">
-      <a routerLink="/dashboard" class="text-xl font-bold text-blue-600">
-        Office Space
-      </a>
-    </div>
-    <div class="flex items-center space-x-4">
-      <div class="relative">
-        <button class="relative h-10 w-10 rounded-full focus:outline-none">
-          <img
-            class="h-10 w-10 rounded-full"
-            [src]="'https://avatar.vercel.sh/' + currentUser?.username"
-            alt="Avatar"
-          />
-        </button>
-        <!-- Dropdown menu -->
-        <div
-          class="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-50"
-        >
-          <div class="p-4">
-            <p class="text-sm font-medium">{{ currentUser?.username }}</p>
-            <p class="text-xs text-gray-500">email</p>
-          </div>
-          <div class="border-t border-gray-200"></div>
-          <a
-            routerLink="/profile"
-            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-            >Profil</a
-          >
-          <a
-            routerLink="/settings"
-            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-            >Ustawienia</a
-          >
-          <button
-            (click)="logout()"
-            class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-          >
-            Wyloguj
-          </button>
-        </div>
-      </div>
+</div> -->
+<!--! jeszcze tu komentarz ja coś -->
+<!-- </div>
     </div>
   </div>
-</header>
-
-<!-- Todo -->
-
-<div class="hidden lg:flex flex-col w-64 bg-white border-r border-gray-200">
-  <div class="p-4 border-b border-gray-200">
-    <div class="flex items-center justify-center">
-      <h1 class="text-xl font-bold text-blue-600">Office Space</h1>
-    </div>
-  </div>
-  <nav class="flex-1 p-4 space-y-1">
-    <a
-      *ngFor="let item of sidebarItems"
-      routerLink="/login"
-      class="flex items-center px-4 py-3 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-100"
-    >
-      <span class="mr-3">{{ item.icon }}</span>
-      {{ item.title }}
-    </a>
-  </nav>
-  <div class="p-4 border-t border-gray-200 text-xs text-gray-500">
-    &copy; 2025 Office Space
-  </div>
-</div>
-
-<!-- Todo  -->
-
-<div class="bg-white shadow-md rounded-lg p-6">
-  <h2 class="text-2xl font-bold mb-4">Witamy w panelu administracyjnym</h2>
-  <p class="text-gray-700">
-    Tutaj możesz zarządzać rezerwacjami i ustawieniami aplikacji.
-  </p>
-</div>
+</div> -->

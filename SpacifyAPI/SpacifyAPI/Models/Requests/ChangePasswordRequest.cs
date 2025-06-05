@@ -4,8 +4,8 @@ namespace SpacifyAPI.Models.Requests
 {
     public class ChangePasswordRequest
     {
-        [Required]
-        public Guid UserId { get; set; }
+        //[Required]
+        //public Guid UserId { get; set; }
 
         [Required]
         public string CurrentPassword { get; set; }

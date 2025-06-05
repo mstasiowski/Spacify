@@ -36,6 +36,28 @@ namespace SpacifyAPI.Services
             ));
 
         }
+
+        public async Task<List<WorkstationResponse>> GetWorkstationsByFloorAsync(int floorId)
+        {
+            var dbWorkstations = await _context.Workstations
+                .Where(w => w.FloorId == floorId)
+                .ToListAsync();
+
+            if (dbWorkstations == null || dbWorkstations.Count == 0)
+            {
+                throw new NotFoundException($"No workstations found for floor with id {floorId}.");
+            }
+
+            return new List<WorkstationResponse>(dbWorkstations.Select(w => new WorkstationResponse
+            {
+                Id = w.Id,
+                DeskNumber = w.DeskNumber,
+                PositionX = w.PositionX,
+                PositionY = w.PositionY,
+                FloorId = w.FloorId
+            }));
+        }
+
         public async Task<WorkstationResponse> GetWorkstationByIdAsync(int id)
         {
             var dbWorkstation = await _context.Workstations.FirstOrDefaultAsync(w => w.Id == id);
@@ -181,6 +203,7 @@ namespace SpacifyAPI.Services
             await _context.SaveChangesAsync();
 
         }
+
     }
     
 }

@@ -1,0 +1,397 @@
+$blue: #3b82f6;
+$blue-light: #dbeafe;
+$gray: #4a5565;
+$background: #f9fbfd;
+
+#container {
+  // padding: 4rem 1rem 0rem 1rem;
+  padding: 0rem 1rem 0rem 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 5rem;
+}
+
+#h1-section {
+  width: 100%;
+  text-align: center;
+  padding-top: 2rem;
+  // padding: 2.5rem 0 1.5rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+#h1-section h1 {
+  font-size: 2.7rem;
+  font-weight: 900;
+  margin: 0;
+  letter-spacing: 0.03em;
+  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+  background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+#h1-section span {
+  font-size: 1.15rem;
+  color: #a0aec0; // lighter gray
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  font-family: "Montserrat", "Segoe UI", Arial, sans-serif;
+}
+
+#calendarContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background: $background;
+  // padding: 2rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  width: 100%;
+}
+
+.topTitle {
+  display: flex;
+  justify-content: flex-start;
+  font-size: 1.3rem;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: $blue-light;
+  border-radius: 0.5rem 0.5rem 0 0;
+  color: $blue;
+
+  width: 100%;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.topTitle h2 {
+  font-weight: 500;
+}
+
+.calendar-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2rem;
+  margin: 2rem 0 2rem;
+}
+
+.calendar-section {
+  flex: 1;
+  min-width: 400px;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+
+  h2 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    i {
+      font-size: 1.4rem;
+    }
+  }
+
+  mat-calendar {
+    width: 100%;
+  }
+}
+
+.reservation-section {
+  flex: 1;
+  min-width: 400px;
+  padding: 1rem;
+
+  h2 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+#reservationFormContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 100%;
+}
+
+.custom-error-message {
+  color: #f44336;
+  font-size: 0.75rem;
+  margin-top: 4px;
+  min-height: 20px;
+  line-height: 20px;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  letter-spacing: 0.03333em;
+  display: block;
+  width: 85%;
+  text-align: center;
+}
+
+.summary-section {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: $blue-light;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+
+  border-radius: 1rem;
+  text-align: center;
+  width: 90%;
+
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: $blue;
+  }
+
+  p {
+    font-size: 1rem;
+    margin: 0.25rem 0;
+    color: $gray;
+  }
+}
+
+#planContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  // margin-top: 5rem;
+  background-color: $background;
+  border-radius: 0.5rem 0.5rem 0.5rem 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  width: 100%;
+}
+
+#planTopSection {
+  width: 100%;
+  // border: 1px solid red;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: $blue-light;
+  border-radius: 0.5rem 0.5rem 0 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+#planTopTitle {
+  border-radius: 0.5rem 0 0 0;
+  box-shadow: none;
+  width: 50%;
+
+  // border: 2px solid blue;
+}
+
+#floorBtns {
+  // border: 2px solid green;
+  width: 50%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-right: 2rem;
+}
+
+#planSection {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  // background-color: red;
+}
+
+.floorPlanContainer {
+  width: 100%;
+  max-width: 900px;
+  aspect-ratio: 3 / 2;
+  border: 1px solid #eaebec;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin: 2rem auto;
+  overflow: hidden;
+  position: relative;
+}
+// todo summary-container
+.summary-container {
+  width: 100%;
+  // max-width: 900px;
+  // margin: 2rem auto 0 auto;
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.summary-title {
+  background-color: $blue-light;
+  color: $blue;
+  padding: 1.5rem;
+  border-radius: 1rem 1rem 0 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.summary-content {
+  background: white;
+  padding: 2rem 1.5rem 1.5rem 1.5rem;
+  border-radius: 0 0 1rem 1rem;
+  // text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+
+  p {
+    font-size: 1.1rem;
+    color: $gray;
+    // margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  span {
+  }
+}
+// todo summary-container
+
+// Info MEDIA QUERIES
+
+@media (min-width: 1800px) {
+  .floorPlanContainer {
+    max-width: 1500px;
+  }
+}
+
+@media (max-width: 1799px) and (min-width: 1340px) {
+  .floorPlanContainer {
+    max-width: 1000px;
+  }
+}
+
+@media (max-width: 1220px) and (min-width: 769px) {
+  .calendar-wrapper {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  // .calendar-section,
+  // .reservation-section {
+  //   min-width: 95%;
+  // }
+
+  #planTopSection {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #planTopTitle,
+  #floorBtns {
+    width: 100%;
+    justify-content: center;
+    padding: 1rem 0;
+  }
+
+  .floorPlanContainer {
+    max-width: 95%;
+  }
+}
+
+@media (max-width: 768px) {
+  .calendar-wrapper {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #planTopSection {
+    flex-direction: column;
+  }
+
+  #planTopTitle,
+  #floorBtns {
+    width: 100%;
+    justify-content: center;
+    padding: 1rem 0;
+  }
+
+  #planTopTitle {
+    justify-content: flex-start;
+    padding-left: 1.5rem;
+  }
+
+  .floorPlanContainer {
+    max-width: 95%;
+  }
+}
+
+@media (max-width: 480px) {
+  .calendar-section,
+  .reservation-section {
+    min-width: unset;
+    width: 100%;
+    padding: 1rem;
+  }
+
+  .calendar-section h2,
+  .reservation-section h2 {
+    font-size: 1rem;
+  }
+
+  .calendar-section h2 i {
+    font-size: 1.2rem;
+  }
+
+  .summary-section {
+    padding: 1rem;
+    width: 100%;
+    font-size: 0.9rem;
+
+    h3 {
+      font-size: 1rem;
+    }
+
+    p {
+      font-size: 0.9rem;
+    }
+  }
+
+  .topTitle {
+    font-size: 1.1rem;
+    // padding: 1rem;
+    // flex-direction: column;
+    // align-items: flex-start;
+    // gap: 0.25rem;
+  }
+
+  .floorPlanContainer {
+    border-radius: 0.5rem;
+    margin: 1rem 0;
+  }
+
+  #container {
+    padding: 2rem 0.5rem 0 0.5rem;
+    gap: 3rem;
+  }
+}
+
+// Info koniec media queries

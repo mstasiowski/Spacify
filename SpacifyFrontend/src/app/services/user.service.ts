@@ -6,6 +6,7 @@ import { UserResponseForAdmin } from '../models/response/user-response-for-admin
 import { UserResponse } from '../models/response/user-response';
 import { ModifyUserRequest } from '../models/request/modify-user-request';
 import { BlockUserRequest } from '../models/request/block-user-request';
+import { ChangePasswordRequest } from '../models/request/change-password-request';
 
 @Injectable({
   providedIn: 'root',
@@ -68,5 +69,18 @@ export class UserService {
   unblockUser(userId: string): Observable<UserResponseForAdmin> {
     const url = `${this.apiUrl}/user/${userId}/unblock`;
     return this.http.patch<UserResponseForAdmin>(url, {});
+  }
+
+  changeUserEmail(userId: string, newEmail: string): Observable<UserResponse> {
+    const url = `${this.apiUrl}/user/${userId}/email`;
+    return this.http.patch<UserResponse>(url, { newEmail });
+  }
+
+  changeUserPassword(
+    userId: string,
+    changePassReq: ChangePasswordRequest
+  ): Observable<void> {
+    const url = `${this.apiUrl}/user/${userId}/password`;
+    return this.http.patch<void>(url, changePassReq);
   }
 }

@@ -107,7 +107,7 @@ namespace SpacifyAPI.Controllers
         public async Task<ActionResult<UserResponse>> ChangeUserEmail(Guid userId, [FromBody] ChangeEmailRequest request)
         {
             ValidateUserIdClaim(userId);
-            var dbUser = await _userService.ChangeUserEmailAsync(request);
+            var dbUser = await _userService.ChangeUserEmailAsync(userId,request.NewEmail);
             return Ok(dbUser);
         }
 
@@ -116,7 +116,7 @@ namespace SpacifyAPI.Controllers
         public async Task<ActionResult> ChangeUserPassword(Guid userId, [FromBody] ChangePasswordRequest request)
         {
             ValidateUserIdClaim(userId);
-            await _userService.ChangeUserPasswordAsync(request);
+            await _userService.ChangeUserPasswordAsync(userId, request);
             return NoContent();
         }
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SpacifyAPI.Entities;
 using SpacifyAPI.Helpers;
 using SpacifyAPI.Interfaces;
 using SpacifyAPI.Models.Requests;
@@ -24,6 +25,15 @@ namespace SpacifyAPI.Controllers
         public async Task<ActionResult<List<WorkstationResponse>>> GetAllWorkstations()
         {
             var workstations = await _workstationService.GetAllWorkstationsAsync();
+            return Ok(workstations);
+        }
+
+        [Authorize]
+        [HttpGet("/workstations/floor/{floorId}")]
+        public async Task<ActionResult<List<WorkstationResponse>>> GetWorkstationsByFloor(int floorId)
+        {
+            var workstations = await _workstationService.GetWorkstationsByFloorAsync(floorId);
+
             return Ok(workstations);
         }
 

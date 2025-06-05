@@ -57,10 +57,28 @@ namespace SpacifyAPI.Controllers
 
         [Authorize]
         [HttpGet("daterange")]
-        public async Task<ActionResult<List<WorkstationReservationResponse>>> GetWorkstationReservationsByDateRange(DateTime startDate, DateTime endDate)
+        public async Task<ActionResult<List<WorkstationReservationResponse>>> GetReservationsByDateTimeRange(DateTime startDate, DateTime endDate)
         {
-            var dbWorkstationReservations = await _workstationReservationService.GetWorkstationReservationsByDateRangeAsync(startDate, endDate);
+            var dbWorkstationReservations = await _workstationReservationService.GetReservationsByDateTimeRangeAsync(startDate, endDate);
             return Ok(dbWorkstationReservations);
+
+
+            //try
+            //{
+            //    var dbWorkstationReservations = await _workstationReservationService.GetReservationsByDateTimeRangeAsync(startDate, endDate);
+            //    return Ok(dbWorkstationReservations);
+            //}
+            //catch (Exception ex)
+            //{
+            //    // Logowanie do konsoli lub loggera
+            //    Console.WriteLine($"Błąd: {ex.Message}\n{ex.StackTrace}");
+
+            //    return StatusCode(500, new
+            //    {
+            //        message = "Internal server error",
+            //        details = ex.Message
+            //    });
+            //}
         }
 
         [Authorize]
@@ -69,6 +87,14 @@ namespace SpacifyAPI.Controllers
         {
             var dbWorkstationReservations = await _workstationReservationService.GetTodaysWorkstationReservationsAsync();
             return Ok(dbWorkstationReservations);
+        }
+
+        [Authorize]
+        [HttpGet("/workstation/reservations/floor/{floorId}")]
+        public async Task<ActionResult<List<WorkstationReservationResponse>>> GetWorkstationReservationByFloorAndDate(int floorId, [FromQuery] DateTime date)
+        {
+            var dbReservation = await _workstationReservationService.GetWorkstationReservationsByFloorAndDateAsync(floorId, date);
+            return Ok(dbReservation);
         }
 
         [Authorize]

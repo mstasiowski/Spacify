@@ -18,6 +18,11 @@ export class WorkstationService {
     return this.http.get<WorkstationResponse[]>(url);
   }
 
+  getWorkstationsByFloor(floorId: number): Observable<WorkstationResponse[]> {
+    const url = `${this.apiUrl}/workstations/floor/${floorId}`;
+    return this.http.get<WorkstationResponse[]>(url);
+  }
+
   getWorkstationById(workstationId: number): Observable<WorkstationResponse> {
     const url = `${this.apiUrl}/workstation/${workstationId}`;
     return this.http.get<WorkstationResponse>(url);

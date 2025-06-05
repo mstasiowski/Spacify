@@ -20,8 +20,8 @@ namespace SpacifyAPI.Interfaces
         Task<UserResponseForAdmin> UnblockUserAsync(Guid userId);
         //Task<User?> ChangeUserPassword(Guid userId, string newPassoword);
 
-        Task<UserResponse> ChangeUserEmailAsync(ChangeEmailRequest request);
-        Task ChangeUserPasswordAsync(ChangePasswordRequest request);
+        Task<UserResponse> ChangeUserEmailAsync(Guid userId, string newEmail);
+        Task ChangeUserPasswordAsync(Guid userId, ChangePasswordRequest request);
 
 
     }

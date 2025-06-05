@@ -5,6 +5,7 @@ using SpacifyAPI.Exceptions;
 using SpacifyAPI.Interfaces;
 using SpacifyAPI.Models.Requests;
 using SpacifyAPI.Models.Responses;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SpacifyAPI.Services
 {
@@ -77,20 +78,16 @@ namespace SpacifyAPI.Services
             return dbWorkstationReservations.Select(w => MapToResponse(w)).ToList();
         }
 
-        public async Task<List<WorkstationReservationResponse>> GetWorkstationReservationsByDateRangeAsync(DateTime startDate, DateTime endDate)
+        public async Task<List<WorkstationReservationResponse>> GetReservationsByDateTimeRangeAsync(DateTime startDateTime, DateTime endDateTime)
         {
-           var dbWorkstationReservations = await _context.WorkstationReservations
-                .Where(x => x.ReservationStart.Date >= startDate.Date && x.ReservationStart.Date <= endDate.Date)
+            var dbWorkstationReservations = await _context.WorkstationReservations
+                .Where(x => x.ReservationStart < endDateTime && x.ReservationEnd > startDateTime)
                 .ToListAsync();
 
-            if (dbWorkstationReservations == null || dbWorkstationReservations.Count == 0)
-            {
-                throw new NotFoundException($"No workstation reservations found for date range {startDate.ToShortDateString()} - {endDate.ToShortDateString()}.");
-            }
 
-
-            return dbWorkstationReservations.Select(w => MapToResponse(w)).ToList();
+            return dbWorkstationReservations.Select(MapToResponse).ToList();
         }
+
 
         public async Task<List<WorkstationReservationResponse>> GetTodaysWorkstationReservationsAsync()
         {
@@ -108,6 +105,23 @@ namespace SpacifyAPI.Services
             }
 
             return dbWorkstationReservations.Select(w => MapToResponse(w)).ToList();
+        }
+
+        public async Task<List<WorkstationReservationResponse>> GetWorkstationReservationsByFloorAndDateAsync(int floorId, DateTime date)
+        {
+            var reservations = await _context.WorkstationReservations
+        .Include(r => r.Workstation)
+        .Where(r =>
+            r.ReservationStart.Date == date.Date &&
+            r.Workstation != null &&
+            r.Workstation.FloorId == floorId)
+        .ToListAsync();
+
+            if (reservations == null || reservations.Count == 0)
+            {
+                throw new NotFoundException($"No workstation reservations found for floor ID {floorId} on date {date.ToShortDateString()}.");
+            }
+            return reservations.Select(r => MapToResponse(r)).ToList();
         }
 
         public async Task<WorkstationReservationResponse> CreateWorkstationReservationAsync(CreateWorkstationReservationRequest newReservation)
@@ -484,5 +498,6 @@ namespace SpacifyAPI.Services
             };
         }
 
+       
     }
 }

@@ -30,7 +30,7 @@ namespace SpacifyAPI.Controllers
         }
 
         [Authorize(Roles = $"{RoleNames.Administrator},{RoleNames.Leader}")]
-        [HttpGet("id")]
+        [HttpGet("{id}")]
         public async Task<ActionResult<ConferenceRoom>> GetConferenceRoomById(int id)
         {
             var dbConferenceRoom = await _conferenceRoomService.GetConferenceRoomByIdAsync(id);

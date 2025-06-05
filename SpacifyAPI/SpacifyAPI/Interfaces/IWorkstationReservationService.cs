@@ -10,8 +10,9 @@ namespace SpacifyAPI.Interfaces
         Task<WorkstationReservationResponse> GetWorkstationReservationByIdAsync(int reservationId);
         Task<List<WorkstationReservationResponse>> GetWorkstationReservationsByUserIdAsync(Guid userId);
         Task<List<WorkstationReservationResponse>> GetWorkstationReservationsByDateAsync(DateTime date);
-        Task<List<WorkstationReservationResponse>> GetWorkstationReservationsByDateRangeAsync(DateTime startDate, DateTime endDate);
+        Task<List<WorkstationReservationResponse>> GetReservationsByDateTimeRangeAsync(DateTime startDateTime, DateTime endDateTime);
         Task<List<WorkstationReservationResponse>> GetTodaysWorkstationReservationsAsync();
+        Task<List<WorkstationReservationResponse>> GetWorkstationReservationsByFloorAndDateAsync(int floorId,DateTime date);
 
         Task<WorkstationReservationResponse> CreateWorkstationReservationAsync(CreateWorkstationReservationRequest reservation);
         Task<WorkstationReservationResponse> ModifyWorkstationReservationAsync(int reservationId, ModifyWorkstationReservationRequest reservation);

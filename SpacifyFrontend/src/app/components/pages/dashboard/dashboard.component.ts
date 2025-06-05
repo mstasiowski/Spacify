@@ -93,4 +93,18 @@ export class DashboardComponent extends Unsubscribe implements OnInit {
   getUserInformation() {
     console.log(this.currentUser);
   }
+
+  getReservations() {
+    this.workstationResService
+      .GetWorkstationReservationsByFloorAndDate(8, new Date('2025-05-27'))
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe({
+        next: (res) => {
+          console.log(res);
+        },
+        error(err) {
+          console.log(err);
+        },
+      });
+  }
 }

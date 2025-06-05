@@ -374,27 +374,27 @@ namespace SpacifyAPI.Services
 
         }
 
-        public async Task<UserResponse> ChangeUserEmailAsync(ChangeEmailRequest request)
+        public async Task<UserResponse> ChangeUserEmailAsync(Guid userId, string newEmail)
         {
-            if (request.UserId == Guid.Empty)
+            if (userId == Guid.Empty)
             {
                 throw new BadRequestException("User ID cannot be empty.");
             }
 
 
-            var dbUser = await _context.Users.FindAsync(request.UserId);
+            var dbUser = await _context.Users.FindAsync(userId);
             if (dbUser == null)
             {
-                throw new NotFoundException($"User with id {request.UserId} not found.");
+                throw new NotFoundException($"User with id {userId} not found.");
             }
-            if (string.IsNullOrWhiteSpace(request.NewEmail))
+            if (string.IsNullOrWhiteSpace(newEmail))
             {
                 throw new BadRequestException("Email cannot be empty.");
             }
 
-            var normalizedNewEmail = _authService.NormalizeEmail(request.NewEmail);
+            var normalizedNewEmail = _authService.NormalizeEmail(newEmail);
 
-            var dbUserEmailExist = await _context.Users.AnyAsync(u => u.Email == normalizedNewEmail && u.Id != request.UserId);
+            var dbUserEmailExist = await _context.Users.AnyAsync(u => u.Email == normalizedNewEmail && u.Id != userId);
             if (dbUserEmailExist)
             {
                 throw new BadRequestException("Email already exists.");
@@ -414,19 +414,19 @@ namespace SpacifyAPI.Services
             };
         }
 
-        public async Task ChangeUserPasswordAsync(ChangePasswordRequest request)
+        public async Task ChangeUserPasswordAsync(Guid userId, ChangePasswordRequest request)
         {
-            if (request.UserId == Guid.Empty)
+            if (userId == Guid.Empty)
             {
                 throw new BadRequestException("User ID cannot be empty.");
             }
 
 
-            var dbUser = await _context.Users.FindAsync(request.UserId);
+            var dbUser = await _context.Users.FindAsync(userId);
 
             if (dbUser == null)
             {
-                throw new NotFoundException($"User with id {request.UserId} not found.");
+                throw new NotFoundException($"User with id {userId} not found.");
             }
 
             if (string.IsNullOrWhiteSpace(request.NewPassword))
