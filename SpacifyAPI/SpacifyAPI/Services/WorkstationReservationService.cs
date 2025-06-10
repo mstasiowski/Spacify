@@ -397,7 +397,7 @@ namespace SpacifyAPI.Services
 
         }
 
-        private void ValidateReservationDateConstraints(DateTime reservationStart, DateTime reservationEnd)
+        public void ValidateReservationDateConstraints(DateTime reservationStart, DateTime reservationEnd)
         {
             var now = DateTime.UtcNow;
 
@@ -423,7 +423,7 @@ namespace SpacifyAPI.Services
 
         }
 
-        private void ValidateReservationTime(DateTime? requestedStart, DateTime? requestedEnd, DateTime? existingStart= null, DateTime? existingEnd = null)
+        public void ValidateReservationTime(DateTime? requestedStart, DateTime? requestedEnd, DateTime? existingStart= null, DateTime? existingEnd = null)
         {
            
             var start = requestedStart ?? existingStart;
@@ -487,7 +487,6 @@ namespace SpacifyAPI.Services
         {
             return new WorkstationReservationResponse
             {
-                //Wywalic to localTime jak coś
                 Id = reservation.Id,
                 UserId = reservation.UserId,
                 WorkstationId = reservation.WorkstationId,

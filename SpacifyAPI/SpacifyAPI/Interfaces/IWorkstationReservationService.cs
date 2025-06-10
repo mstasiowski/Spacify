@@ -19,6 +19,11 @@ namespace SpacifyAPI.Interfaces
         Task DeleteWorkstationReservationAsync(int reservationId);
         Task<WorkstationReservationResponse> ConfirmWorkstationReservationAsync(int reservationId, Guid userId);
         Task RemoveExpiredUnconfirmedReservationsAsync();
-       
+
+        void ValidateReservationDateConstraints(DateTime reservationStart, DateTime reservationEnd);
+
+        void ValidateReservationTime(DateTime? requestedStart, DateTime? requestedEnd, DateTime? existingStart = null, DateTime? existingEnd = null);
+
+
     }
 }
