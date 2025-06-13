@@ -1,3 +1,371 @@
-<p>conference-room-reservation works!</p>
+<div id="container">
+  <header id="header-section">
+    <h1 class="main-title">Sale Konferencyjne</h1>
+    <p class="subtitle">Rezerwuj sale dla swojego zespołu</p>
+  </header>
 
-<div #container class="konva-container"></div>
+  <section id="info-blocks">
+    <div class="info-block" *ngFor="let block of infoBlocks; let i = index">
+      <div class="block-content">
+        <p>{{ block.label }}</p>
+        <h3>{{ block.value }}</h3>
+      </div>
+
+      <div class="block-icon">
+        <i [class]="block.icon"></i>
+      </div>
+    </div>
+  </section>
+
+  <section id="reservation-form-section">
+    <div id="titleAndIcon">
+      <i class="fas fa-calendar-day"></i>
+      <h2>Wybierz termin rezerwacji</h2>
+    </div>
+
+    <form [formGroup]="confRoomReservationForm" id="reservationForm">
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Termin rezerwacji</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="date" />
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Godzina rozpoczęcia</mat-label>
+        <input
+          matInput
+          [matTimepicker]="pickerStart"
+          formControlName="startTime"
+          matTimepickerMin="8:00"
+          matTimepickerMax="18:00"
+        />
+        <mat-timepicker-toggle matIconSuffix [for]="pickerStart" />
+        <mat-timepicker interval="30m" #pickerStart />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Godzina zakończenia</mat-label>
+        <input
+          matInput
+          [matTimepicker]="pickerEnd"
+          formControlName="endTime"
+          matTimepickerMin="8:00"
+          matTimepickerMax="18:00"
+        />
+        <mat-timepicker-toggle matIconSuffix [for]="pickerEnd" />
+        <mat-timepicker interval="30m" #pickerEnd />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Piętro </mat-label>
+        <mat-select formControlName="floor">
+          <mat-option value="">Wszystkie piętra</mat-option>
+          <mat-option *ngFor="let floor of floors" [value]="floor.id">
+            {{ floor.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </form>
+  </section>
+
+  <section id="conferenceRooms-section">
+    @for (confRoom of filteredRooms; track $index) {
+    <app-conference-room-card
+      [conferenceRoom]="confRoom"
+      [startTime]="confRoomReservationForm.value.startTime"
+      [endTime]="confRoomReservationForm.value.endTime"
+      [reservation]="getCurrentReservationForConfRoom(confRoom.id)"
+    ></app-conference-room-card>
+    }
+  </section>
+</div>
+
+<!-- <div *ngIf="filteredRooms!.length > 0; else noData">
+  <pre>{{ filteredRooms | json }}</pre>
+</div>
+<ng-template #noData>
+  <div>brak danych</div>
+</ng-template> -->
+
+<!--? Generowany  -->
+<!-- <div class="conference-room-container"> -->
+<!--! Header Section -->
+<!-- <header class="header-section">
+    <h1 class="main-title">Sale Konferencyjne</h1>
+    <p class="subtitle">Rezerwuj sale dla swojego zespołu</p>
+  </header> -->
+
+<!--! Tiles -->
+<!-- <section class="info-tiles">
+  <ng-container *ngFor="let tile of infoTiles">
+    <div class="info-tile">
+      <div class="tile-icon">
+        <i [class]="tile.icon"></i>
+      </div>
+      <div class="tile-content">
+        <h3>{{ tile.value }}</h3>
+        <p>{{ tile.label }}</p>
+      </div>
+    </div>
+  </ng-container>
+</section> -->
+
+<!--! Reservation Form -->
+<!-- <section class="reservation-form-card">
+    <h2>Wybierz termin rezerwacji</h2>
+    <form
+      [formGroup]="reservationForm"
+      (ngSubmit)="onFormChange()"
+      class="reservation-form"
+    >
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Data</mat-label>
+          <input
+            matInput
+            [matDatepicker]="picker"
+            formControlName="date"
+            (dateChange)="onFormChange()"
+          />
+          <mat-datepicker-toggle
+            matSuffix
+            [for]="picker"
+          ></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Godzina rozpoczęcia</mat-label>
+          <mat-select
+            formControlName="startTime"
+            (selectionChange)="onFormChange()"
+          >
+            <mat-option *ngFor="let time of timeSlots" [value]="time">{{
+              time
+            }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Godzina zakończenia</mat-label>
+          <mat-select
+            formControlName="endTime"
+            (selectionChange)="onFormChange()"
+          >
+            <mat-option *ngFor="let time of timeSlots" [value]="time">{{
+              time
+            }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Piętro</mat-label>
+          <mat-select
+            formControlName="floor"
+            (selectionChange)="onFormChange()"
+          >
+            <mat-option value="">Wszystkie piętra</mat-option>
+            <mat-option *ngFor="let floor of floors" [value]="floor">{{
+              floor.name
+            }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </form>
+  </section> -->
+
+<!--! Conference Rooms Cards -->
+<!-- <section *ngIf="filteredRooms.length > 0" class="rooms-grid">
+    <div
+      class="room-card"
+      *ngFor="let room of filteredRooms"
+      [ngClass]="{
+        available:
+          reservationForm.valid &&
+          isRoomAvailable(
+            room.id,
+            reservationForm.value.startTime,
+            reservationForm.value.endTime
+          ),
+        occupied:
+          !reservationForm.valid ||
+          !isRoomAvailable(
+            room.id,
+            reservationForm.value.startTime,
+            reservationForm.value.endTime
+          )
+      }"
+      (click)="selectRoom(room)"
+    >
+      <div class="room-header">
+        <h3>{{ room.name }}</h3>
+        <div
+          class="room-status"
+          [ngClass]="{
+            'status-available':
+              reservationForm.valid &&
+              isRoomAvailable(
+                room.id,
+                reservationForm.value.startTime,
+                reservationForm.value.endTime
+              ),
+            'status-occupied':
+              !reservationForm.valid ||
+              !isRoomAvailable(
+                room.id,
+                reservationForm.value.startTime,
+                reservationForm.value.endTime
+              )
+          }"
+        >
+          <span
+            *ngIf="
+              reservationForm.valid &&
+              isRoomAvailable(
+                room.id,
+                reservationForm.value.startTime,
+                reservationForm.value.endTime
+              )
+            "
+            class="status-text available-text"
+          >
+            Dostępna {{ reservationForm.value.startTime }} -
+            {{ reservationForm.value.endTime }}
+          </span>
+          <span
+            *ngIf="
+              !reservationForm.valid ||
+              !isRoomAvailable(
+                room.id,
+                reservationForm.value.startTime,
+                reservationForm.value.endTime
+              )
+            "
+            class="status-text occupied-text"
+          >
+            <ng-container *ngIf="getReservationForRoom(room.id) as reservation">
+              Zajęta {{ reservation.reservationStart | date : "HH:mm" }} -
+              {{ reservation.reservationEnd | date : "HH:mm" }}
+            </ng-container>
+            <ng-container *ngIf="!getReservationForRoom(room.id)">
+              Sprawdź dostępność
+            </ng-container>
+          </span>
+        </div>
+      </div>
+
+      <div class="room-details">
+        <div class="detail-item">
+          <i class="fas fa-layer-group"></i>
+          <span>{{ getFloorName(room.floorId) }}</span>
+        </div>
+        <div class="detail-item">
+          <i class="fas fa-users"></i>
+          <span>{{ room.capacity }} osób</span>
+        </div>
+        <div class="detail-item">
+          <i class="fas fa-tools"></i>
+          <span>{{ room.equipmentDetails || "Podstawowe wyposażenie" }}</span>
+        </div>
+      </div>
+
+      <div
+        class="room-action"
+        *ngIf="
+          reservationForm.valid &&
+          isRoomAvailable(
+            room.id,
+            reservationForm.value.startTime,
+            reservationForm.value.endTime
+          )
+        "
+      >
+        <button mat-raised-button color="primary" class="select-button">
+          <i class="fas fa-check"></i>
+          Wybierz salę
+        </button>
+      </div>
+    </div>
+  </section> -->
+
+<!--! No rooms message -->
+<!-- <section class="no-rooms" *ngIf="filteredRooms.length === 0">
+    <div class="no-rooms-content">
+      <i class="fas fa-search"></i>
+      <h3>Brak dostępnych sal</h3>
+      <p>Nie znaleziono sal spełniających wybrane kryteria</p>
+    </div>
+  </section> -->
+
+<!--! Reservation Summary -->
+<!-- <section class="reservation-summary" *ngIf="selectedReservation">
+    <div class="summary-card">
+      <div class="summary-header">
+        <h2>Podsumowanie rezerwacji</h2>
+        <button
+          mat-icon-button
+          (click)="cancelReservation()"
+          class="close-button"
+        >
+          close
+        </button>
+      </div>
+      <div class="summary-content">
+        <div class="summary-item">
+          <i class="fas fa-door-open"></i>
+          <div class="summary-details">
+            <strong>{{ selectedReservation.room.name }}</strong>
+            <span>{{ getFloorName(selectedReservation.room.floorId) }}</span>
+          </div>
+        </div>
+        <div class="summary-item">
+          <i class="fas fa-calendar"></i>
+          <div class="summary-details">
+            <strong>{{ selectedReservation.date | date : "fullDate" }}</strong>
+            <span
+              >{{ selectedReservation.startTime }} -
+              {{ selectedReservation.endTime }}</span
+            >
+          </div>
+        </div>
+        <div class="summary-item">
+          <i class="fas fa-users"></i>
+          <div class="summary-details">
+            <strong>{{ selectedReservation.room.capacity }} osób</strong>
+            <span>Maksymalna pojemność</span>
+          </div>
+        </div>
+        <div class="summary-item">
+          <i class="fas fa-tools"></i>
+          <div class="summary-details">
+            <strong>Wyposażenie</strong>
+            <span>{{
+              selectedReservation.room.equipmentDetails ||
+                "Podstawowe wyposażenie"
+            }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="summary-actions">
+        <button
+          mat-stroked-button
+          (click)="cancelReservation()"
+          class="cancel-button"
+        >
+          Anuluj
+        </button>
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="confirmReservation()"
+          class="confirm-button"
+        >
+          <i class="fas fa-check"></i>
+          Potwierdź rezerwację
+        </button>
+      </div>
+    </div>
+  </section>
+</div> -->
+<!-- ? generowany -->

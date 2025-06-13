@@ -6,6 +6,8 @@ using SpacifyAPI.Helpers;
 using SpacifyAPI.Interfaces;
 using SpacifyAPI.Models.Enums;
 using SpacifyAPI.Models.Requests;
+using SpacifyAPI.Models.Responses;
+using SpacifyAPI.Services;
 
 namespace SpacifyAPI.Controllers
 {
@@ -22,7 +24,7 @@ namespace SpacifyAPI.Controllers
 
         [Authorize(Roles = $"{RoleNames.Administrator},{RoleNames.Leader}")]
         [HttpGet("/conferenceRooms")]
-        public async Task<ActionResult<List<ConferenceRoom>>> GetAllConferenceRooms()
+        public async Task<ActionResult<List<ConferenceRoomResponse>>> GetAllConferenceRooms()
         {
             var dbConferenceRooms = await _conferenceRoomService.GetAllConferenceRoomsAsync();
 
@@ -30,8 +32,18 @@ namespace SpacifyAPI.Controllers
         }
 
         [Authorize(Roles = $"{RoleNames.Administrator},{RoleNames.Leader}")]
+        [HttpGet("/conferenceRooms/floor/{floorId}")]
+        public async Task<ActionResult<List<ConferenceRoomResponse>>> GetConfRoomsByFloor(int floorId)
+        {
+            var workstations = await _conferenceRoomService.GetConfRoomsByFloorAsync(floorId);
+
+            return Ok(workstations);
+        }
+
+
+        [Authorize(Roles = $"{RoleNames.Administrator},{RoleNames.Leader}")]
         [HttpGet("{id}")]
-        public async Task<ActionResult<ConferenceRoom>> GetConferenceRoomById(int id)
+        public async Task<ActionResult<ConferenceRoomResponse>> GetConferenceRoomById(int id)
         {
             var dbConferenceRoom = await _conferenceRoomService.GetConferenceRoomByIdAsync(id);
 
@@ -40,7 +52,7 @@ namespace SpacifyAPI.Controllers
 
         [Authorize(Roles = $"{RoleNames.Administrator}")]
         [HttpPost]
-        public async Task<ActionResult<ConferenceRoom>> CreateConferenceRoom(CreateConferenceRoomRequest conferenceRoom)
+        public async Task<ActionResult<ConferenceRoomResponse>> CreateConferenceRoom(CreateConferenceRoomRequest conferenceRoom)
         {
             var newConferenceRoom = await _conferenceRoomService.CreateConferenceRoomAsync(conferenceRoom);
 
@@ -50,7 +62,7 @@ namespace SpacifyAPI.Controllers
 
         [Authorize(Roles = $"{RoleNames.Administrator}")]
         [HttpPut("{id}")]
-        public async Task<ActionResult<ConferenceRoom>> UpdateConferenceRoom(int id, [FromBody] CreateConferenceRoomRequest updateConferenceRoom)
+        public async Task<ActionResult<ConferenceRoomResponse>> UpdateConferenceRoom(int id, [FromBody] CreateConferenceRoomRequest updateConferenceRoom)
         {
             var updatedConferenceRoom = await _conferenceRoomService.UpdateConferenceRoomAsync(id, updateConferenceRoom);
             return Ok(updatedConferenceRoom);

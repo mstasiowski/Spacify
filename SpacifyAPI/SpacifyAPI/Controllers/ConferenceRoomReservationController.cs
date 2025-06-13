@@ -52,17 +52,26 @@ namespace SpacifyAPI.Controllers
             return Ok(dbReservations);
         }
 
-        [Authorize]
+        [Authorize(Roles = $"{RoleNames.Administrator},{RoleNames.Leader}")]
+        [HttpGet("daterange")]
+        public async Task<ActionResult<List<ConferenceRoomReservationResponse>>> GetConfReservationsByDateTimeRange(DateTime startDate, DateTime endDate)
+        {
+            var dbWorkstationReservations = await _conferenceRoomReservationService.GetConfReservationsByDateTimeRangeAsync(startDate, endDate);
+            return Ok(dbWorkstationReservations);
+
+        }
+
+        [Authorize(Roles = $"{RoleNames.Administrator},{RoleNames.Leader}")]
         [HttpPost]
-        public async Task<ActionResult<WorkstationReservationResponse>> CreateConfRoomReservation(CreateConferenceRoomReservationRequest reservationRequest)
+        public async Task<ActionResult<ConferenceRoomReservationResponse>> CreateConfRoomReservation(CreateConferenceRoomReservationRequest reservationRequest)
         {
             var dbReservation = await _conferenceRoomReservationService.CreateConfRoomReservationAsync(reservationRequest);
             return CreatedAtAction(nameof(CreateConfRoomReservation), new { reservationId = dbReservation.Id }, dbReservation);
         }
 
-        [Authorize]
+        [Authorize(Roles = $"{RoleNames.Administrator},{RoleNames.Leader}")]
         [HttpPut("{reservationId}")]
-        public async Task<ActionResult<WorkstationReservationResponse>> UpdateConfRoomReservation(int reservationId, ModifyConfRoomReservationRequest reservation)
+        public async Task<ActionResult<ConferenceRoomReservationResponse>> UpdateConfRoomReservation(int reservationId, ModifyConfRoomReservationRequest reservation)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -90,7 +99,7 @@ namespace SpacifyAPI.Controllers
             return Ok(dbConfReservation);
         }
 
-        [Authorize]
+        [Authorize(Roles = $"{RoleNames.Administrator},{RoleNames.Leader}")]
         [HttpDelete("{reservationId}")]
         public async Task<ActionResult> DeleteConfRoomsReservation(int reservationId)
         {
@@ -98,7 +107,7 @@ namespace SpacifyAPI.Controllers
             return NoContent();
         }
 
-        [Authorize]
+        [Authorize(Roles = $"{RoleNames.Administrator},{RoleNames.Leader}")]
         [HttpPatch("{reservationId}/confirm")]
         public async Task<ActionResult<ConferenceRoomReservationResponse>> ConfirmConfRoomReservation(int reservationId)
         {

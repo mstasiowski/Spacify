@@ -62,6 +62,17 @@ namespace SpacifyAPI.Services
             return MapToResponse(dbReservation);
         }
 
+
+        public async Task<List<ConferenceRoomReservationResponse>> GetConfReservationsByDateTimeRangeAsync(DateTime startTime, DateTime endTime)
+        {
+            var dbConfReservation = await _context.ConferenceRoomReservations
+                .Where(r => r.ReservationStart < endTime && r.ReservationEnd > startTime)
+                .AsNoTracking()
+                .ToListAsync();
+
+            return dbConfReservation.Select(MapToResponse).ToList();
+        }
+
         public async Task<ConferenceRoomReservationResponse> CreateConfRoomReservationAsync(CreateConferenceRoomReservationRequest request)
         {
             if(request == null)

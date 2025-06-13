@@ -19,6 +19,7 @@ namespace SpacifyAPI.Services
         {
             var dbConferenceRooms = await _context.ConferenceRooms
                 .Include(cr => cr.Floor)
+                .AsNoTracking()
                 .ToListAsync();
 
             if (dbConferenceRooms == null || dbConferenceRooms.Count == 0)
@@ -26,15 +27,17 @@ namespace SpacifyAPI.Services
                 throw new NotFoundException("No conference rooms found in the database.");
             }
 
-            return dbConferenceRooms.Select(r => new ConferenceRoomResponse
-            {
-                Id = r.Id,
-                Name = r.Name,
-                EquipmentDetails = r.EquipmentDetails,
-                ImageUrl = r.ImageUrl,
-                Capacity = r.Capacity,
-                FloorId = r.FloorId
-            }).ToList();
+            //return dbConferenceRooms.Select(r => new ConferenceRoomResponse
+            //{
+            //    Id = r.Id,
+            //    Name = r.Name,
+            //    EquipmentDetails = r.EquipmentDetails,
+            //    ImageUrl = r.ImageUrl,
+            //    Capacity = r.Capacity,
+            //    FloorId = r.FloorId
+            //}).ToList();
+
+            return dbConferenceRooms.Select(MapToResponse).ToList();
         }
         public async Task<ConferenceRoomResponse> GetConferenceRoomByIdAsync(int id)
         {
@@ -47,16 +50,35 @@ namespace SpacifyAPI.Services
                 throw new NotFoundException($"Conference room with id {id} not found.");
             }
 
-            return new ConferenceRoomResponse
-            {
-                Id = dbConferenceRoom.Id,
-                Name = dbConferenceRoom.Name,
-                EquipmentDetails = dbConferenceRoom.EquipmentDetails,
-                ImageUrl = dbConferenceRoom.ImageUrl,
-                Capacity = dbConferenceRoom.Capacity,
-                FloorId = dbConferenceRoom.FloorId
-            };
+            //return new ConferenceRoomResponse
+            //{
+            //    Id = dbConferenceRoom.Id,
+            //    Name = dbConferenceRoom.Name,
+            //    EquipmentDetails = dbConferenceRoom.EquipmentDetails,
+            //    ImageUrl = dbConferenceRoom.ImageUrl,
+            //    Capacity = dbConferenceRoom.Capacity,
+            //    FloorId = dbConferenceRoom.FloorId
+            //};
+
+            return MapToResponse(dbConferenceRoom);
+
         }
+
+        public async Task<List<ConferenceRoomResponse>> GetConfRoomsByFloorAsync(int floorId)
+        {
+            var dbConfReservation = await _context.ConferenceRooms
+                .Where(cr=>cr.FloorId == floorId)
+                .ToListAsync();
+
+            if (dbConfReservation == null || dbConfReservation.Count == 0)
+            {
+                throw new NotFoundException($"No conference rooms found for floor with id {floorId}.");
+            }
+
+
+                return dbConfReservation.Select(MapToResponse).ToList();
+        }
+
         public async Task<ConferenceRoomResponse> CreateConferenceRoomAsync(CreateConferenceRoomRequest conferenceRoom)
         {
             if (conferenceRoom == null)
@@ -107,15 +129,16 @@ namespace SpacifyAPI.Services
             _context.ConferenceRooms.Add(newConferenceRoom);
             await _context.SaveChangesAsync();
 
-            return new ConferenceRoomResponse
-            {
-                Id = newConferenceRoom.Id,
-                Name = newConferenceRoom.Name,
-                EquipmentDetails = newConferenceRoom.EquipmentDetails,
-                ImageUrl = newConferenceRoom.ImageUrl,
-                Capacity = newConferenceRoom.Capacity,
-                FloorId = newConferenceRoom.FloorId
-            };
+            //return new ConferenceRoomResponse
+            //{
+            //    Id = newConferenceRoom.Id,
+            //    Name = newConferenceRoom.Name,
+            //    EquipmentDetails = newConferenceRoom.EquipmentDetails,
+            //    ImageUrl = newConferenceRoom.ImageUrl,
+            //    Capacity = newConferenceRoom.Capacity,
+            //    FloorId = newConferenceRoom.FloorId
+            //};
+            return MapToResponse(newConferenceRoom);
         }
 
         public async Task<ConferenceRoomResponse> UpdateConferenceRoomAsync(int id, CreateConferenceRoomRequest updatedConferenceRoom)
@@ -173,15 +196,17 @@ namespace SpacifyAPI.Services
 
             await _context.SaveChangesAsync();
 
-            return new ConferenceRoomResponse 
-            {
-                Id = dbConferenceRoom.Id,
-                Name = dbConferenceRoom.Name,
-                EquipmentDetails = dbConferenceRoom.EquipmentDetails,
-                ImageUrl = dbConferenceRoom.ImageUrl,
-                Capacity = dbConferenceRoom.Capacity,
-                FloorId = dbConferenceRoom.FloorId 
-            };
+            //return new ConferenceRoomResponse 
+            //{
+            //    Id = dbConferenceRoom.Id,
+            //    Name = dbConferenceRoom.Name,
+            //    EquipmentDetails = dbConferenceRoom.EquipmentDetails,
+            //    ImageUrl = dbConferenceRoom.ImageUrl,
+            //    Capacity = dbConferenceRoom.Capacity,
+            //    FloorId = dbConferenceRoom.FloorId 
+            //};
+
+            return MapToResponse(dbConferenceRoom);
         }
         public async Task DeleteConferenceRoomAsync(int id)
         {
@@ -205,5 +230,20 @@ namespace SpacifyAPI.Services
 
 
         }
+
+        private ConferenceRoomResponse MapToResponse(ConferenceRoom reservation)
+        {
+            return new ConferenceRoomResponse
+            {
+                Id = reservation.Id,
+                Name = reservation.Name,
+                EquipmentDetails = reservation.EquipmentDetails,
+                ImageUrl = reservation.ImageUrl,
+                Capacity = reservation.Capacity,
+                FloorId = reservation.FloorId
+            };
+        }
+
+
     }
 }

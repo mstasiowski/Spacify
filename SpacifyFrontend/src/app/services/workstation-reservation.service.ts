@@ -3,7 +3,6 @@ import { environment } from '../../environments/environment';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { WorkstationReservationResponse } from '../models/response/workstation-reservation-response';
 import { Observable } from 'rxjs';
-import { CreateWorkstationRequest } from '../models/request/create-workstation-request';
 import { CreateWorkstationReservationRequest } from '../models/request/create-workstation-reservation-request';
 import { ModifyWorkstationReservationRequest } from '../models/request/modify-workstation-reservation-request';
 

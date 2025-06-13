@@ -1,374 +1,491 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
-import Konva from 'konva';
+import { Component, OnInit } from '@angular/core';
 import { Unsubscribe } from '../../../helpers/unsubscribe.class';
-import { WorkstationService } from '../../../services/workstation.service';
-import { takeUntil } from 'rxjs';
-import { WorkstationReservationService } from '../../../services/workstation-reservation.service';
+import { ConferenceRoomReservationResponse } from '../../../models/response/conference-room-reservation-response';
+import { ConferenceRoomReservationService } from '../../../services/conference-room-reservation.service';
+import { CommonModule } from '@angular/common';
+import { CreateConferenceRoomReservationRequest } from '../../../models/request/create-conf-room-reservation-request';
+import { ConferenceRoomResponse } from '../../../models/response/conference-room-response';
+import {
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { ConferenceRoomService } from '../../../services/conference-room.service';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatNativeDateModule, MatOptionModule } from '@angular/material/core';
+import { FloorService } from '../../../services/floor.service';
+import { distinctUntilChanged, takeUntil } from 'rxjs';
+import { FloorResponse } from '../../../models/response/floor-response';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatTimepickerModule } from '@angular/material/timepicker';
+import { fullOrHalfHourValidator } from '../../../helpers/validators';
+import { ConferenceRoomCardComponent } from './conference-room-card/conference-room-card.component';
 
 @Component({
   selector: 'app-conference-room-reservation',
-  imports: [],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatIconModule, // dodaj to
+    MatOptionModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatTimepickerModule,
+    ConferenceRoomCardComponent,
+  ],
   templateUrl: './conference-room-reservation.component.html',
   styleUrl: './conference-room-reservation.component.scss',
 })
 export class ConferenceRoomReservationComponent
   extends Unsubscribe
-  implements AfterViewInit, OnInit
+  implements OnInit
 {
-  @ViewChild('container', { static: true }) containerRef!: ElementRef;
-
-  workstations: any[] = [];
-  reservations: any[] = [];
-
   constructor(
-    private workstationService: WorkstationService,
-    private reservationService: WorkstationReservationService
+    private fb: FormBuilder,
+    private conferenceRoomService: ConferenceRoomService,
+    private reservationService: ConferenceRoomReservationService,
+    private floorService: FloorService
   ) {
     super();
   }
+
   ngOnInit(): void {
-    this.getWorkstation();
-    this.getReservationForDay();
+    this.setInfoBlocks();
+    this.getFloors();
+    this.getAllConferenceRooms();
+    this.formInit();
+    this.handleFormChanges();
+
+    // this.getReservations(new Date(defaultResStart), new Date(defaultResEnd));
   }
 
-  private stage!: Konva.Stage;
-  private scaleBy = 1.05;
-  private layer!: Konva.Layer;
+  availableRooms: number = 7;
+  totalCapacity: number = 10;
+  reservationDay: string = '10/06';
+  reservationTime: string = '8:00 - 18:00';
+  infoBlocks: { icon: string; value: string | number; label: string }[] = [];
+  confRoomReservationForm!: FormGroup;
+  floors: FloorResponse[] = [];
+  filteredRooms: ConferenceRoomResponse[] = [];
+  reservations: ConferenceRoomReservationResponse[] = [];
 
-  ngAfterViewInit(): void {
-    this.stage = new Konva.Stage({
-      container: this.containerRef.nativeElement,
-      width: 800,
-      height: 600,
-      draggable: true, // for panning
+  setInfoBlocks() {
+    this.infoBlocks = [
+      {
+        icon: 'fas fa-door-open',
+        value: this.availableRooms,
+        label: 'Dostępne sale',
+      },
+      {
+        icon: 'fas fa-users',
+        value: this.totalCapacity,
+        label: 'Maksymalna pojemność',
+      },
+      {
+        icon: 'fas fa-calendar-day',
+        value: this.reservationDay,
+        label: 'Wybrana data',
+      },
+      {
+        icon: 'fas fa-clock',
+        value: this.reservationTime,
+        label: 'Godziny rezerwacji',
+      },
+    ];
+  }
+
+  formInit() {
+    const now = new Date();
+    const currentHour = now.getHours();
+    const startHour = Math.min(Math.max(currentHour + 1, 8), 17);
+    const endHour = Math.min(startHour + 1, 18);
+
+    const today = new Date();
+    const defaultResStart = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate(),
+      startHour,
+      0,
+      0,
+      0
+    );
+    const defaultResEnd = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate(),
+      endHour,
+      0,
+      0,
+      0
+    );
+
+    this.confRoomReservationForm = this.fb.group({
+      date: new Date().toISOString().split('T')[0],
+      startTime: [
+        defaultResStart,
+        [Validators.required, fullOrHalfHourValidator()],
+      ],
+      endTime: [
+        defaultResEnd,
+        [Validators.required, fullOrHalfHourValidator()],
+      ],
+      floor: ['', Validators.required],
     });
+  }
 
-    this.layer = new Konva.Layer();
-    this.stage.add(this.layer);
-
-    const imageObj = new Image();
-    imageObj.src = 'floor3_plan.png';
-
-    imageObj.onload = () => {
-      const background = new Konva.Image({
-        x: 0,
-        y: 0,
-        image: imageObj,
-        width: this.stage.width() * 2,
-        height: this.stage.height() * 2,
-        listening: false,
+  handleFormChanges() {
+    this.confRoomReservationForm.valueChanges
+      .pipe(
+        distinctUntilChanged(
+          (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
+        ),
+        takeUntil(this.unsubscribe$)
+      )
+      .subscribe((formValue) => {
+        this.getReservationFromFormValue(formValue);
       });
 
-      this.layer.add(background); // potem obraz
-      background.moveToBottom();
-      this.layer.draw();
-    };
-
-    // Workstation rectangle
-    const rect = new Konva.Circle({
-      x: 300,
-      y: 220,
-      width: 50,
-      height: 50,
-      radius: 25,
-      fill: 'green',
-      stroke: 'black',
-      strokeWidth: 2,
-      draggable: true,
-    });
-
-    // Hover effect
-    rect.on('mouseenter', () => {
-      document.body.style.cursor = 'pointer';
-      rect.fill('lightgreen');
-      this.layer.draw();
-    });
-
-    rect.on('mouseleave', () => {
-      document.body.style.cursor = 'default';
-      rect.fill('green');
-      this.layer.draw();
-    });
-
-    // Click interaction
-    rect.on('click', () => {
-      alert(`Kliknięto biurko o ID: 1`);
-    });
-
-    this.layer.add(rect);
-    this.layer.draw();
-
-    // Zoom
-    this.stage.on('wheel', (e) => {
-      e.evt.preventDefault();
-
-      const oldScale = this.stage.scaleX();
-      const pointer = this.stage.getPointerPosition();
-      if (!pointer) return;
-
-      const mousePointTo = {
-        x: (pointer.x - this.stage.x()) / oldScale,
-        y: (pointer.y - this.stage.y()) / oldScale,
-      };
-
-      const direction = e.evt.deltaY > 0 ? 1 : -1;
-      const newScale =
-        direction > 0 ? oldScale / this.scaleBy : oldScale * this.scaleBy;
-
-      this.stage.scale({ x: newScale, y: newScale });
-
-      const newPos = {
-        x: pointer.x - mousePointTo.x * newScale,
-        y: pointer.y - mousePointTo.y * newScale,
-      };
-
-      this.stage.position(newPos);
-      this.stage.batchDraw();
-    });
+    this.confRoomReservationForm
+      .get('floor')
+      ?.valueChanges.pipe(takeUntil(this.unsubscribe$))
+      .subscribe((floorId) => {
+        if (floorId) {
+          this.getConferenceRoomsByFloor(Number(floorId));
+        } else {
+          this.getAllConferenceRooms();
+        }
+      });
   }
 
-  // Todo
-
-  getWorkstation() {
-    this.workstationService
-      .getWorkstationsByFloor(7)
+  getAllConferenceRooms() {
+    this.conferenceRoomService
+      .getConferenceRooms()
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe({
-        next: (res) => {
-          console.log(res);
-          this.workstations = res;
-
-          for (let i = 0; i < this.workstations.length; i++) {
-            const rect = new Konva.Circle({
-              x: this.workstations[i].positionX,
-              y: this.workstations[i].positionY,
-              width: 50,
-              height: 50,
-              radius: 25,
-              fill: 'orange',
-              stroke: 'black',
-              strokeWidth: 2,
-              draggable: true,
-            });
-            // === Tooltip setup ===
-            const tooltip = new Konva.Label({
-              x: rect.x(),
-              y: rect.y() - 30, // nad kółkiem
-              opacity: 0,
-              visible: false,
-            });
-
-            tooltip.add(
-              new Konva.Tag({
-                fill: 'black',
-                pointerDirection: 'down',
-                pointerWidth: 10,
-                pointerHeight: 10,
-                lineJoin: 'round',
-                shadowColor: 'black',
-                shadowBlur: 10,
-                shadowOffset: { x: 10, y: 10 },
-                shadowOpacity: 0.2,
-              })
-            );
-
-            tooltip.add(
-              new Konva.Text({
-                text: `Desk ${this.workstations[i].deskNumber}`,
-                fontFamily: 'Calibri',
-                fontSize: 16,
-                padding: 5,
-                fill: 'white',
-              })
-            );
-
-            // === Events ===
-            rect.on('mouseenter', () => {
-              document.body.style.cursor = 'pointer';
-              tooltip.position({
-                x: rect.x(),
-                y: rect.y() - 35,
-              });
-              tooltip.opacity(1);
-              tooltip.visible(true);
-              this.layer.batchDraw();
-            });
-
-            rect.on('mouseleave', () => {
-              document.body.style.cursor = 'default';
-              tooltip.visible(false);
-              tooltip.opacity(0);
-              this.layer.batchDraw();
-            });
-
-            rect.on('dragmove', () => {
-              tooltip.position({
-                x: rect.x(),
-                y: rect.y() - 35,
-              });
-            });
-
-            this.layer.add(rect);
-            this.layer.draw();
-            rect.on('dragend', () => {
-              const pos = rect.position();
-              console.log(
-                `Biurko ID: ${this.workstations[i].id} przeniesiono na X: ${pos.x}, Y: ${pos.y}`
-              );
-            });
-
-            this.layer.add(tooltip);
+        next: (rooms: ConferenceRoomResponse[]) => {
+          this.filteredRooms = rooms;
+          console.log('Załadowane sale konferencyjne:', this.filteredRooms);
+        },
+        error: (error) => {
+          this.filteredRooms = [];
+          if (error.status === 404) {
+            console.warn('Brak sal konferencyjnych na tym piętrze.');
+            return;
+          } else {
+            console.error('Błąd podczas ładowania sal konferencyjnych:', error);
           }
         },
       });
   }
 
-  getReservationForDay() {
-    this.reservationService
-      .GetWorkstationReservationsByFloorAndDate(7, new Date('2025-05-27'))
+  getConferenceRoomsByFloor(floorId: number) {
+    this.conferenceRoomService
+      .getConfRoomsByFloor(floorId)
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe({
-        next: (res) => {
-          console.log(res);
-          this.reservations = res;
+        next: (rooms: ConferenceRoomResponse[]) => {
+          this.filteredRooms = rooms;
+          console.log(
+            `Załadowane sale konferencyjne z piętra o id:${floorId}:`,
+            this.filteredRooms
+          );
+        },
+        error: (error) => {
+          this.filteredRooms = [];
+          if (error.status === 404) {
+            console.warn('Brak sal konferencyjnych na tym piętrze.');
+            return;
+          } else {
+            console.error('Błąd podczas ładowania sal konferencyjnych:', error);
+          }
         },
       });
   }
 
-  //Info </Test czy dziala rezerwacja>
+  getFloors() {
+    this.floorService
+      .getFloors()
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe({
+        next: (floors: FloorResponse[]) => {
+          this.floors = floors;
+          console.log('Załadowane piętra:', this.floors);
+        },
+        error: (error) => {
+          console.error('Błąd podczas ładowania pięter:', error);
+        },
+      });
+  }
 
-  // reservations: WorkstationReservationResponse[] = [];
-  // reservation: WorkstationReservationResponse | null = null;
+  getReservations(startDate: Date, endDate: Date) {
+    this.reservationService
+      .getConfRoomByDateTimeRange(startDate, endDate)
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe({
+        next: (reservations: ConferenceRoomReservationResponse[]) => {
+          // this.reservations = reservations.map((res) => ({
+          //   ...res,
+          //   reservationStart: new Date(res.reservationStart + 'Z'),
+          //   reservationEnd: new Date(res.reservationEnd + 'Z'),
+          // }));
+          this.reservations = reservations;
+          console.log('Załadowane rezerwacje:', this.reservations);
+        },
+        error: (error) => {
+          console.error('Błąd podczas ładowania rezerwacji:', error);
+        },
+      });
+  }
 
-  // reservationId!: number;
-  // userId: string = '';
-  // startDateLocal: string = '';
-  // endDateLocal: string = '';
-  // date!: string;
+  getReservationFromFormValue(formValue: any) {
+    if (!formValue.date || !formValue.startTime || !formValue.endTime) return;
 
-  // createRequest: CreateWorkstationReservationRequest = {
-  //   userId: '',
-  //   workstationId: 0,
-  //   reservationStart: new Date(),
-  //   reservationEnd: new Date(),
-  // };
+    console.log('Form Value:', formValue);
 
-  // modifyRequest: ModifyWorkstationReservationRequest = {
-  //   userId: '',
-  //   workstationId: 0,
-  //   reservationStart: new Date(),
-  //   reservationEnd: new Date(),
-  // };
+    const startDateTime = this.combinaDateAndTime(
+      formValue.date,
+      formValue.startTime
+    );
+    const endDateTime = this.combinaDateAndTime(
+      formValue.date,
+      formValue.endTime
+    );
+    console.log(`Pobrano rezerwacje od ${startDateTime} do ${endDateTime}`);
+    this.getReservations(startDateTime, endDateTime);
+  }
 
-  // // Konwersja daty lokalnej do UTC ISO stringa
-  // convertLocalToUtc(localString: string): string {
-  //   const localDate = new Date(localString);
-  //   return localDate.toISOString(); // ISO 8601 UTC format
+  combinaDateAndTime(date: string | Date, time: string | Date): Date {
+    const parsedDate = typeof date === 'string' ? new Date(date) : date;
+    const parsedTime = new Date(time);
+
+    const year = parsedDate.getFullYear();
+    const month = parsedDate.getMonth();
+    const day = parsedDate.getDate();
+
+    const hours = parsedTime.getHours();
+    const minutes = parsedTime.getMinutes();
+
+    return new Date(year, month, day, hours, minutes, 0, 0);
+  }
+
+  getCurrentReservationForConfRoom(
+    confRoomId: number
+  ): ConferenceRoomReservationResponse | undefined {
+    return this.reservations.find((res) => res.conferenceRoomId === confRoomId);
+  }
+
+  //? Generowane
+  // reservationForm: FormGroup;
+  // conferenceRooms: ConferenceRoomResponse[] = [];
+  // filteredRooms: ConferenceRoomResponse[] = [];
+  // reservations: ConferenceRoomReservationResponse[] = [];
+  // selectedDate: Date = new Date();
+  // selectedReservation: any = null;
+  // Info tiles data
+  // currentHour = new Date().getHours();
+  // availableRooms = 0;
+  // totalCapacity = 0;
+  // nextAvailableDate = new Date();
+  // reservationTime = '8:00 - 18:00';
+  // floors!: FloorResponse[]; // Przykładowe piętra
+  // timeSlots = this.generateTimeSlots();
+  // infoTiles: { icon: string; value: string | number; label: string }[] = [];
+  // constructor(
+  //   private fb: FormBuilder,
+  //   private conferenceRoomService: ConferenceRoomService,
+  //   private reservationService: ConferenceRoomReservationService,
+  //   private floorService: FloorService
+  // ) {
+  //   super();
+  //   this.reservationForm = this.fb.group({
+  //     date: [new Date().toISOString().split('T')[0], Validators.required],
+  //     startTime: ['', Validators.required],
+  //     endTime: ['', Validators.required],
+  //     floor: ['', Validators.required],
+  //   });
   // }
-
-  // getAllReservations() {
-  //   this.reservationService
-  //     .getWorkstationReservations()
-  //     .subscribe((res) => (this.reservations = res));
+  // ngOnInit() {
+  //   this.loadFloors();
+  //   this.loadReservations();
+  //   this.setNextAvailableDate();
+  //   this.setInfoTiles();
   // }
-
-  // getReservationById() {
-  //   this.reservationService
-  //     .getWorkstationReservationById(this.reservationId)
-  //     .subscribe((res) => (this.reservation = res));
+  // setInfoTiles() {
+  //   this.infoTiles = [
+  //     {
+  //       icon: 'fas fa-door-open',
+  //       value: this.availableRooms,
+  //       label: 'Dostępne sale',
+  //     },
+  //     {
+  //       icon: 'fas fa-users',
+  //       value: this.totalCapacity,
+  //       label: 'Maksymalna pojemność',
+  //     },
+  //     {
+  //       icon: 'fas fa-calendar-day',
+  //       value: this.formatDate(this.nextAvailableDate),
+  //       label: 'Następny wolny dzień',
+  //     },
+  //     {
+  //       icon: 'fas fa-clock',
+  //       value: this.reservationTime,
+  //       label: 'Godziny rezerwacji',
+  //     },
+  //   ];
   // }
-
-  // getReservationsByUserId() {
-  //   this.reservationService
-  //     .getWorkstationReservationsByUserId(this.userId)
-  //     .subscribe((res) => (this.reservations = res));
+  // loadConferenceRooms() {
+  //   this.conferenceRoomService.getConferenceRooms().subscribe((rooms: any) => {
+  //     this.conferenceRooms = rooms;
+  //     this.filteredRooms = rooms;
+  //     this.calculateInfoTiles();
+  //   });
   // }
-
-  // getReservationsByDate() {
-  //   const dateObj = new Date(this.date);
-  //   this.reservationService
-  //     .getWorkstationReservationsByDate(dateObj)
-  //     .subscribe((res) => (this.reservations = res));
-  // }
-
-  // getReservationsByDateRange() {
-  //   const start = new Date(this.startDateLocal);
-  //   const end = new Date(this.endDateLocal);
-  //   this.reservationService
-  //     .getWorkstationReservationsByDateRange(start, end)
-  //     .subscribe((res) => (this.reservations = res));
-  // }
-
-  // getTodaysReservations() {
-  //   this.reservationService
-  //     .getTodaysWorkstationReservations()
-  //     .subscribe((res) => (this.reservations = res));
-
-  //   console.log(this.workstations);
-  // }
-
-  // createReservation() {
-  //   this.createRequest.reservationStart = new Date(
-  //     this.convertLocalToUtc(this.startDateLocal)
-  //   );
-  //   this.createRequest.reservationEnd = new Date(
-  //     this.convertLocalToUtc(this.endDateLocal)
-  //   );
-
-  //   this.reservationService
-  //     .createWorkstationReservation(this.createRequest)
-  //     .subscribe((res) => {
-  //       this.reservation = res;
-  //       this.getAllReservations();
+  // loadFloors() {
+  //   this.floorService
+  //     .getFloors()
+  //     .pipe(takeUntil(this.unsubscribe$))
+  //     .subscribe({
+  //       next: (floors) => {
+  //         this.floors = floors;
+  //         this.reservationForm.patchValue({ floor: this.floors[0]?.id });
+  //         console.log('Załadowane piętra:', this.floors);
+  //         this.onFormChange(); // Load rooms for the first floor
+  //       },
+  //       error: (error) => {
+  //         console.error('Błąd podczas ładowania pięter:', error);
+  //       },
   //     });
   // }
-
-  // modifyReservation() {
-  //   this.modifyRequest.reservationStart = new Date(
-  //     this.convertLocalToUtc(this.startDateLocal)
-  //   );
-  //   this.modifyRequest.reservationEnd = new Date(
-  //     this.convertLocalToUtc(this.endDateLocal)
-  //   );
-
+  // loadReservations() {
+  //   const startDate = new Date(this.selectedDate);
+  //   startDate.setHours(0, 0, 0, 0);
+  //   const endDate = new Date(this.selectedDate);
+  //   endDate.setHours(23, 59, 59, 999);
   //   this.reservationService
-  //     .modifyWorkstationReservation(this.reservationId, this.modifyRequest)
-  //     .subscribe((res) => {
-  //       this.reservation = res;
-  //       this.getAllReservations();
+  //     .getConfRoomByDateTimeRange(startDate, endDate)
+  //     .subscribe((reservations) => {
+  //       this.reservations = reservations;
   //     });
   // }
-
+  // onFormChange() {
+  //   const formValue = this.reservationForm.value;
+  //   if (formValue.floor) {
+  //     this.conferenceRoomService
+  //       .getConfRoomsByFloor(formValue.floor)
+  //       .subscribe((rooms: any) => {
+  //         this.filteredRooms = rooms;
+  //       });
+  //   } else {
+  //     this.filteredRooms = this.conferenceRooms;
+  //   }
+  //   if (formValue.date) {
+  //     this.selectedDate = new Date(formValue.date);
+  //     this.loadReservations();
+  //   }
+  // }
+  // isRoomAvailable(roomId: number, startTime: string, endTime: string): boolean {
+  //   const requestStart = new Date(
+  //     `${this.reservationForm.value.date}T${startTime}`
+  //   );
+  //   const requestEnd = new Date(
+  //     `${this.reservationForm.value.date}T${endTime}`
+  //   );
+  //   return !this.reservations.some((reservation) => {
+  //     if (reservation.conferenceRoomId !== roomId) return false;
+  //     const resStart = new Date(reservation.reservationStart);
+  //     const resEnd = new Date(reservation.reservationEnd);
+  //     return requestStart < resEnd && requestEnd > resStart;
+  //   });
+  // }
+  // getReservationForRoom(
+  //   roomId: number
+  // ): ConferenceRoomReservationResponse | null {
+  //   return this.reservations.find((r) => r.conferenceRoomId === roomId) || null;
+  // }
+  // selectRoom(room: ConferenceRoomResponse) {
+  //   const formValue = this.reservationForm.value;
+  //   if (formValue.date && formValue.startTime && formValue.endTime) {
+  //     if (
+  //       this.isRoomAvailable(room.id, formValue.startTime, formValue.endTime)
+  //     ) {
+  //       this.selectedReservation = {
+  //         room: room,
+  //         date: formValue.date,
+  //         startTime: formValue.startTime,
+  //         endTime: formValue.endTime,
+  //       };
+  //     }
+  //   }
+  // }
   // confirmReservation() {
-  //   this.reservationService
-  //     .confirmWorkstationReservation(this.reservationId)
-  //     .subscribe((res) => {
-  //       this.reservation = res;
-  //       this.getAllReservations();
-  //     });
+  //   if (this.selectedReservation) {
+  //     const request: CreateConferenceRoomReservationRequest = {
+  //       userId: 'current-user-id', // Pobierz z aktualnego użytkownika
+  //       conferenceRoomId: this.selectedReservation.room.id,
+  //       reservationStart: new Date(
+  //         `${this.selectedReservation.date}T${this.selectedReservation.startTime}`
+  //       ).toISOString(),
+  //       reservationEnd: new Date(
+  //         `${this.selectedReservation.date}T${this.selectedReservation.endTime}`
+  //       ).toISOString(),
+  //     };
+  //     this.reservationService.createWorkstationReservation(request).subscribe(
+  //       (response) => {
+  //         console.log('Rezerwacja utworzona:', response);
+  //         this.selectedReservation = null;
+  //         this.loadReservations();
+  //         this.reservationForm.reset();
+  //       },
+  //       (error) => {
+  //         console.error('Błąd podczas tworzenia rezerwacji:', error);
+  //       }
+  //     );
+  //   }
   // }
-
-  // deleteReservation() {
-  //   this.reservationService
-  //     .deleteWorkstationReservation(this.reservationId)
-  //     .subscribe(() => {
-  //       this.reservation = null;
-  //       this.getAllReservations();
-  //     });
+  // cancelReservation() {
+  //   this.selectedReservation = null;
   // }
-
-  // // 🛠️ (opcjonalnie) Do formularzy, jeśli chcesz wyświetlać datę UTC jako lokalną:
-  // formatUtcForInput(datetime: string | Date): string {
-  //   const date = new Date(datetime);
-  //   return date.toISOString().slice(0, 16); // yyyy-MM-ddTHH:mm
+  // private generateTimeSlots(): string[] {
+  //   const slots = [];
+  //   for (let hour = 8; hour < 18; hour++) {
+  //     slots.push(`${hour.toString().padStart(2, '0')}:00`);
+  //     slots.push(`${hour.toString().padStart(2, '0')}:30`);
+  //   }
+  //   slots.push('18:00');
+  //   return slots;
   // }
-
-  // //Info </Test czy dziala rezerwacja>
+  // private calculateInfoTiles() {
+  //   this.availableRooms = this.conferenceRooms.length;
+  //   this.totalCapacity = this.conferenceRooms.reduce(
+  //     (sum, room) => sum + room.capacity,
+  //     0
+  //   );
+  // }
+  // private setNextAvailableDate() {
+  //   this.nextAvailableDate = new Date();
+  //   this.nextAvailableDate.setDate(this.nextAvailableDate.getDate() + 1);
+  // }
+  // formatDate(date: Date): string {
+  //   return date.toLocaleDateString('pl-PL', {
+  //     day: 'numeric',
+  //     month: 'long',
+  //   });
+  // }
+  // getFloorName(floorId: number): string {
+  //   return `Piętro ${floorId}`;
+  // }
+  //? /generowane
 }

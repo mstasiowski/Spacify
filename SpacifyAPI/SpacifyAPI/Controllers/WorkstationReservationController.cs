@@ -62,23 +62,6 @@ namespace SpacifyAPI.Controllers
             var dbWorkstationReservations = await _workstationReservationService.GetReservationsByDateTimeRangeAsync(startDate, endDate);
             return Ok(dbWorkstationReservations);
 
-
-            //try
-            //{
-            //    var dbWorkstationReservations = await _workstationReservationService.GetReservationsByDateTimeRangeAsync(startDate, endDate);
-            //    return Ok(dbWorkstationReservations);
-            //}
-            //catch (Exception ex)
-            //{
-            //    // Logowanie do konsoli lub loggera
-            //    Console.WriteLine($"Błąd: {ex.Message}\n{ex.StackTrace}");
-
-            //    return StatusCode(500, new
-            //    {
-            //        message = "Internal server error",
-            //        details = ex.Message
-            //    });
-            //}
         }
 
         [Authorize]

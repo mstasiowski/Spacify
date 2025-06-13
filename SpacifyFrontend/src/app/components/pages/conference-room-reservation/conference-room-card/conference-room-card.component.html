@@ -1,0 +1,40 @@
+<div class="card-container">
+  <img
+    [src]="conferenceRoom.imageUrl"
+    [alt]="'zdjęcie sali ' + conferenceRoom.name"
+  />
+
+  <div class="middle-information">
+    <div class="nameAndCapacityContainer">
+      <div class="nameContainer">
+        <i class="fa fa-solid fa-location-dot"></i>
+        {{ conferenceRoom.name }}
+      </div>
+      <div class="capacity-container">
+        <i class="fa fas fa-users"></i>
+        {{ conferenceRoom.capacity }} osób
+      </div>
+    </div>
+
+    <div class="equipment-container">
+      <mat-chip-set>
+        <mat-chip *ngFor="let equipment of confEquipment">
+          <i [class]="getEquipmentIcon(equipment)"></i>
+          {{ equipment }}
+        </mat-chip>
+      </mat-chip-set>
+    </div>
+  </div>
+
+  <div class="right-information">
+    <div class="availabilty" *ngIf="!reservation">
+      Dostępne od {{ getStartTime() }} do {{ getEndTime() }}
+    </div>
+
+    <div class="reserved" *ngIf="reservation">
+      Zarezerwowana od {{ reservationStartLocal }} do
+      {{ reservationEndLocal }}
+    </div>
+    <button class="reserveBtn">Zarezerwuj</button>
+  </div>
+</div>
