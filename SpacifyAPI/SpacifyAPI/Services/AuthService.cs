@@ -104,18 +104,18 @@ namespace SpacifyAPI.Services
                 throw new BadRequestException("username or password is invalid");
             }
 
-            if (dbUser.LastFailedLoginAt != null && dbUser.LastFailedLoginAt < DateTime.UtcNow.AddMinutes(-15))
+            if (dbUser.LastFailedLoginAt != null && dbUser.LastFailedLoginAt < DateTimeOffset.UtcNow.AddMinutes(-15))
             { 
                 dbUser.FailedLoginAttempts = 0;
                 dbUser.LastFailedLoginAt = null;
             }
 
-            if (dbUser.IsBlocked && dbUser.AccountBlockedUntil > DateTime.UtcNow)
+            if (dbUser.IsBlocked && dbUser.AccountBlockedUntil > DateTimeOffset.UtcNow)
             {
                 throw new BadRequestException("Account is blocked. Please try again later.");
             }
 
-            if (dbUser.AccountBlockedUntil != null && dbUser.AccountBlockedUntil < DateTime.UtcNow)
+            if (dbUser.AccountBlockedUntil != null && dbUser.AccountBlockedUntil < DateTimeOffset.UtcNow)
             {
                 dbUser.FailedLoginAttempts = 0;
                 dbUser.AccountBlockedUntil = null;
@@ -128,10 +128,10 @@ namespace SpacifyAPI.Services
 
                 dbUser.FailedLoginAttempts++;
                // dbUser.LastLoginAt = DateTime.UtcNow;
-                dbUser.LastFailedLoginAt = DateTime.UtcNow;
+                dbUser.LastFailedLoginAt = DateTimeOffset.UtcNow;
                 dbUser.IsBlocked = dbUser.FailedLoginAttempts == 5;
 
-                dbUser.AccountBlockedUntil = dbUser.IsBlocked ? DateTime.UtcNow.AddMinutes(5) : null;
+                dbUser.AccountBlockedUntil = dbUser.IsBlocked ? DateTimeOffset.UtcNow.AddMinutes(5) : null;
 
                 await _context.SaveChangesAsync();
 
@@ -139,7 +139,7 @@ namespace SpacifyAPI.Services
             }
 
 
-            dbUser.LastLoginAt = DateTime.UtcNow;
+            dbUser.LastLoginAt = DateTimeOffset.UtcNow;
             dbUser.LastFailedLoginAt = null;
             dbUser.FailedLoginAttempts = 0;
             dbUser.AccountBlockedUntil = null;
@@ -319,7 +319,7 @@ namespace SpacifyAPI.Services
 
             var user = await _context.Users
                 .FirstOrDefaultAsync(u => u.RefreshToken == hashedRefreshToken
-                && u.RefreshTokenExpirationTime > DateTime.UtcNow);
+                && u.RefreshTokenExpirationTime > DateTimeOffset.UtcNow);
 
             return user;
 

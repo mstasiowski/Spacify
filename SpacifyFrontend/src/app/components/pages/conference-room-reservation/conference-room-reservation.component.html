@@ -26,7 +26,15 @@
     <form [formGroup]="confRoomReservationForm" id="reservationForm">
       <mat-form-field appearance="outline" class="form-field">
         <mat-label>Termin rezerwacji</mat-label>
-        <input matInput [matDatepicker]="picker" formControlName="date" />
+        <input
+          matInput
+          [matDatepicker]="picker"
+          formControlName="date"
+          [min]="minDateForDatePicker"
+          [max]="maxDateForDatePicker"
+          [matDatepickerFilter]="excludeWeekendsFilter"
+          readonly
+        />
         <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
         <mat-datepicker #picker></mat-datepicker>
       </mat-form-field>
@@ -67,18 +75,90 @@
         </mat-select>
       </mat-form-field>
     </form>
+
+    <div id="error-placeholder">
+      @if (confRoomReservationForm.get('startTime')?.errors?.['required'] ||
+      confRoomReservationForm.get('endTime')?.errors?.['required']) {
+      <div class="custom-error-message">
+        Podaj godzinę rozpoczęcia i zakończenia.
+      </div>
+      } @if
+      (confRoomReservationForm.get('startTime')?.errors?.['notFullOrHalfHour']
+      || confRoomReservationForm.get('endTime')?.errors?.['notFullOrHalfHour'])
+      {
+      <div class="custom-error-message">
+        Godzina musi kończyć się na :00 lub :30 (np. 15:00, 15:30).
+      </div>
+      } @if
+      (confRoomReservationForm.get('startTime')?.errors?.['matTimepickerMin'] ||
+      confRoomReservationForm.get('endTime')?.errors?.['matTimepickerMin']) {
+      <div class="custom-error-message">
+        Godzina poza dozwolonym zakresem (8:00–18:00).
+      </div>
+      } @if
+      (confRoomReservationForm.get('startTime')?.errors?.['matTimepickerMax'] ||
+      confRoomReservationForm.get('endTime')?.errors?.['matTimepickerMax']) {
+      <div class="custom-error-message">
+        Godzina poza dozwolonym zakresem (8:00–18:00).
+      </div>
+      } @if
+      (confRoomReservationForm.get('startTime')?.errors?.['matTimepickerParse']
+      || confRoomReservationForm.get('endTime')?.errors?.['matTimepickerParse'])
+      {
+      <div class="custom-error-message">
+        Wybrano nieprawidłowy format godziny.
+      </div>
+      } @if (confRoomReservationForm.errors?.['sameStartEndTime']) {
+      <div class="custom-error-message">
+        Godzina rozpoczęcia i zakończenia nie mogą być takie same.
+      </div>
+      }@if (confRoomReservationForm.errors?.['endBeforeStart']) {
+      <div class="custom-error-message">
+        Godzina zakończenia musi być późniejsza niż godzina rozpoczęcia.
+      </div>
+      } @if (confRoomReservationForm.get('date')?.hasError('required')) {
+      <div class="custom-error-message">Podaj datę rezerwacji.</div>
+      } @if (confRoomReservationForm.get('date')?.hasError('dateTooEarly')) {
+      <div class="custom-error-message">
+        Nie możesz podać daty starszej niż dziś.
+      </div>
+      } @if (confRoomReservationForm.get('date')?.hasError('dateTooLate')) {
+      <div class="custom-error-message">
+        Nie możesz podać daty późniejszej niż 7 dni od dziś.
+      </div>
+
+      @if (confRoomReservationForm.get('date')?.hasError('matDatepickerParse'))
+      {
+      <div class="custom-error-message">Nieprawidłowy format daty.</div>
+      }
+
+      <!-- TEST -->
+      } @if ((confRoomReservationForm.errors?.['dateTimeTooEarly']) ) {
+      <div class="custom-error-message">
+        Rezerwacja musi rozpoczynać się później niż obecna data oraz być
+        conajmniej godzinę przed rozpoczęciem.
+      </div>
+      }
+      <!-- TEST -->
+    </div>
   </section>
 
-  <section id="conferenceRooms-section">
-    @for (confRoom of filteredRooms; track $index) {
-    <app-conference-room-card
-      [conferenceRoom]="confRoom"
-      [startTime]="confRoomReservationForm.value.startTime"
-      [endTime]="confRoomReservationForm.value.endTime"
-      [reservation]="getCurrentReservationForConfRoom(confRoom.id)"
-    ></app-conference-room-card>
-    }
-  </section>
+  <ng-container *ngIf="!isResFormValid">
+    <div>Errror</div>
+  </ng-container>
+
+  <ng-container *ngIf="isResFormValid">
+    <section id="conferenceRooms-section">
+      @for (confRoom of filteredRooms; track $index) {
+      <app-conference-room-card
+        [conferenceRoom]="confRoom"
+        [startTime]="confRoomReservationForm.value.startTime"
+        [endTime]="confRoomReservationForm.value.endTime"
+        [reservation]="getCurrentReservationForConfRoom(confRoom.id)"
+      ></app-conference-room-card>
+      }
+    </section>
+  </ng-container>
 </div>
 
 <!-- <div *ngIf="filteredRooms!.length > 0; else noData">

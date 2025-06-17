@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SpacifyAPI.Data;
 
@@ -11,9 +12,11 @@ using SpacifyAPI.Data;
 namespace SpacifyAPI.Migrations
 {
     [DbContext(typeof(SpacifyDbContext))]
-    partial class SpacifyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250613132346_changeDateTimeToDateTimeOffset")]
+    partial class changeDateTimeToDateTimeOffset
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -135,8 +138,8 @@ namespace SpacifyAPI.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("UserAgent")
                         .HasMaxLength(150)
@@ -156,11 +159,11 @@ namespace SpacifyAPI.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTimeOffset?>("AccountBlockedUntil")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<DateTime?>("AccountBlockedUntil")
+                        .HasColumnType("datetime2");
 
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -173,11 +176,11 @@ namespace SpacifyAPI.Migrations
                     b.Property<bool>("IsBlocked")
                         .HasColumnType("bit");
 
-                    b.Property<DateTimeOffset?>("LastFailedLoginAt")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<DateTime?>("LastFailedLoginAt")
+                        .HasColumnType("datetime2");
 
-                    b.Property<DateTimeOffset?>("LastLoginAt")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<DateTime?>("LastLoginAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -192,8 +195,8 @@ namespace SpacifyAPI.Migrations
                     b.Property<string>("RefreshToken")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTimeOffset?>("RefreshTokenExpirationTime")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<DateTime?>("RefreshTokenExpirationTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Role")
                         .IsRequired()
@@ -204,8 +207,8 @@ namespace SpacifyAPI.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Username")
                         .IsRequired()

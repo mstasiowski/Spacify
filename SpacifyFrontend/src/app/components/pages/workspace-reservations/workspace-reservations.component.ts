@@ -454,8 +454,9 @@ export class WorkspaceReservationsComponent
           const user = this.users.find((u) => u.id === reservation?.userId);
           // Extract only the time part for start and end, and the date
           if (reservation) {
-            const start = new Date(reservation.reservationStart + 'Z');
-            const end = new Date(reservation.reservationEnd + 'Z');
+            // const start = new Date(reservation.reservationStart + 'Z');
+            const start = new Date(reservation.reservationStart);
+            const end = new Date(reservation.reservationEnd);
             reservationStartTime = start.toLocaleTimeString('pl-PL', {
               hour: '2-digit',
               minute: '2-digit',

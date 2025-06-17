@@ -24,8 +24,17 @@ import { distinctUntilChanged, takeUntil } from 'rxjs';
 import { FloorResponse } from '../../../models/response/floor-response';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatTimepickerModule } from '@angular/material/timepicker';
-import { fullOrHalfHourValidator } from '../../../helpers/validators';
+import {
+  dateMaxValidator,
+  dateMinValidator,
+  endAfterStartTimeValidator,
+  fullDateTimeMinValidator,
+  fullOrHalfHourValidator,
+  startNotEqualEndTimeValidator,
+} from '../../../helpers/validators';
 import { ConferenceRoomCardComponent } from './conference-room-card/conference-room-card.component';
+import { excludeWeekendsFilter } from '../../../helpers/date-filters';
+import { NotificationService } from '../../../services/notification.service';
 
 @Component({
   selector: 'app-conference-room-reservation',
@@ -55,7 +64,8 @@ export class ConferenceRoomReservationComponent
     private fb: FormBuilder,
     private conferenceRoomService: ConferenceRoomService,
     private reservationService: ConferenceRoomReservationService,
-    private floorService: FloorService
+    private floorService: FloorService,
+    private notificationService: NotificationService
   ) {
     super();
   }
@@ -70,15 +80,21 @@ export class ConferenceRoomReservationComponent
     // this.getReservations(new Date(defaultResStart), new Date(defaultResEnd));
   }
 
-  availableRooms: number = 7;
-  totalCapacity: number = 10;
-  reservationDay: string = '10/06';
-  reservationTime: string = '8:00 - 18:00';
+  availableRooms!: number;
+  availableCapacity!: number;
+  reservationDay: string = '';
+  reservationTime: string = '';
   infoBlocks: { icon: string; value: string | number; label: string }[] = [];
   confRoomReservationForm!: FormGroup;
   floors: FloorResponse[] = [];
   filteredRooms: ConferenceRoomResponse[] = [];
   reservations: ConferenceRoomReservationResponse[] = [];
+  minDateForDatePicker: Date = new Date();
+  maxDateForDatePicker: Date = new Date(
+    new Date().getTime() + 7 * 24 * 60 * 60 * 1000
+  ); // 7 dni od dzisiaj
+  excludeWeekendsFilter = excludeWeekendsFilter;
+  isResFormValid: boolean = false;
 
   setInfoBlocks() {
     this.infoBlocks = [
@@ -89,7 +105,7 @@ export class ConferenceRoomReservationComponent
       },
       {
         icon: 'fas fa-users',
-        value: this.totalCapacity,
+        value: this.availableCapacity,
         label: 'Maksymalna pojemność',
       },
       {
@@ -106,55 +122,167 @@ export class ConferenceRoomReservationComponent
   }
 
   formInit() {
-    const now = new Date();
-    const currentHour = now.getHours();
-    const startHour = Math.min(Math.max(currentHour + 1, 8), 17);
-    const endHour = Math.min(startHour + 1, 18);
+    // const now = new Date();
+    // const currentHour = now.getHours();
+    // const startHour = Math.min(Math.max(currentHour + 1, 8), 17);
+    // const endHour = Math.min(startHour + 1, 18);
 
-    const today = new Date();
-    const defaultResStart = new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate(),
+    // const today = new Date();
+    // const defaultResStart = new Date(
+    //   today.getFullYear(),
+    //   today.getMonth(),
+    //   today.getDate(),
+    //   startHour,
+    //   0,
+    //   0,
+    //   0
+    // );
+    // const defaultResEnd = new Date(
+    //   today.getFullYear(),
+    //   today.getMonth(),
+    //   today.getDate(),
+    //   endHour,
+    //   0,
+    //   0,
+    //   0
+    // );
+
+    const {
+      date: defaultDate,
+      start: defaultResStart,
+      end: defaultResEnd,
+    } = this.getDefaultReservationTimes();
+
+    this.confRoomReservationForm = this.fb.group(
+      {
+        date: [
+          // new Date().toISOString().split('T')[0],
+          defaultDate,
+          [
+            Validators.required,
+            // dateMinValidator(this.minDateForDatePicker),
+            // dateMaxValidator(this.maxDateForDatePicker),
+          ],
+        ],
+        startTime: [
+          defaultResStart,
+          [Validators.required, fullOrHalfHourValidator()],
+        ],
+        endTime: [
+          defaultResEnd,
+          [Validators.required, fullOrHalfHourValidator()],
+        ],
+        floor: [''],
+      },
+      {
+        validators: [
+          startNotEqualEndTimeValidator(),
+          endAfterStartTimeValidator(),
+          fullDateTimeMinValidator(new Date()),
+        ],
+      }
+    );
+  }
+
+  getDefaultReservationTimes(): {
+    date: Date;
+    start: Date;
+    end: Date;
+  } {
+    const now = new Date();
+    let date = new Date(now);
+    let startHour = now.getHours() + 1;
+
+    // Jeśli już po 17:00, ustaw na jutro 8:00-9:00
+    if (now.getHours() >= 17) {
+      date.setDate(date.getDate() + 1);
+      startHour = 8;
+    }
+    // Jeśli przed 8:00, ustaw na dziś 8:00-9:00
+    if (now.getHours() < 8) {
+      startHour = 8;
+    }
+    // Jeśli startHour > 17, ustaw na jutro 8:00-9:00
+    if (startHour > 17) {
+      date.setDate(date.getDate() + 1);
+      startHour = 8;
+    }
+
+    const start = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
       startHour,
       0,
       0,
       0
     );
-    const defaultResEnd = new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate(),
-      endHour,
+    const end = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      startHour + 1,
       0,
       0,
       0
     );
 
-    this.confRoomReservationForm = this.fb.group({
-      date: new Date().toISOString().split('T')[0],
-      startTime: [
-        defaultResStart,
-        [Validators.required, fullOrHalfHourValidator()],
-      ],
-      endTime: [
-        defaultResEnd,
-        [Validators.required, fullOrHalfHourValidator()],
-      ],
-      floor: ['', Validators.required],
-    });
+    // Format daty do yyyy-MM-dd jeśli używasz input type="date"
+    // const dateString = date.toISOString().split('T')[0];
+
+    return { date, start, end };
   }
 
   handleFormChanges() {
     this.confRoomReservationForm.valueChanges
       .pipe(
-        distinctUntilChanged(
-          (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
-        ),
+        distinctUntilChanged(),
+        // (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
         takeUntil(this.unsubscribe$)
       )
       .subscribe((formValue) => {
         this.getReservationFromFormValue(formValue);
+
+        // Aktualizuj datę
+        const date = formValue.date;
+        if (date instanceof Date) {
+          this.reservationDay = date.toLocaleDateString('pl-PL', {
+            day: '2-digit',
+            month: '2-digit',
+          });
+
+          const day = String(date.getDate()).padStart(2, '0');
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          this.reservationDay = `${day}/${month}`;
+        }
+
+        // Aktualizuj godziny
+        const start = formValue.startTime;
+        const end = formValue.endTime;
+        if (start instanceof Date && end instanceof Date) {
+          const startStr = start.toLocaleTimeString('pl-PL', {
+            hour: '2-digit',
+            minute: '2-digit',
+          });
+          const endStr = end.toLocaleTimeString('pl-PL', {
+            hour: '2-digit',
+            minute: '2-digit',
+          });
+          this.reservationTime = `${startStr}-${endStr}`;
+        }
+
+        if (!this.confRoomReservationForm.valid) {
+          this.availableRooms = 0;
+          this.availableCapacity = 0;
+          this.reservationTime = '8:00 - 18:00';
+          //! brak sal
+          this.filteredRooms = [];
+
+          this.setInfoBlocks();
+          this.isResFormValid = false;
+        } else this.isResFormValid = true;
+
+        // this.setInfoBlocks(); // odśwież kafelki
       });
 
     this.confRoomReservationForm
@@ -177,6 +305,8 @@ export class ConferenceRoomReservationComponent
         next: (rooms: ConferenceRoomResponse[]) => {
           this.filteredRooms = rooms;
           console.log('Załadowane sale konferencyjne:', this.filteredRooms);
+          this.calculateAvailableCapacity(); // DODAJ TO!
+          this.setInfoBlocks();
         },
         error: (error) => {
           this.filteredRooms = [];
@@ -201,6 +331,9 @@ export class ConferenceRoomReservationComponent
             `Załadowane sale konferencyjne z piętra o id:${floorId}:`,
             this.filteredRooms
           );
+
+          this.calculateAvailableCapacity();
+          this.setInfoBlocks();
         },
         error: (error) => {
           this.filteredRooms = [];
@@ -221,10 +354,13 @@ export class ConferenceRoomReservationComponent
       .subscribe({
         next: (floors: FloorResponse[]) => {
           this.floors = floors;
-          console.log('Załadowane piętra:', this.floors);
         },
         error: (error) => {
           console.error('Błąd podczas ładowania pięter:', error);
+          this.notificationService.showError(
+            'Nie udało się pobrać pięter. Spróbuj ponownie później.',
+            `Status: ${error.status}`
+          );
         },
       });
   }
@@ -242,17 +378,25 @@ export class ConferenceRoomReservationComponent
           // }));
           this.reservations = reservations;
           console.log('Załadowane rezerwacje:', this.reservations);
+          this.calculateAvailableCapacity();
+          this.setInfoBlocks();
+          console.log('CAPACITY', this.availableCapacity);
         },
         error: (error) => {
-          console.error('Błąd podczas ładowania rezerwacji:', error);
+          this.notificationService.showError(
+            'Nie udało się pobrać rezerwacji sal konferencyjnych.',
+            `Status: ${error.status}`
+          );
         },
       });
   }
 
-  getReservationFromFormValue(formValue: any) {
-    if (!formValue.date || !formValue.startTime || !formValue.endTime) return;
+  calculateAvailableCapacity(): void {
+    if (!this.filteredRooms.length) return;
 
-    console.log('Form Value:', formValue);
+    // Pobierz aktualny zakres z formularza
+    const formValue = this.confRoomReservationForm.value;
+    if (!formValue.date || !formValue.startTime || !formValue.endTime) return;
 
     const startDateTime = this.combinaDateAndTime(
       formValue.date,
@@ -262,8 +406,55 @@ export class ConferenceRoomReservationComponent
       formValue.date,
       formValue.endTime
     );
-    console.log(`Pobrano rezerwacje od ${startDateTime} do ${endDateTime}`);
-    this.getReservations(startDateTime, endDateTime);
+
+    // Sprawdź, które sale są zajęte w wybranym przedziale czasowym
+    const freeRooms = this.filteredRooms.filter(
+      (room) =>
+        !this.isRoomReservedInTimeRange(room.id, startDateTime, endDateTime)
+    );
+
+    // Aktualizuj oba pola
+    this.availableRooms = freeRooms.length;
+    this.availableCapacity = freeRooms.reduce(
+      (sum, room) => sum + room.capacity,
+      0
+    );
+  }
+
+  // Pomocnicza funkcja do sprawdzania czy sala jest zarezerwowana w określonym czasie
+  private isRoomReservedInTimeRange(
+    roomId: number,
+    start: Date,
+    end: Date
+  ): boolean {
+    return this.reservations.some(
+      (res) =>
+        res.conferenceRoomId === roomId &&
+        new Date(res.reservationStart) < end &&
+        new Date(res.reservationEnd) > start
+    );
+  }
+
+  getReservationFromFormValue(formValue: any) {
+    if (!formValue.date || !formValue.startTime || !formValue.endTime) return;
+
+    if (this.confRoomReservationForm.valid) {
+      console.log('Form Value:', formValue);
+      const startDateTime = this.combinaDateAndTime(
+        formValue.date,
+        formValue.startTime
+      );
+      const endDateTime = this.combinaDateAndTime(
+        formValue.date,
+        formValue.endTime
+      );
+      console.log(`Pobrano rezerwacje od ${startDateTime} do ${endDateTime}`);
+      this.getReservations(startDateTime, endDateTime);
+    } else {
+      this.notificationService.showError(
+        'Formularz jest nieprawidłowy, sprawdź błędy.'
+      );
+    }
   }
 
   combinaDateAndTime(date: string | Date, time: string | Date): Date {

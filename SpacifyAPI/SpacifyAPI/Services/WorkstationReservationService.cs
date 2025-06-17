@@ -62,7 +62,7 @@ namespace SpacifyAPI.Services
             return dbWorkstationReservations.Select(w => MapToResponse(w)).ToList();
         }
 
-        public async Task<List<WorkstationReservationResponse>> GetWorkstationReservationsByDateAsync(DateTime date)
+        public async Task<List<WorkstationReservationResponse>> GetWorkstationReservationsByDateAsync(DateTimeOffset date)
         {
             var dbWorkstationReservations = await _context.WorkstationReservations
                 .Where(x => x.ReservationStart.Date == date.Date)
@@ -70,7 +70,7 @@ namespace SpacifyAPI.Services
 
             if (dbWorkstationReservations == null || dbWorkstationReservations.Count == 0)
             {
-                throw new NotFoundException($"No workstation reservations found for date {date.ToShortDateString()}.");
+                throw new NotFoundException($"No workstation reservations found for date {date.ToLocalTime()}.");
             }
 
 
@@ -78,7 +78,7 @@ namespace SpacifyAPI.Services
             return dbWorkstationReservations.Select(w => MapToResponse(w)).ToList();
         }
 
-        public async Task<List<WorkstationReservationResponse>> GetReservationsByDateTimeRangeAsync(DateTime startDateTime, DateTime endDateTime)
+        public async Task<List<WorkstationReservationResponse>> GetReservationsByDateTimeRangeAsync(DateTimeOffset startDateTime, DateTimeOffset endDateTime)
         {
             var dbWorkstationReservations = await _context.WorkstationReservations
                 .Where(x => x.ReservationStart < endDateTime && x.ReservationEnd > startDateTime)
@@ -92,7 +92,7 @@ namespace SpacifyAPI.Services
         public async Task<List<WorkstationReservationResponse>> GetTodaysWorkstationReservationsAsync()
         {
 
-            var today = DateTime.UtcNow.Date;
+            var today = DateTimeOffset.UtcNow.Date;
             var tomorrow = today.AddDays(1);
 
             var dbWorkstationReservations = await _context.WorkstationReservations
@@ -107,7 +107,7 @@ namespace SpacifyAPI.Services
             return dbWorkstationReservations.Select(w => MapToResponse(w)).ToList();
         }
 
-        public async Task<List<WorkstationReservationResponse>> GetWorkstationReservationsByFloorAndDateAsync(int floorId, DateTime date)
+        public async Task<List<WorkstationReservationResponse>> GetWorkstationReservationsByFloorAndDateAsync(int floorId, DateTimeOffset date)
         {
             var reservations = await _context.WorkstationReservations
         .Include(r => r.Workstation)
@@ -119,7 +119,7 @@ namespace SpacifyAPI.Services
 
             if (reservations == null || reservations.Count == 0)
             {
-                throw new NotFoundException($"No workstation reservations found for floor ID {floorId} on date {date.ToShortDateString()}.");
+                throw new NotFoundException($"No workstation reservations found for floor ID {floorId} on date {date.ToLocalTime()}.");
             }
             return reservations.Select(r => MapToResponse(r)).ToList();
         }
@@ -181,7 +181,7 @@ namespace SpacifyAPI.Services
                 WorkstationId = newReservation.WorkstationId,
                 ReservationStart = newReservation.ReservationStart.ToUniversalTime(),
                 ReservationEnd = newReservation.ReservationEnd.ToUniversalTime(),
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateTimeOffset.UtcNow,
                 IsConfirmed = false
             };
 
@@ -238,7 +238,7 @@ namespace SpacifyAPI.Services
             }
 
 
-            var now = DateTime.UtcNow;
+            var now = DateTimeOffset.UtcNow;
 
             if (existingReservation.ReservationStart <= now && now < existingReservation.ReservationEnd)
             {
@@ -294,7 +294,7 @@ namespace SpacifyAPI.Services
             if(isChanged)
             {
                 existingReservation.IsConfirmed = false;
-                existingReservation.UpdatedAt = DateTime.UtcNow;
+                existingReservation.UpdatedAt = DateTimeOffset.UtcNow;
                 await _context.SaveChangesAsync();
 
             }
@@ -325,12 +325,12 @@ namespace SpacifyAPI.Services
                 throw new NotFoundException($"Workstation reservation with ID {reservationId} not found for user with ID {userId}.");
             }
 
-            if(dbWorkstationReservation.ReservationStart <= DateTime.UtcNow)
+            if(dbWorkstationReservation.ReservationStart <= DateTimeOffset.UtcNow)
             {
                 throw new BadRequestException("Cannot confirm a reservation that has already started.");
             }
 
-            var timeUntillResStart = dbWorkstationReservation.ReservationStart - DateTime.UtcNow;
+            var timeUntillResStart = dbWorkstationReservation.ReservationStart - DateTimeOffset.UtcNow;
 
             if (timeUntillResStart > TimeSpan.FromHours(1))
             {
@@ -343,7 +343,7 @@ namespace SpacifyAPI.Services
             }
 
             dbWorkstationReservation.IsConfirmed = true;
-            dbWorkstationReservation.UpdatedAt = DateTime.UtcNow;
+            dbWorkstationReservation.UpdatedAt = DateTimeOffset.UtcNow;
             
             await _context.SaveChangesAsync();
 
@@ -362,7 +362,7 @@ namespace SpacifyAPI.Services
         ///Temat .net jobów trzeba by było dodać do tego że co 15-20 min usuwa te rezerwacje
         public async Task RemoveExpiredUnconfirmedReservationsAsync()
         {
-            var now = DateTime.UtcNow;
+            var now = DateTimeOffset.UtcNow;
 
             var expiredUnconfirmedReservations = await _context.WorkstationReservations
                 .Where(r => !r.IsConfirmed && r.ReservationStart <= now)
@@ -385,7 +385,7 @@ namespace SpacifyAPI.Services
                 throw new NotFoundException($"Workstation reservation with ID {reservationId} not found.");
             }
 
-            var now = DateTime.UtcNow;
+            var now = DateTimeOffset.UtcNow;
 
             if (dbReservation.ReservationStart <= now && now < dbReservation.ReservationEnd)
             {
@@ -397,9 +397,9 @@ namespace SpacifyAPI.Services
 
         }
 
-        public void ValidateReservationDateConstraints(DateTime reservationStart, DateTime reservationEnd)
+        public void ValidateReservationDateConstraints(DateTimeOffset reservationStart, DateTimeOffset reservationEnd)
         {
-            var now = DateTime.UtcNow;
+            var now = DateTimeOffset.UtcNow;
 
             if(reservationStart < now)
             {
@@ -423,7 +423,7 @@ namespace SpacifyAPI.Services
 
         }
 
-        public void ValidateReservationTime(DateTime? requestedStart, DateTime? requestedEnd, DateTime? existingStart= null, DateTime? existingEnd = null)
+        public void ValidateReservationTime(DateTimeOffset? requestedStart, DateTimeOffset? requestedEnd, DateTimeOffset? existingStart= null, DateTimeOffset? existingEnd = null)
         {
            
             var start = requestedStart ?? existingStart;
@@ -464,7 +464,7 @@ namespace SpacifyAPI.Services
             }
         }
 
-        private async Task<bool> IsReservationOverlapping(int workstationId, DateTime start, DateTime end)
+        private async Task<bool> IsReservationOverlapping(int workstationId, DateTimeOffset start, DateTimeOffset end)
         {
             return await _context.WorkstationReservations
                 .AnyAsync(wr =>
@@ -473,7 +473,7 @@ namespace SpacifyAPI.Services
                     start < wr.ReservationEnd);
         }
 
-        private async Task<bool> IsReservationOverlapping(int workstationId, DateTime start, DateTime end,int excludeReservation )
+        private async Task<bool> IsReservationOverlapping(int workstationId, DateTimeOffset start, DateTimeOffset end,int excludeReservation )
         {
             return await _context.WorkstationReservations
                 .AnyAsync(wr =>

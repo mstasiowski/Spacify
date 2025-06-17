@@ -114,3 +114,88 @@ export function endAfterStartTimeValidator(): ValidatorFn {
       : null;
   };
 }
+
+// export function dateMinValidator(minDate: Date): ValidatorFn {
+//   return (control: AbstractControl) => {
+//     const value = control.value;
+//     if (value && new Date(value) < minDate) {
+//       return { dateTooEarly: true };
+//     }
+//     return null;
+//   };
+// }
+
+// export function dateMaxValidator(maxDate: Date): ValidatorFn {
+//   return (control: AbstractControl) => {
+//     const value = control.value;
+//     if (value && new Date(value) > maxDate) {
+//       return { dateTooLate: true };
+//     }
+//     return null;
+//   };
+// }
+export function dateMinValidator(minDate: Date): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (!control.value) return null;
+
+    const valueDate = new Date(control.value);
+    const normalizedMinDate = new Date(
+      minDate.getFullYear(),
+      minDate.getMonth(),
+      minDate.getDate()
+    );
+    const normalizedValueDate = new Date(
+      valueDate.getFullYear(),
+      valueDate.getMonth(),
+      valueDate.getDate()
+    );
+
+    return normalizedValueDate < normalizedMinDate
+      ? { dateTooEarly: true }
+      : null;
+  };
+}
+
+export function dateMaxValidator(maxDate: Date): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (!control.value) return null;
+
+    const valueDate = new Date(control.value);
+    const normalizedMaxDate = new Date(
+      maxDate.getFullYear(),
+      maxDate.getMonth(),
+      maxDate.getDate()
+    );
+    const normalizedValueDate = new Date(
+      valueDate.getFullYear(),
+      valueDate.getMonth(),
+      valueDate.getDate()
+    );
+
+    return normalizedValueDate > normalizedMaxDate
+      ? { dateTooLate: true }
+      : null;
+  };
+}
+
+export function fullDateTimeMinValidator(minDateTime: Date): ValidatorFn {
+  return (group: AbstractControl): ValidationErrors | null => {
+    const dateControl = group.get('date');
+    const timeControl = group.get('startTime');
+
+    if (!dateControl?.value || !timeControl?.value) return null;
+
+    const date = new Date(dateControl.value); // tylko yyyy-mm-dd
+    const time = new Date(timeControl.value); // czas (hh:mm)
+
+    const fullDateTime = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      time.getHours(),
+      time.getMinutes()
+    );
+
+    return fullDateTime < minDateTime ? { dateTimeTooEarly: true } : null;
+  };
+}

@@ -9,9 +9,9 @@ namespace SpacifyAPI.Models.Requests
         [Required]
         public int ConferenceRoomId { get; set; }
         [Required]
-        public DateTime ReservationStart { get; set; }
+        public DateTimeOffset ReservationStart { get; set; }
         [Required]
-        public DateTime ReservationEnd { get; set; }
+        public DateTimeOffset ReservationEnd { get; set; }
 
         [Required]
         public bool IsConfirmed { get; set; }

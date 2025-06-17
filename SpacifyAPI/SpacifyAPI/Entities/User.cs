@@ -20,18 +20,18 @@ namespace SpacifyAPI.Entities
         [Required]
         public UserRole Role { get; set; } = UserRole.Employee;
         public string? RefreshToken { get; set; }
-        public DateTime? RefreshTokenExpirationTime { get; set; }
+        public DateTimeOffset? RefreshTokenExpirationTime { get; set; }
 
         [Range(0, 5)]
         public int FailedLoginAttempts { get; set; } = 0;
-        public DateTime? AccountBlockedUntil { get; set; } = null;
+        public DateTimeOffset? AccountBlockedUntil { get; set; } = null;
 
         public bool IsBlocked { get; set; } = false;
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime? UpdatedAt { get; set; }
-        public DateTime? LastLoginAt { get; set; }
-        public DateTime? LastFailedLoginAt { get; set; }
+        public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+        public DateTimeOffset? UpdatedAt { get; set; }
+        public DateTimeOffset? LastLoginAt { get; set; }
+        public DateTimeOffset? LastFailedLoginAt { get; set; }
 
         public List<WorkstationReservation>? WorkstationReservations { get; set; } = new List<WorkstationReservation>();
         public List<ConferenceRoomReservation>? ConferenceRoomReservations { get; set; } = new List<ConferenceRoomReservation>();

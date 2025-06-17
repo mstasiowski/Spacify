@@ -9,10 +9,10 @@ namespace SpacifyAPI.Interfaces
         Task<List<WorkstationReservationResponse>> GetAllWorkstationReservationsAsync();
         Task<WorkstationReservationResponse> GetWorkstationReservationByIdAsync(int reservationId);
         Task<List<WorkstationReservationResponse>> GetWorkstationReservationsByUserIdAsync(Guid userId);
-        Task<List<WorkstationReservationResponse>> GetWorkstationReservationsByDateAsync(DateTime date);
-        Task<List<WorkstationReservationResponse>> GetReservationsByDateTimeRangeAsync(DateTime startDateTime, DateTime endDateTime);
+        Task<List<WorkstationReservationResponse>> GetWorkstationReservationsByDateAsync(DateTimeOffset date);
+        Task<List<WorkstationReservationResponse>> GetReservationsByDateTimeRangeAsync(DateTimeOffset startDateTime, DateTimeOffset endDateTime);
         Task<List<WorkstationReservationResponse>> GetTodaysWorkstationReservationsAsync();
-        Task<List<WorkstationReservationResponse>> GetWorkstationReservationsByFloorAndDateAsync(int floorId,DateTime date);
+        Task<List<WorkstationReservationResponse>> GetWorkstationReservationsByFloorAndDateAsync(int floorId, DateTimeOffset date);
 
         Task<WorkstationReservationResponse> CreateWorkstationReservationAsync(CreateWorkstationReservationRequest reservation);
         Task<WorkstationReservationResponse> ModifyWorkstationReservationAsync(int reservationId, ModifyWorkstationReservationRequest reservation);
@@ -20,9 +20,9 @@ namespace SpacifyAPI.Interfaces
         Task<WorkstationReservationResponse> ConfirmWorkstationReservationAsync(int reservationId, Guid userId);
         Task RemoveExpiredUnconfirmedReservationsAsync();
 
-        void ValidateReservationDateConstraints(DateTime reservationStart, DateTime reservationEnd);
+        void ValidateReservationDateConstraints(DateTimeOffset reservationStart, DateTimeOffset reservationEnd);
 
-        void ValidateReservationTime(DateTime? requestedStart, DateTime? requestedEnd, DateTime? existingStart = null, DateTime? existingEnd = null);
+        void ValidateReservationTime(DateTimeOffset? requestedStart, DateTimeOffset? requestedEnd, DateTimeOffset? existingStart = null, DateTimeOffset? existingEnd = null);
 
 
     }

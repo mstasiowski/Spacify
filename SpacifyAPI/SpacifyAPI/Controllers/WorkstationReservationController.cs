@@ -49,7 +49,7 @@ namespace SpacifyAPI.Controllers
 
         [Authorize]
         [HttpGet("date/{date}")]
-        public async Task<ActionResult<List<WorkstationReservationResponse>>> GetWorkstationReservationsByDate(DateTime date)
+        public async Task<ActionResult<List<WorkstationReservationResponse>>> GetWorkstationReservationsByDate(DateTimeOffset date)
         {
             var dbWorkstationReservations = await _workstationReservationService.GetWorkstationReservationsByDateAsync(date);
             return Ok(dbWorkstationReservations);
@@ -57,7 +57,7 @@ namespace SpacifyAPI.Controllers
 
         [Authorize]
         [HttpGet("daterange")]
-        public async Task<ActionResult<List<WorkstationReservationResponse>>> GetReservationsByDateTimeRange(DateTime startDate, DateTime endDate)
+        public async Task<ActionResult<List<WorkstationReservationResponse>>> GetReservationsByDateTimeRange(DateTimeOffset startDate, DateTimeOffset endDate)
         {
             var dbWorkstationReservations = await _workstationReservationService.GetReservationsByDateTimeRangeAsync(startDate, endDate);
             return Ok(dbWorkstationReservations);
@@ -74,7 +74,7 @@ namespace SpacifyAPI.Controllers
 
         [Authorize]
         [HttpGet("/workstation/reservations/floor/{floorId}")]
-        public async Task<ActionResult<List<WorkstationReservationResponse>>> GetWorkstationReservationByFloorAndDate(int floorId, [FromQuery] DateTime date)
+        public async Task<ActionResult<List<WorkstationReservationResponse>>> GetWorkstationReservationByFloorAndDate(int floorId, [FromQuery] DateTimeOffset date)
         {
             var dbReservation = await _workstationReservationService.GetWorkstationReservationsByFloorAndDateAsync(floorId, date);
             return Ok(dbReservation);

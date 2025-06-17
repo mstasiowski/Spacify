@@ -63,7 +63,7 @@ namespace SpacifyAPI.Services
         }
 
 
-        public async Task<List<ConferenceRoomReservationResponse>> GetConfReservationsByDateTimeRangeAsync(DateTime startTime, DateTime endTime)
+        public async Task<List<ConferenceRoomReservationResponse>> GetConfReservationsByDateTimeRangeAsync(DateTimeOffset startTime, DateTimeOffset endTime)
         {
             var dbConfReservation = await _context.ConferenceRoomReservations
                 .Where(r => r.ReservationStart < endTime && r.ReservationEnd > startTime)
@@ -128,7 +128,7 @@ namespace SpacifyAPI.Services
                 ConferenceRoomId = request.ConferenceRoomId,
                 ReservationStart = request.ReservationStart.ToUniversalTime(),
                 ReservationEnd = request.ReservationEnd.ToUniversalTime(),
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateTimeOffset.UtcNow,
                 IsConfirmed = false 
             };
 
@@ -189,7 +189,7 @@ namespace SpacifyAPI.Services
             dbExistingReservation.ReservationStart = request.ReservationStart.ToUniversalTime();
             dbExistingReservation.ReservationEnd = request.ReservationEnd.ToUniversalTime();
             dbExistingReservation.IsConfirmed = request.IsConfirmed;
-            dbExistingReservation.UpdatedAt = DateTime.UtcNow;
+            dbExistingReservation.UpdatedAt = DateTimeOffset.UtcNow;
 
             await _context.SaveChangesAsync();
 
@@ -207,7 +207,7 @@ namespace SpacifyAPI.Services
             }
 
 
-            var now = DateTime.UtcNow;
+            var now = DateTimeOffset.UtcNow;
 
             if(dbReservation.IsConfirmed && dbReservation.ReservationStart <= now && dbReservation.ReservationEnd >= now)
             {
@@ -229,12 +229,12 @@ namespace SpacifyAPI.Services
                 throw new NotFoundException($"Workstation reservation with ID {reservationId} not found for user with ID {userId}.");
             }
 
-            if (dbConfReservation.ReservationStart <= DateTime.UtcNow)
+            if (dbConfReservation.ReservationStart <= DateTimeOffset.UtcNow)
             {
                 throw new BadRequestException("Cannot confirm a reservation that has already started.");
             }
 
-            var timeUntillResStart = dbConfReservation.ReservationStart - DateTime.UtcNow;
+            var timeUntillResStart = dbConfReservation.ReservationStart - DateTimeOffset.UtcNow;
 
             if (timeUntillResStart > TimeSpan.FromHours(1))
             {
@@ -247,7 +247,7 @@ namespace SpacifyAPI.Services
             }
 
             dbConfReservation.IsConfirmed = true;
-            dbConfReservation.UpdatedAt = DateTime.UtcNow;
+            dbConfReservation.UpdatedAt = DateTimeOffset.UtcNow;
 
             await _context.SaveChangesAsync();
 

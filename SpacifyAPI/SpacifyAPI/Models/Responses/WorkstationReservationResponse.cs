@@ -8,10 +8,10 @@ namespace SpacifyAPI.Models.Responses
         public int Id { get; set; }
         public Guid UserId { get; set; }
         public int WorkstationId { get; set; }
-        public DateTime ReservationStart { get; set; }
-        public DateTime ReservationEnd { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime? UpdatedAt { get; set; }
-        public bool IsConfirmed { get; set; } = false;
+        public DateTimeOffset ReservationStart { get; set; }
+        public DateTimeOffset ReservationEnd { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
+        public DateTimeOffset? UpdatedAt { get; set; }
+        public bool IsConfirmed { get; set; }
     }
 }

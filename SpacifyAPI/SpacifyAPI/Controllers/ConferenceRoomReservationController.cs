@@ -54,7 +54,7 @@ namespace SpacifyAPI.Controllers
 
         [Authorize(Roles = $"{RoleNames.Administrator},{RoleNames.Leader}")]
         [HttpGet("daterange")]
-        public async Task<ActionResult<List<ConferenceRoomReservationResponse>>> GetConfReservationsByDateTimeRange(DateTime startDate, DateTime endDate)
+        public async Task<ActionResult<List<ConferenceRoomReservationResponse>>> GetConfReservationsByDateTimeRange(DateTimeOffset startDate, DateTimeOffset endDate)
         {
             var dbWorkstationReservations = await _conferenceRoomReservationService.GetConfReservationsByDateTimeRangeAsync(startDate, endDate);
             return Ok(dbWorkstationReservations);

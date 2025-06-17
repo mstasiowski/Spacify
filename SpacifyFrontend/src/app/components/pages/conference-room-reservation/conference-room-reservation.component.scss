@@ -101,15 +101,15 @@ $background: #f9fbfd;
 #reservation-form-section {
   width: 100%;
   background-color: $background;
-  height: 3rem;
   // border: 1px solid red;
   border-radius: 0.5rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  padding-left: 1rem;
-  min-height: 10rem;
+  // padding-left: 1rem;
+  padding: 0.5rem 0 0.5rem 1rem;
+  min-height: 8rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
   #titleAndIcon {
@@ -219,6 +219,20 @@ $background: #f9fbfd;
       }
     }
   }
+}
+
+#error-placeholder {
+  width: 100%;
+}
+
+.custom-error-message {
+  color: #f44336;
+  font-size: 0.75rem;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  letter-spacing: 0.03333em;
+  display: block;
+  width: 100%;
+  text-align: center;
 }
 
 //   // Reservation Form

@@ -12,6 +12,6 @@ namespace SpacifyAPI.Models.Responses
         public string Email { get; set; } = string.Empty;
         public string Username { get; set; } = string.Empty;
         public UserRole Role { get; set; } = UserRole.Employee;
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
     }
 }

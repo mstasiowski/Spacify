@@ -7,7 +7,7 @@ namespace SpacifyAPI.Models.Requests
     {
         public Guid? UserId { get; set; }
         public int? WorkstationId { get; set; }
-        public DateTime? ReservationStart { get; set; }
-        public DateTime? ReservationEnd { get; set; }
+        public DateTimeOffset? ReservationStart { get; set; }
+        public DateTimeOffset? ReservationEnd { get; set; }
     }
 }
