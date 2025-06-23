@@ -41,6 +41,8 @@ import {
   fullOrHalfHourValidator,
   startNotEqualEndTimeValidator,
 } from '../../../helpers/validators';
+import { getDefaultReservationTimes } from '../../../helpers/default-reservation-time';
+import { excludeWeekendsFilter } from '../../../helpers/date-filters';
 
 @Component({
   selector: 'app-workspace-reservations',
@@ -82,75 +84,12 @@ export class WorkspaceReservationsComponent
       this.currentUser = user ?? null;
     }
 
-    const now = new Date();
-    const currentHour = now.getHours();
-
-    // Domyślna godzina rozpoczęcia to najbliższa pełna godzina w przyszłości (ale nie wcześniej niż 8, nie później niż 17)
-    const startHour = Math.min(Math.max(currentHour + 1, 8), 17);
-
-    // Domyślna godzina zakończenia to godzina później (ale maksymalnie do 18)
-    const endHour = Math.min(startHour + 1, 18);
-
     this.originalImageSize = { width: 1, height: 1 };
     this.getFloors();
     this.getUsers();
 
-    //TODO
-
-    const today = new Date();
-    const defaultStart = new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate(),
-      startHour,
-      0,
-      0,
-      0
-    );
-    const defaultEnd = new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate(),
-      endHour,
-      0,
-      0,
-      0
-    );
-
-    this.reservationForm = this.fb.group(
-      {
-        startTime: [
-          defaultStart,
-          [Validators.required, fullOrHalfHourValidator()],
-        ],
-        endTime: [defaultEnd, [Validators.required, fullOrHalfHourValidator()]],
-      },
-      {
-        validators: [
-          startNotEqualEndTimeValidator(),
-          endAfterStartTimeValidator(),
-        ],
-      }
-    );
-
-    this.reservationForm
-      .get('startTime')!
-      .valueChanges.pipe(takeUntil(this.unsubscribe$))
-      .subscribe((value) => {
-        if (this.reservationForm.valid) {
-          this.refreshReservationsAndMap();
-        }
-      });
-
-    this.reservationForm
-      .get('endTime')!
-      .valueChanges.pipe(takeUntil(this.unsubscribe$))
-      .subscribe((value) => {
-        if (this.reservationForm.valid) {
-          this.refreshReservationsAndMap();
-        }
-      });
-
+    //TODO formularz rezerwacji
+    this.formInit();
     //TODO
   }
 
@@ -263,6 +202,87 @@ export class WorkspaceReservationsComponent
     //Todo tooltip
   }
 
+  formInit() {
+    const {
+      date: defaultDate,
+      start: defaultStart,
+      end: defaultEnd,
+    } = getDefaultReservationTimes();
+
+    console.log('Default reservation times:', {
+      defaultDate,
+      defaultStart,
+      defaultEnd,
+    });
+
+    this.selectedDate = defaultDate;
+
+    //Info ustawianie domyślnych godzin
+    // const now = new Date();
+    // const currentHour = now.getHours();
+
+    // // Domyślna godzina rozpoczęcia to najbliższa pełna godzina w przyszłości (ale nie wcześniej niż 8, nie później niż 17)
+    // const startHour = Math.min(Math.max(currentHour + 1, 8), 17);
+
+    // // Domyślna godzina zakończenia to godzina później (ale maksymalnie do 18)
+    // const endHour = Math.min(startHour + 1, 18);
+
+    // const today = new Date();
+    // const defaultStart = new Date(
+    //   today.getFullYear(),
+    //   today.getMonth(),
+    //   today.getDate(),
+    //   startHour,
+    //   0,
+    //   0,
+    //   0
+    // );
+    // const defaultEnd = new Date(
+    //   today.getFullYear(),
+    //   today.getMonth(),
+    //   today.getDate(),
+    //   endHour,
+    //   0,
+    //   0,
+    //   0
+    // );
+    //Info </> ustawianie domyślnych godzin
+
+    this.reservationForm = this.fb.group(
+      {
+        startTime: [
+          defaultStart,
+          [Validators.required, fullOrHalfHourValidator()],
+        ],
+        endTime: [defaultEnd, [Validators.required, fullOrHalfHourValidator()]],
+      },
+      {
+        validators: [
+          startNotEqualEndTimeValidator(),
+          endAfterStartTimeValidator(),
+        ],
+      }
+    );
+
+    this.reservationForm
+      .get('startTime')!
+      .valueChanges.pipe(takeUntil(this.unsubscribe$))
+      .subscribe((value) => {
+        if (this.reservationForm.valid) {
+          this.refreshReservationsAndMap();
+        }
+      });
+
+    this.reservationForm
+      .get('endTime')!
+      .valueChanges.pipe(takeUntil(this.unsubscribe$))
+      .subscribe((value) => {
+        if (this.reservationForm.valid) {
+          this.refreshReservationsAndMap();
+        }
+      });
+  }
+
   currentUser: User | null = null;
 
   workstations: WorkstationResponse[] = [];
@@ -283,11 +303,18 @@ export class WorkspaceReservationsComponent
   tooltipLayer!: Konva.Layer;
   tooltip!: Konva.Label;
 
-  selectedDate: Date = new Date();
+  // selectedDate: Date = new Date();
+  selectedDate: Date | null = null; // Allow null for better handling in date picker
 
   freeWorkstationColor: string = '#00FF00';
   reservedWorkstationColor: string = '#F2003C';
   selectedWorkstationColor: string = '#00BFFF';
+
+  minDateForDatePicker: Date = new Date();
+  maxDateForDatePicker: Date = new Date(
+    new Date().getTime() + 7 * 24 * 60 * 60 * 1000
+  ); // 7 dni od dzisiaj
+  excludeWeekends = excludeWeekendsFilter;
 
   // Call this whenever floor or workstations change
   updateOfficeMap() {
@@ -354,6 +381,16 @@ export class WorkspaceReservationsComponent
 
   drawWorkstations() {
     if (!this.layer || !this.stage) return;
+
+    //! Testowy warunek
+    if (
+      !this.originalImageSize ||
+      !this.originalImageSize.width ||
+      !this.originalImageSize.height
+    ) {
+      return;
+    }
+    //! Testowy warunek
 
     const scaleX = this.stage.width() / this.originalImageSize.width;
     const scaleY = this.stage.height() / this.originalImageSize.height;

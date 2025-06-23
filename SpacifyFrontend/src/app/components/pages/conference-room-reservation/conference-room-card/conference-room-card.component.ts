@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ConferenceRoomResponse } from '../../../../models/response/conference-room-response';
 import { CommonModule } from '@angular/common';
 import { MatChipsModule } from '@angular/material/chips';
@@ -15,6 +15,7 @@ export class ConferenceRoomCardComponent {
   @Input() startTime!: Date;
   @Input() endTime!: Date;
   @Input() reservation!: ConferenceRoomReservationResponse | undefined;
+  @Output() reserve = new EventEmitter<void>();
 
   get confEquipment(): string[] {
     return this.conferenceRoom?.equipmentDetails
@@ -63,6 +64,10 @@ export class ConferenceRoomCardComponent {
           minute: '2-digit',
         })
       : '';
+  }
+
+  onReserveClick() {
+    this.reserve.emit();
   }
 
   get reservationStartLocal(): string {

@@ -10,6 +10,9 @@ import { DashboardLayoutComponent } from './components/layout/dashboard-layout.c
 import { ConferenceRoomReservationComponent } from './components/pages/conference-room-reservation/conference-room-reservation.component';
 import { AdminComponent } from './components/pages/admin/admin.component';
 import { SettingsComponent } from './components/pages/settings/settings.component';
+import { adminGuard } from './guards/admin.guard';
+import { roleGuard } from './guards/role.guard';
+import { UserRole } from './enums/user-role.enum';
 
 export const routes: Routes = [
   {
@@ -40,12 +43,15 @@ export const routes: Routes = [
       {
         path: 'conferenceroom-reservation',
         component: ConferenceRoomReservationComponent,
-        canActivate: [authenticationGuard],
+        canActivate: [
+          authenticationGuard,
+          roleGuard([UserRole.Administrator, UserRole.Leader]),
+        ],
       },
       {
         path: 'admin',
         component: AdminComponent,
-        canActivate: [authenticationGuard],
+        canActivate: [authenticationGuard, roleGuard([UserRole.Administrator])],
       },
       {
         path: 'settings',
@@ -54,5 +60,6 @@ export const routes: Routes = [
       },
     ],
   },
+  { path: 'forbidden', component: ErrorPageComponent },
   { path: '**', component: ErrorPageComponent },
 ];

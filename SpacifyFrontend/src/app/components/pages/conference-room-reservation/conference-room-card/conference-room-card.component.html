@@ -1,4 +1,4 @@
-<div class="card-container">
+<div class="card-container" [ngClass]="{ reservedCard: reservation }">
   <img
     [src]="conferenceRoom.imageUrl"
     [alt]="'zdjęcie sali ' + conferenceRoom.name"
@@ -35,6 +35,12 @@
       Zarezerwowana od {{ reservationStartLocal }} do
       {{ reservationEndLocal }}
     </div>
-    <button class="reserveBtn">Zarezerwuj</button>
+    <button
+      class="reserveBtn"
+      (click)="onReserveClick()"
+      [disabled]="reservation"
+    >
+      Zarezerwuj
+    </button>
   </div>
 </div>

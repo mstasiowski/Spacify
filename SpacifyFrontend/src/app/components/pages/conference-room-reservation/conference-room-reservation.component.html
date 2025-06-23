@@ -112,7 +112,7 @@
       <div class="custom-error-message">
         Godzina rozpoczęcia i zakończenia nie mogą być takie same.
       </div>
-      }@if (confRoomReservationForm.errors?.['endBeforeStart']) {
+      } @if (confRoomReservationForm.errors?.['endBeforeStart']) {
       <div class="custom-error-message">
         Godzina zakończenia musi być późniejsza niż godzina rozpoczęcia.
       </div>
@@ -127,11 +127,6 @@
         Nie możesz podać daty późniejszej niż 7 dni od dziś.
       </div>
 
-      @if (confRoomReservationForm.get('date')?.hasError('matDatepickerParse'))
-      {
-      <div class="custom-error-message">Nieprawidłowy format daty.</div>
-      }
-
       <!-- TEST -->
       } @if ((confRoomReservationForm.errors?.['dateTimeTooEarly']) ) {
       <div class="custom-error-message">
@@ -140,25 +135,72 @@
       </div>
       }
       <!-- TEST -->
+      @if (confRoomReservationForm.get('date')?.hasError('matDatepickerParse'))
+      {
+      <div class="custom-error-message">Nieprawidłowy format daty.</div>
+      }
     </div>
   </section>
 
-  <ng-container *ngIf="!isResFormValid">
-    <div>Errror</div>
-  </ng-container>
+  @if(!isResFormValid) {
+  <div>Podano nieprawidłowe dane.</div>
+  } @else {
 
-  <ng-container *ngIf="isResFormValid">
-    <section id="conferenceRooms-section">
-      @for (confRoom of filteredRooms; track $index) {
-      <app-conference-room-card
-        [conferenceRoom]="confRoom"
-        [startTime]="confRoomReservationForm.value.startTime"
-        [endTime]="confRoomReservationForm.value.endTime"
-        [reservation]="getCurrentReservationForConfRoom(confRoom.id)"
-      ></app-conference-room-card>
-      }
-    </section>
-  </ng-container>
+  <section id="conferenceRooms-section">
+    @for (confRoom of filteredRooms; track confRoom.id) {
+    <app-conference-room-card
+      [conferenceRoom]="confRoom"
+      [startTime]="confRoomReservationForm.value.startTime"
+      [endTime]="confRoomReservationForm.value.endTime"
+      [reservation]="getCurrentReservationForConfRoom(confRoom.id)"
+      (reserve)="onReserveConfRoom(confRoom)"
+    ></app-conference-room-card>
+    }
+  </section>
+
+  @if (selectedReservation) {
+  <div class="reservation-summary-modal">
+    <div class="reservation-summary-content">
+      <h2>Podsumowanie rezerwacji</h2>
+      <div class="reservation-summary-info">
+        <p><b>Sala:</b> {{ selectedReservation.room.name }}</p>
+        <p>
+          <b>Piętro:</b> {{ getFloorName(selectedReservation.room.floorId) }}
+        </p>
+
+        <p>
+          <b>Data:</b>
+          {{
+            selectedReservation.startTime
+              | date : "EEEE, d MMMM y" : undefined : "pl"
+          }}
+        </p>
+        <p>
+          <b>Godziny:</b>
+          {{ selectedReservation.startTime | date : " HH:mm " }} -
+          {{ selectedReservation.endTime | date : " HH:mm " }}
+        </p>
+      </div>
+
+      <div class="summary-btns">
+        <button mat-stroked-button (click)="selectedReservation = null">
+          Anuluj
+        </button>
+        <button mat-raised-button color="primary" (click)="addReservation()">
+          Potwierdź rezerwację
+        </button>
+      </div>
+    </div>
+  </div>
+  } @if (filteredRooms.length === 0) {
+  <section class="no-rooms">
+    <div class="no-rooms-content">
+      <i class="fas fa-search"></i>
+      <h3>Brak dostępnych sal</h3>
+      <p>Nie znaleziono sal spełniających wybrane kryteria</p>
+    </div>
+  </section>
+  } }
 </div>
 
 <!-- <div *ngIf="filteredRooms!.length > 0; else noData">

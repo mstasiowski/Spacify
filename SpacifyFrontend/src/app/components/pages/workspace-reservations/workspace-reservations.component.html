@@ -20,6 +20,9 @@
         <mat-calendar
           [(selected)]="selectedDate"
           (selectedChange)="onDateChange($event)"
+          [dateFilter]="excludeWeekends"
+          [minDate]="minDateForDatePicker"
+          [maxDate]="maxDateForDatePicker"
         ></mat-calendar>
       </div>
 

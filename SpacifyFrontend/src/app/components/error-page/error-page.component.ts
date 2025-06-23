@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-error-page',
@@ -7,4 +7,12 @@ import { RouterModule } from '@angular/router';
   templateUrl: './error-page.component.html',
   styleUrl: './error-page.component.scss',
 })
-export class ErrorPageComponent {}
+export class ErrorPageComponent implements OnInit {
+  constructor(private router: Router) {}
+  ngOnInit(): void {
+    // const userComesFromGuard = history.state?.fromGuard;
+    // if (!userComesFromGuard) {
+    //   this.router.navigateByUrl('/');
+    // }
+  }
+}

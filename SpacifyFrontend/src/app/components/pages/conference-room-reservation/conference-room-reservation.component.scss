@@ -2,10 +2,11 @@ $blue: #3b82f6;
 $blue-light: #dbeafe;
 $gray: #4a5565;
 $background: #f9fbfd;
+$error-color: #f44336;
 
 #container {
   padding: 0rem 1rem 0rem 1rem;
-  border: 1px solid black;
+  // border: 1px solid black;
   max-width: 1200px;
   margin: 0 auto;
   min-height: 100vh;
@@ -136,13 +137,116 @@ $background: #f9fbfd;
   }
 
   .form-field {
-    width: 20%;
+    min-width: 20%;
+    // max-width: 100%;
   }
+}
+
+#error-placeholder {
+  width: 100%;
+}
+
+.custom-error-message {
+  color: $error-color;
+  font-size: 0.75rem;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  letter-spacing: 0.03333em;
+  display: block;
+  width: 100%;
+  text-align: center;
 }
 
 #conferenceRooms-section {
   // background-color: red;
   width: 100%;
+}
+
+.no-rooms {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.no-room-content i {
+  font-size: 2rem;
+  color: $error-color;
+}
+
+.no-room-content h3 {
+  margin: 1rem 0 0.5rem 0;
+}
+
+.reservation-summary-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.reservation-summary-content {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 1rem;
+  min-width: 300px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.reservation-summary-content h2 {
+  background: linear-gradient(135deg, $blue 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.summary-btns {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  justify-content: center;
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+  #titleAndIcon {
+    width: 100%;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  #reservation-form-section {
+    padding: 0.5rem;
+  }
+}
+
+@media (max-width: 450px) {
+  .reservation-summary-content {
+    max-width: 150px;
+  }
+
+  .reservation-summary-content h2 {
+    font-size: 1.2rem;
+    text-align: center;
+  }
+}
+
+@media (max-width: 400px) {
+  #titleAndIcon {
+    font-size: 1.2rem;
+  }
 }
 
 // ? generowane
@@ -219,20 +323,6 @@ $background: #f9fbfd;
       }
     }
   }
-}
-
-#error-placeholder {
-  width: 100%;
-}
-
-.custom-error-message {
-  color: #f44336;
-  font-size: 0.75rem;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
-  letter-spacing: 0.03333em;
-  display: block;
-  width: 100%;
-  text-align: center;
 }
 
 //   // Reservation Form

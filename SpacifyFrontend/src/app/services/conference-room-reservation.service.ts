@@ -45,7 +45,7 @@ export class ConferenceRoomReservationService {
     return this.http.get<ConferenceRoomReservationResponse[]>(url, { params });
   }
 
-  createWorkstationReservation(
+  createConfRoomReservation(
     newWorkstationReservation: CreateConferenceRoomReservationRequest
   ): Observable<ConferenceRoomReservationResponse> {
     const url = `${this.apiUrl}/conferenceroom/reservation`;

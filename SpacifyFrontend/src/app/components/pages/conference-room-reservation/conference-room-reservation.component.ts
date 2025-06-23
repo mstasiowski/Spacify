@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Unsubscribe } from '../../../helpers/unsubscribe.class';
 import { ConferenceRoomReservationResponse } from '../../../models/response/conference-room-reservation-response';
 import { ConferenceRoomReservationService } from '../../../services/conference-room-reservation.service';
@@ -20,7 +20,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatNativeDateModule, MatOptionModule } from '@angular/material/core';
 import { FloorService } from '../../../services/floor.service';
-import { distinctUntilChanged, takeUntil } from 'rxjs';
+import { debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs';
 import { FloorResponse } from '../../../models/response/floor-response';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatTimepickerModule } from '@angular/material/timepicker';
@@ -35,6 +35,8 @@ import {
 import { ConferenceRoomCardComponent } from './conference-room-card/conference-room-card.component';
 import { excludeWeekendsFilter } from '../../../helpers/date-filters';
 import { NotificationService } from '../../../services/notification.service';
+import { AuthService } from '../../../services/auth.service';
+import { getDefaultReservationTimes } from '../../../helpers/default-reservation-time';
 
 @Component({
   selector: 'app-conference-room-reservation',
@@ -65,7 +67,9 @@ export class ConferenceRoomReservationComponent
     private conferenceRoomService: ConferenceRoomService,
     private reservationService: ConferenceRoomReservationService,
     private floorService: FloorService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private changeDetectorRef: ChangeDetectorRef,
+    private authService: AuthService
   ) {
     super();
   }
@@ -76,6 +80,7 @@ export class ConferenceRoomReservationComponent
     this.getAllConferenceRooms();
     this.formInit();
     this.handleFormChanges();
+    this.isResFormValid = this.confRoomReservationForm.valid;
 
     // this.getReservations(new Date(defaultResStart), new Date(defaultResEnd));
   }
@@ -95,6 +100,13 @@ export class ConferenceRoomReservationComponent
   ); // 7 dni od dzisiaj
   excludeWeekendsFilter = excludeWeekendsFilter;
   isResFormValid: boolean = false;
+  previousFormValid: boolean = false; // Przechowuje poprzedni stan walidacji formularza
+
+  selectedReservation: {
+    room: ConferenceRoomResponse;
+    startTime: Date;
+    endTime: Date;
+  } | null = null;
 
   setInfoBlocks() {
     this.infoBlocks = [
@@ -151,7 +163,7 @@ export class ConferenceRoomReservationComponent
       date: defaultDate,
       start: defaultResStart,
       end: defaultResEnd,
-    } = this.getDefaultReservationTimes();
+    } = getDefaultReservationTimes();
 
     this.confRoomReservationForm = this.fb.group(
       {
@@ -184,105 +196,104 @@ export class ConferenceRoomReservationComponent
     );
   }
 
-  getDefaultReservationTimes(): {
-    date: Date;
-    start: Date;
-    end: Date;
-  } {
-    const now = new Date();
-    let date = new Date(now);
-    let startHour = now.getHours() + 1;
+  // handleFormChanges() {
+  //   this.confRoomReservationForm.valueChanges
+  //     .pipe(distinctUntilChanged(), takeUntil(this.unsubscribe$))
+  //     .subscribe((formValue) => {
+  //       this.getReservationFromFormValue(formValue);
 
-    // Jeśli już po 17:00, ustaw na jutro 8:00-9:00
-    if (now.getHours() >= 17) {
-      date.setDate(date.getDate() + 1);
-      startHour = 8;
-    }
-    // Jeśli przed 8:00, ustaw na dziś 8:00-9:00
-    if (now.getHours() < 8) {
-      startHour = 8;
-    }
-    // Jeśli startHour > 17, ustaw na jutro 8:00-9:00
-    if (startHour > 17) {
-      date.setDate(date.getDate() + 1);
-      startHour = 8;
-    }
+  //       // Aktualizuj datę
+  //       const date = formValue.date;
+  //       if (date instanceof Date) {
+  //         this.reservationDay = date.toLocaleDateString('pl-PL', {
+  //           day: '2-digit',
+  //           month: '2-digit',
+  //         });
 
-    const start = new Date(
-      date.getFullYear(),
-      date.getMonth(),
-      date.getDate(),
-      startHour,
-      0,
-      0,
-      0
-    );
-    const end = new Date(
-      date.getFullYear(),
-      date.getMonth(),
-      date.getDate(),
-      startHour + 1,
-      0,
-      0,
-      0
-    );
+  //         const day = String(date.getDate()).padStart(2, '0');
+  //         const month = String(date.getMonth() + 1).padStart(2, '0');
+  //         this.reservationDay = `${day}/${month}`;
+  //       }
 
-    // Format daty do yyyy-MM-dd jeśli używasz input type="date"
-    // const dateString = date.toISOString().split('T')[0];
+  //       // Aktualizuj godziny
+  //       const start = formValue.startTime;
+  //       const end = formValue.endTime;
+  //       if (start instanceof Date && end instanceof Date) {
+  //         const startStr = start.toLocaleTimeString('pl-PL', {
+  //           hour: '2-digit',
+  //           minute: '2-digit',
+  //         });
+  //         const endStr = end.toLocaleTimeString('pl-PL', {
+  //           hour: '2-digit',
+  //           minute: '2-digit',
+  //         });
+  //         this.reservationTime = `${startStr}-${endStr}`;
+  //       }
 
-    return { date, start, end };
-  }
+  //       if (!this.confRoomReservationForm.valid) {
+  //         this.availableRooms = 0;
+  //         this.availableCapacity = 0;
+  //         this.reservationTime = 'zły format';
+  //         //! brak sal
+  //         this.filteredRooms = [];
+
+  //         this.setInfoBlocks();
+  //         this.isResFormValid = false;
+  //       } else this.isResFormValid = true;
+
+  //       // this.setInfoBlocks(); // odśwież kafelki
+  //     });
+
+  //   this.confRoomReservationForm
+  //     .get('floor')
+  //     ?.valueChanges.pipe(takeUntil(this.unsubscribe$))
+  //     .subscribe((floorId) => {
+  //       if (floorId) {
+  //         this.getConferenceRoomsByFloor(Number(floorId));
+  //       } else {
+  //         this.getAllConferenceRooms();
+  //       }
+  //     });
+  // }
 
   handleFormChanges() {
+    this.confRoomReservationForm.statusChanges
+      .pipe(distinctUntilChanged(), takeUntil(this.unsubscribe$))
+      .subscribe((status) => {
+        this.isResFormValid = status === 'VALID';
+        const wasInvalid = !this.previousFormValid;
+
+        if (this.isResFormValid && wasInvalid) {
+          const floorId = this.confRoomReservationForm.get('floor')?.value;
+
+          if (floorId) {
+            this.getConferenceRoomsByFloor(Number(floorId));
+          } else {
+            this.getAllConferenceRooms();
+          }
+        }
+
+        this.previousFormValid = this.isResFormValid;
+        this.changeDetectorRef.detectChanges(); // Odśwież widok, aby zaktualizować kafelki
+      });
+
     this.confRoomReservationForm.valueChanges
       .pipe(
+        debounceTime(300),
         distinctUntilChanged(),
-        // (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
         takeUntil(this.unsubscribe$)
       )
       .subscribe((formValue) => {
-        this.getReservationFromFormValue(formValue);
+        //Aktualizacja UI
+        this.updateReservationInfo(formValue);
 
-        // Aktualizuj datę
-        const date = formValue.date;
-        if (date instanceof Date) {
-          this.reservationDay = date.toLocaleDateString('pl-PL', {
-            day: '2-digit',
-            month: '2-digit',
-          });
-
-          const day = String(date.getDate()).padStart(2, '0');
-          const month = String(date.getMonth() + 1).padStart(2, '0');
-          this.reservationDay = `${day}/${month}`;
+        //Pobierz rezerwacje jeżeli formularz jest valid
+        if (this.confRoomReservationForm.valid) {
+          this.getReservationFromFormValue(formValue);
+        } else {
+          //reset kafelków
+          this.resetDisplayDateAndTime();
         }
-
-        // Aktualizuj godziny
-        const start = formValue.startTime;
-        const end = formValue.endTime;
-        if (start instanceof Date && end instanceof Date) {
-          const startStr = start.toLocaleTimeString('pl-PL', {
-            hour: '2-digit',
-            minute: '2-digit',
-          });
-          const endStr = end.toLocaleTimeString('pl-PL', {
-            hour: '2-digit',
-            minute: '2-digit',
-          });
-          this.reservationTime = `${startStr}-${endStr}`;
-        }
-
-        if (!this.confRoomReservationForm.valid) {
-          this.availableRooms = 0;
-          this.availableCapacity = 0;
-          this.reservationTime = '8:00 - 18:00';
-          //! brak sal
-          this.filteredRooms = [];
-
-          this.setInfoBlocks();
-          this.isResFormValid = false;
-        } else this.isResFormValid = true;
-
-        // this.setInfoBlocks(); // odśwież kafelki
       });
 
     this.confRoomReservationForm
@@ -297,6 +308,43 @@ export class ConferenceRoomReservationComponent
       });
   }
 
+  updateReservationInfo(formValue: any) {
+    //Aktualizacja daty
+    const date = formValue.date;
+    if (date instanceof Date) {
+      this.reservationDay = date.toLocaleDateString('pl-PL', {
+        day: '2-digit',
+        month: '2-digit',
+      });
+
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      this.reservationDay = `${day}/${month}`;
+    }
+
+    // Aktualizacja godzin
+    const start = formValue.startTime;
+    const end = formValue.endTime;
+    if (start instanceof Date && end instanceof Date) {
+      const startStr = start.toLocaleTimeString('pl-PL', {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+      const endStr = end.toLocaleTimeString('pl-PL', {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+      this.reservationTime = `${startStr}-${endStr}`;
+    }
+  }
+
+  resetDisplayDateAndTime() {
+    this.availableRooms = 0;
+    this.availableCapacity = 0;
+    this.reservationTime = 'zły format';
+    this.setInfoBlocks();
+  }
+
   getAllConferenceRooms() {
     this.conferenceRoomService
       .getConferenceRooms()
@@ -304,18 +352,15 @@ export class ConferenceRoomReservationComponent
       .subscribe({
         next: (rooms: ConferenceRoomResponse[]) => {
           this.filteredRooms = rooms;
-          console.log('Załadowane sale konferencyjne:', this.filteredRooms);
-          this.calculateAvailableCapacity(); // DODAJ TO!
+          // console.log('Załadowane sale konferencyjne:', this.filteredRooms);
+          this.calculateAvailableCapacity();
           this.setInfoBlocks();
         },
         error: (error) => {
-          this.filteredRooms = [];
-          if (error.status === 404) {
-            console.warn('Brak sal konferencyjnych na tym piętrze.');
-            return;
-          } else {
-            console.error('Błąd podczas ładowania sal konferencyjnych:', error);
-          }
+          this.notificationService.showError(
+            'Wystąpił błąd podczas ładowania sal konferencyjnych. Spróbuj ponownie później.',
+            `Status: ${error.status}`
+          );
         },
       });
   }
@@ -327,22 +372,25 @@ export class ConferenceRoomReservationComponent
       .subscribe({
         next: (rooms: ConferenceRoomResponse[]) => {
           this.filteredRooms = rooms;
-          console.log(
-            `Załadowane sale konferencyjne z piętra o id:${floorId}:`,
-            this.filteredRooms
-          );
+          // console.log(
+          //   `Załadowane sale konferencyjne z piętra o id:${floorId}:`,
+          //   this.filteredRooms
+          // );
 
           this.calculateAvailableCapacity();
           this.setInfoBlocks();
         },
         error: (error) => {
-          this.filteredRooms = [];
-          if (error.status === 404) {
-            console.warn('Brak sal konferencyjnych na tym piętrze.');
-            return;
-          } else {
-            console.error('Błąd podczas ładowania sal konferencyjnych:', error);
-          }
+          // if (error.status === 404) {
+          //   console.warn('Brak sal konferencyjnych na tym piętrze.');
+          //   return;
+          // } else {
+          //   console.error('Błąd podczas ładowania sal konferencyjnych:', error);
+          // }
+          this.notificationService.showError(
+            'Wystąpił błąd podczas ładowania sal konferencyjnych. Spróbuj ponownie później.',
+            `Status: ${error.status}`
+          );
         },
       });
   }
@@ -356,7 +404,6 @@ export class ConferenceRoomReservationComponent
           this.floors = floors;
         },
         error: (error) => {
-          console.error('Błąd podczas ładowania pięter:', error);
           this.notificationService.showError(
             'Nie udało się pobrać pięter. Spróbuj ponownie później.',
             `Status: ${error.status}`
@@ -377,10 +424,10 @@ export class ConferenceRoomReservationComponent
           //   reservationEnd: new Date(res.reservationEnd + 'Z'),
           // }));
           this.reservations = reservations;
-          console.log('Załadowane rezerwacje:', this.reservations);
+          // console.log('Załadowane rezerwacje:', this.reservations);
           this.calculateAvailableCapacity();
           this.setInfoBlocks();
-          console.log('CAPACITY', this.availableCapacity);
+          // console.log('CAPACITY', this.availableCapacity);
         },
         error: (error) => {
           this.notificationService.showError(
@@ -398,11 +445,11 @@ export class ConferenceRoomReservationComponent
     const formValue = this.confRoomReservationForm.value;
     if (!formValue.date || !formValue.startTime || !formValue.endTime) return;
 
-    const startDateTime = this.combinaDateAndTime(
+    const startDateTime = this.combineDateAndTime(
       formValue.date,
       formValue.startTime
     );
-    const endDateTime = this.combinaDateAndTime(
+    const endDateTime = this.combineDateAndTime(
       formValue.date,
       formValue.endTime
     );
@@ -439,27 +486,31 @@ export class ConferenceRoomReservationComponent
     if (!formValue.date || !formValue.startTime || !formValue.endTime) return;
 
     if (this.confRoomReservationForm.valid) {
-      console.log('Form Value:', formValue);
-      const startDateTime = this.combinaDateAndTime(
+      const startDateTime = this.combineDateAndTime(
         formValue.date,
         formValue.startTime
       );
-      const endDateTime = this.combinaDateAndTime(
+      const endDateTime = this.combineDateAndTime(
         formValue.date,
         formValue.endTime
       );
-      console.log(`Pobrano rezerwacje od ${startDateTime} do ${endDateTime}`);
       this.getReservations(startDateTime, endDateTime);
-    } else {
-      this.notificationService.showError(
-        'Formularz jest nieprawidłowy, sprawdź błędy.'
-      );
     }
   }
 
-  combinaDateAndTime(date: string | Date, time: string | Date): Date {
+  combineDateAndTime(date: string | Date, time: string | Date): Date {
     const parsedDate = typeof date === 'string' ? new Date(date) : date;
     const parsedTime = new Date(time);
+
+    if (
+      !(parsedDate instanceof Date) ||
+      isNaN(parsedDate.getTime()) ||
+      !(parsedTime instanceof Date) ||
+      isNaN(parsedTime.getTime())
+    ) {
+      console.error('Invalid date or time provided');
+      return new Date(); // Zwraca aktualną datę w przypadku błędu
+    }
 
     const year = parsedDate.getFullYear();
     const month = parsedDate.getMonth();
@@ -475,6 +526,76 @@ export class ConferenceRoomReservationComponent
     confRoomId: number
   ): ConferenceRoomReservationResponse | undefined {
     return this.reservations.find((res) => res.conferenceRoomId === confRoomId);
+  }
+
+  onReserveConfRoom(room: ConferenceRoomResponse) {
+    const formValue = this.confRoomReservationForm.value;
+
+    this.selectedReservation = {
+      room,
+      startTime: this.combineDateAndTime(formValue.date, formValue.startTime),
+      endTime: this.combineDateAndTime(formValue.date, formValue.endTime),
+    };
+  }
+
+  getFloorName(floorId: number): string {
+    const floor = this.floors.find((f) => f.id === floorId);
+    return floor ? floor.name : 'Nieznane piętro';
+  }
+
+  addReservation() {
+    if (!this.selectedReservation) return;
+
+    if (this.confRoomReservationForm.valid) {
+      const formValue = this.confRoomReservationForm.value;
+      const reservationStart = this.combineDateAndTime(
+        formValue.date,
+        formValue.startTime
+      );
+      const reservationEnd = this.combineDateAndTime(
+        formValue.date,
+        formValue.endTime
+      );
+
+      const newReservation: CreateConferenceRoomReservationRequest = {
+        userId: this.authService.userSignal()?.id || '',
+        conferenceRoomId: this.selectedReservation.room.id,
+        reservationStart: reservationStart.toISOString(),
+        reservationEnd: reservationEnd.toISOString(),
+      };
+
+      console.log('Tworzenie rezerwacji:', newReservation);
+
+      this.reservationService
+        .createConfRoomReservation(newReservation)
+        .pipe(
+          takeUntil(this.unsubscribe$),
+          finalize(() => {
+            this.selectedReservation = null; // Resetuj po dodaniu rezerwacji
+            this.changeDetectorRef.detectChanges(); // Odśwież widok
+          })
+        )
+        .subscribe({
+          next: (response) => {
+            this.notificationService.showSuccess(
+              `Sala ${this.selectedReservation?.room.name} została zarezerwowana.`
+            );
+            this.getReservations(
+              new Date(newReservation.reservationStart),
+              new Date(newReservation.reservationEnd)
+            );
+          },
+          error: (error) => {
+            this.notificationService.showError(
+              'Nie udało się dodać rezerwacji.',
+              `Status: ${error.status}`
+            );
+            console.log(error);
+            console.log(this.confRoomReservationForm.valid);
+            console.log(this.confRoomReservationForm.value);
+          },
+        });
+    }
   }
 
   //? Generowane
