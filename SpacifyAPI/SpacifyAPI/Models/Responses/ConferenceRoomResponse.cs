@@ -13,6 +13,7 @@ namespace SpacifyAPI.Models.Responses
         public int Capacity { get; set; }
         public int FloorId { get; set; }
 
+        public List<ConferenceRoomReservationResponse>? ConferenceRoomReservations { get; set; } = new List<ConferenceRoomReservationResponse>();
 
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using SpacifyAPI.Data;
 using SpacifyAPI.Entities;
@@ -6,6 +7,7 @@ using SpacifyAPI.Exceptions;
 using SpacifyAPI.Interfaces;
 using SpacifyAPI.Models.Requests;
 using SpacifyAPI.Models.Responses;
+using System.Security.Claims;
 
 namespace SpacifyAPI.Services
 {
@@ -21,6 +23,8 @@ namespace SpacifyAPI.Services
         public async Task<List<FloorResponse>> GetAllFloorsAsync()
         {
             var floors = await _context.Floors
+                //.Include(f => (IEnumerable<Workstation>)f.Workstations!)
+                //.ThenInclude(r => r.WorkstationReservations)
                 .ToListAsync();
 
             if (floors == null || floors.Count == 0)
@@ -33,8 +37,104 @@ namespace SpacifyAPI.Services
                     Id = f.Id,
                     Name = f.Name,
                     ImageUrl = f.ImageUrl,
+                    //Workstations = (f.Workstations == null || !f.Workstations.Any()) ? null : f.Workstations.Select(w => new WorkstationResponse
+                    //{
+                    //    Id = w.Id,
+                    //    DeskNumber = w.DeskNumber,
+                    //    PositionX = w.PositionX,
+                    //    PositionY = w.PositionY,
+                    //    FloorId = w.FloorId,
+                    //    WorkstationReservations = (w.WorkstationReservations == null || !w.WorkstationReservations.Any())
+                    //    ? null
+                    //    : w.WorkstationReservations.Select(r => new WorkstationReservationResponse
+                    //    {
+                    //        Id = r.Id,
+                    //        UserId = r.UserId,
+                    //        WorkstationId = r.WorkstationId,
+                    //        ReservationStart = r.ReservationStart,
+                    //        ReservationEnd = r.ReservationEnd,
+                    //        CreatedAt = r.CreatedAt,
+                    //        UpdatedAt = r.UpdatedAt,
+                    //        IsConfirmed = r.IsConfirmed
+                    //    }).ToList()
+                    //}).ToList(),
                 }));
         }
+
+        //TEEEEEST
+        public async Task<List<FloorResponse>> GetAllFloorsWithUserReservationsAsync(string userIdClaim)
+        {
+            //var userIdClaim = _httpContextAccessor.HttpContext?.User.FindFirst("sub")?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out Guid userId))
+            {
+                throw new UnauthorizedAccessException("User is not authenticated.");
+            }
+
+            var floors = await _context.Floors
+                .Include(f => f.Workstations!)
+                    .ThenInclude(w => w.WorkstationReservations)
+                 .Include(c => c.ConferenceRooms!)
+                    .ThenInclude(cr => cr.ConferenceRoomReservations)
+                .ToListAsync();
+
+            if (floors == null || floors.Count == 0)
+            {
+                throw new NotFoundException("No floors found in the database.");
+            }
+
+            return floors.Select(f => new FloorResponse
+            {
+                Id = f.Id,
+                Name = f.Name,
+                ImageUrl = f.ImageUrl,
+                Workstations = f.Workstations?.Select(w => new WorkstationResponse
+                {
+                    Id = w.Id,
+                    DeskNumber = w.DeskNumber,
+                    PositionX = w.PositionX,
+                    PositionY = w.PositionY,
+                    FloorId = w.FloorId,
+                    WorkstationReservations = w.WorkstationReservations?
+                        .Where(r => r.UserId == userId)
+                        .Select(r => new WorkstationReservationResponse
+                        {
+                            Id = r.Id,
+                            UserId = r.UserId,
+                            WorkstationId = r.WorkstationId,
+                            ReservationStart = r.ReservationStart,
+                            ReservationEnd = r.ReservationEnd,
+                            CreatedAt = r.CreatedAt,
+                            UpdatedAt = r.UpdatedAt,
+                            IsConfirmed = r.IsConfirmed
+                        }).ToList()
+                }).ToList(),
+                ConferenceRooms = f.ConferenceRooms?.Select(cr => new ConferenceRoomResponse
+                {
+                    Id = cr.Id,
+                    Name = cr.Name,
+                    EquipmentDetails = cr.EquipmentDetails,
+                    ImageUrl = cr.ImageUrl,
+                    Capacity = cr.Capacity,
+                    FloorId = cr.FloorId,
+                    ConferenceRoomReservations = cr.ConferenceRoomReservations?
+                        .Where(r => r.UserId == userId)
+                        .Select(r => new ConferenceRoomReservationResponse
+                        {
+                            Id = r.Id,
+                            UserId = r.UserId,
+                            ConferenceRoomId = r.ConferenceRoomId,
+                            ReservationStart = r.ReservationStart,
+                            ReservationEnd = r.ReservationEnd,
+                            CreatedAt = r.CreatedAt,
+                            IsConfirmed = r.IsConfirmed
+                        }).ToList()
+                }).ToList()
+            }).ToList();
+        }
+
+        //TEEEEEST
+
 
         public async Task<FloorResponse> GetFloorByIdAsync(int id)
         {

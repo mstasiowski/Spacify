@@ -11,6 +11,6 @@ namespace SpacifyAPI.Models.Responses
         public float PositionY { get; set; }
         public int FloorId { get; set; }
 
-       // public List<WorkstationReservation>? WorkstationReservations { get; set; } = new List<WorkstationReservation>();
+        public List<WorkstationReservationResponse>? WorkstationReservations { get; set; } = new List<WorkstationReservationResponse>();
     }
 }

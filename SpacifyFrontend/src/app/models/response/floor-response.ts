@@ -6,5 +6,5 @@ export interface FloorResponse {
   name: string;
   imageUrl: string;
   conferenceRooms?: ConferenceRoomResponse[];
-  workstation?: WorkstationResponse[];
+  workstations?: WorkstationResponse[];
 }

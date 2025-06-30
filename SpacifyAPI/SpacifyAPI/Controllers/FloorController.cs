@@ -2,10 +2,12 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SpacifyAPI.Entities;
+using SpacifyAPI.Exceptions;
 using SpacifyAPI.Helpers;
 using SpacifyAPI.Interfaces;
 using SpacifyAPI.Models.Requests;
 using SpacifyAPI.Models.Responses;
+using System.Security.Claims;
 
 namespace SpacifyAPI.Controllers
 {
@@ -34,6 +36,21 @@ namespace SpacifyAPI.Controllers
         {  
             var floor = await _floorService.GetFloorByIdAsync(id);
             return Ok(floor);
+        }
+
+        [Authorize]
+        [HttpGet("/floors/user-reservations")]
+        public async Task<ActionResult<List<FloorResponse>>> GetFloorsWithUserReservations()
+        {
+
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim))
+            {
+                throw new UnauthorizedAccessToDataException("User ID not found in token.");
+            }
+
+            var floors = await _floorService.GetAllFloorsWithUserReservationsAsync(userIdClaim);
+            return Ok(floors);
         }
 
         [Authorize(Roles = RoleNames.Administrator)]

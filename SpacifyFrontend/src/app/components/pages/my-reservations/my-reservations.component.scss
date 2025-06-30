@@ -1,0 +1,319 @@
+$blue: #3b82f6;
+$blue-light: #dbeafe;
+$gray: #4a5565;
+$background: #f9fbfd;
+$red: #f44336;
+$green: #22c55e;
+$orange: #f59e42;
+$purple: #764ba2;
+
+$workspaceColor: linear-gradient(135deg, $blue, #5e5ee7);
+$ConferenceRoomColor: linear-gradient(135deg, $purple, #b35ee7);
+
+#container {
+  padding: 0rem 1rem 0 rem 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2.5rem;
+  border: 1px solid black;
+}
+
+#my-reservations-header {
+  text-align: center;
+  // margin-bottom: 2.5rem;
+
+  h1 {
+    font-size: 2.3rem;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: 1.5px;
+    font-family: "Montserrat", "Segoe UI", Arial, sans-serif;
+    background: linear-gradient(90deg, #3b82f6 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    display: inline-block;
+  }
+
+  .subtitle {
+    margin: 0.7rem 0 0 0;
+    font-size: 1.05rem;
+    color: #4a5565;
+    font-weight: 400;
+    letter-spacing: 0.2px;
+    font-family: "Segoe UI", Arial, sans-serif;
+    opacity: 0.95;
+  }
+}
+
+#info-blocks {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+
+  .info-block {
+    background: linear-gradient(135deg, $blue 0%, #764ba2 100%);
+    color: white;
+    padding: 25px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &.all {
+      background: linear-gradient(135deg, $blue, #60a5fa); // niebieski
+    }
+
+    &.confirmed {
+      background: linear-gradient(135deg, $green, #69e295); // zielony
+    }
+
+    &.pending {
+      background: linear-gradient(135deg, $orange, #fcd34d); // pomarańczowy
+    }
+
+    &.completed {
+      background: linear-gradient(135deg, $red, #e75e77); // szary
+    }
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    .block-icon {
+      font-size: 2rem;
+      opacity: 0.9;
+      min-width: 40px;
+    }
+
+    .block-content {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      // align-items: center;
+      flex-direction: column;
+      gap: 0.5rem;
+      // border: 1px solid black;
+      width: 100%;
+      text-align: left;
+
+      h3 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        line-height: 1.2;
+      }
+
+      p {
+        margin: 0;
+        font-size: 0.8rem;
+        opacity: 0.9;
+        font-weight: 300;
+      }
+    }
+  }
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+#reservations-list {
+  width: 100%;
+  border: 1px solid red;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 1rem;
+  background-color: white;
+  padding: 1rem;
+}
+
+#reservations-table {
+  // width: 100%;
+  border: 1px solid gray;
+}
+
+// #reservations-table {
+//   display: flex;
+//   justify-content: center;
+//   align-items: center;
+//   gap: 2rem;
+// }
+
+.table-row-info-and-icon {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.5rem;
+  // border: 1px solid green;
+}
+
+.reservation-type-icon {
+  font-size: 1rem;
+  // border: 1px solid black;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 0.5rem;
+  // background: linear-gradient(135deg, $blue 0%, #764ba2 100%);
+  color: white;
+  background: $ConferenceRoomColor;
+}
+
+.reservation-type-info {
+  width: 8rem;
+}
+
+.workspace-bg {
+  background: $workspaceColor;
+}
+
+.conference-room-bg {
+  background: $ConferenceRoomColor;
+}
+
+.status-col-container {
+  text-align: center !important;
+}
+
+.status-confirmed {
+  background: linear-gradient(135deg, $green, #20d864);
+  color: white;
+  border-radius: 0.7rem;
+  padding: 0.2rem 0.9rem;
+  font-weight: 500;
+  font-size: 0.8rem;
+  display: inline-block;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.08);
+  border: none;
+}
+
+.status-pending {
+  background: linear-gradient(135deg, $orange, #fcd34d);
+  color: white;
+  border-radius: 0.7rem;
+  padding: 0.2rem 0.9rem;
+  font-weight: 500;
+  font-size: 0.8rem;
+  display: inline-block;
+  box-shadow: 0 2px 8px rgba(245, 158, 66, 0.08);
+  border: none;
+}
+
+.action-col-container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 1rem;
+
+  min-height: 4rem;
+}
+
+#reservations-table td,
+#reservations-table th {
+  vertical-align: middle;
+  min-height: 4rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.table-row-info-and-icon,
+.reservation-type-info,
+.status-col-container,
+.action-col-container {
+  align-items: center;
+}
+
+.table-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-shadow: none;
+  outline: none;
+
+  i {
+    font-size: 14px;
+  }
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.btn-confirm {
+  background-color: #4caf50;
+  color: #fff;
+
+  &:hover {
+    background-color: #43a047;
+  }
+
+  &:active {
+    background-color: #388e3c;
+  }
+}
+
+.btn-delete {
+  background-color: #f44336;
+  color: #fff;
+
+  &:hover {
+    background-color: #e53935;
+  }
+
+  &:active {
+    background-color: #d32f2f;
+  }
+}
+
+@media (max-width: 700px) {
+  #reservations-table,
+  #reservations-table th,
+  #reservations-table td {
+    font-size: 0.92rem;
+    padding: 0.3rem 0.5rem;
+  }
+  .reservation-type-info {
+    width: 5.5rem;
+  }
+  .table-btn {
+    font-size: 0.85rem;
+    padding: 4px 8px;
+  }
+}
+@media (max-width: 500px) {
+  #reservations-table th,
+  #reservations-table td {
+    font-size: 0.8rem;
+    padding: 0.2rem 0.2rem;
+  }
+  .reservation-type-info {
+    width: 3.5rem;
+  }
+  .table-btn {
+    font-size: 0.75rem;
+    padding: 2px 4px;
+  }
+}

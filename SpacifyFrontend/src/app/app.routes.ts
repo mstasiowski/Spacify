@@ -13,6 +13,7 @@ import { SettingsComponent } from './components/pages/settings/settings.componen
 import { adminGuard } from './guards/admin.guard';
 import { roleGuard } from './guards/role.guard';
 import { UserRole } from './enums/user-role.enum';
+import { MyReservationsComponent } from './components/pages/my-reservations/my-reservations.component';
 
 export const routes: Routes = [
   {
@@ -47,6 +48,11 @@ export const routes: Routes = [
           authenticationGuard,
           roleGuard([UserRole.Administrator, UserRole.Leader]),
         ],
+      },
+      {
+        path: 'my-reservations',
+        component: MyReservationsComponent,
+        canActivate: [authenticationGuard],
       },
       {
         path: 'admin',

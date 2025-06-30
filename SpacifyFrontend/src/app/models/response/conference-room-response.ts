@@ -1,3 +1,5 @@
+import { ConferenceRoomReservationResponse } from './conference-room-reservation-response';
+
 export interface ConferenceRoomResponse {
   id: number;
   name: string;
@@ -5,4 +7,5 @@ export interface ConferenceRoomResponse {
   imageUrl: string;
   capacity: number;
   floorId: number;
+  conferenceRoomReservations?: ConferenceRoomReservationResponse[];
 }

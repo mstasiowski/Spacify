@@ -23,6 +23,11 @@ export class FloorService {
     return this.http.get<FloorResponse>(url);
   }
 
+  getFloorWithUserReservations(): Observable<FloorResponse[]> {
+    const url = `${this.apiUrl}/floors/user-reservations`;
+    return this.http.get<FloorResponse[]>(url);
+  }
+
   createFloor(newFloor: CreateFloorRequest): Observable<FloorResponse> {
     const url = `${this.apiUrl}/floor`;
     return this.http.post<FloorResponse>(url, newFloor);
