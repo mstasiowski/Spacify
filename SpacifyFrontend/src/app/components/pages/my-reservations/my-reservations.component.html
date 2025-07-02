@@ -23,15 +23,118 @@
     </div>
   </section>
 
+  <!-- FIXIT alert o potwierdzeniu rezerwacji -->
+  <div
+    [ngClass]="{ show: showReservationInfo, hide: !showReservationInfo }"
+    class="reservation-info-alert"
+    (click)="showReservationInfo = false"
+    title="Informacja o rezerwacji"
+  >
+    <span class="alert-icon">
+      <i class="fa-solid fa-circle-info"></i>
+    </span>
+    <span>
+      Aby potwierdzić rezerwację, należy zrobić to
+      <b>na godzinę przed rozpoczęciem</b>.
+    </span>
+    <button
+      class="alert-close-btn"
+      (click)="showReservationInfo = false"
+      title="Zamknij komunikat"
+    >
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  </div>
+  <!-- FIXIT alert o potwierdzeniu rezerwacji -->
+
   <section id="reservations-list">
     <h2>Lista rezerwacji</h2>
 
-    <div class="table-responsive">
+    <!-- <div id="reservation-type-toggle"> -->
+    <!-- <mat-button-toggle-group
+      name="reservationType"
+      class="reservation-toggle-group"
+      [hideSingleSelectionIndicator]="true"
+    >
+      <mat-button-toggle value="all">Wszystkie</mat-button-toggle>
+      <mat-button-toggle value="workstation"
+        >Stanowiska pracy</mat-button-toggle
+      >
+      <mat-button-toggle value="conference"
+        >Sale konferencyjne</mat-button-toggle
+      >
+    </mat-button-toggle-group> -->
+
+    <div class="custom-toggle-group">
+      <!-- <ng-container *ngFor="let option of toggleOptions">
+        <button
+          class="toggle-button"
+          [class.active]="selectedOption === option.value"
+          [disabled]="
+            option.value === 'rooms' && userSignal?.role === 'Employee'
+          "
+          (click)="selectOption(option.value)"
+          *ngIf="!(option.value === 'rooms' && userSignal?.role === 'Employee')"
+        >
+          {{ option.label }}
+        </button>
+      </ng-container> -->
+
+      <button
+        class="toggle-button"
+        [class.active]="selectedOption === 'all'"
+        (click)="selectOption('all')"
+      >
+        Wszystkie ({{ allReservationsCount }})
+      </button>
+      <button
+        class="toggle-button"
+        [class.active]="selectedOption === 'stations'"
+        (click)="selectOption('stations')"
+      >
+        Stanowiska ({{ allWorkstationReservationsCount }})
+      </button>
+      <button
+        class="toggle-button"
+        [class.active]="selectedOption === 'rooms'"
+        (click)="selectOption('rooms')"
+        [disabled]="userSignal?.role === 'Employee'"
+        *ngIf="userSignal?.role !== 'Employee'"
+      >
+        Sale konferencyjne ({{ allConfRoomReservationsCount }})
+      </button>
+    </div>
+    <!-- </div> -->
+
+    <!-- ! *ngIf="filteredReservations.length === 0" -->
+    <div
+      class="no-reservations-info-container"
+      *ngIf="dataSource.data.length === 0"
+    >
+      <div class="no-reservations-info">
+        <i class="fa-regular fa-calendar-xmark"></i>
+        <span>{{
+          selectedOption === "all"
+            ? "Nie masz obecnie żadnych rezerwacji."
+            : selectedOption === "stations"
+            ? "Brak rezerwacji stanowisk pracy."
+            : "Brak rezerwacji sal konferencyjnych."
+        }}</span>
+      </div>
+    </div>
+
+    <div class="table-responsive" *ngIf="dataSource.data.length > 0">
+      <!-- ! -->
+      <!-- [dataSource]="filteredReservations" -->
+      <!-- ! -->
       <table
         mat-table
-        [dataSource]="userReservations"
+        [dataSource]="dataSource"
         id="reservations-table"
         class="mat-elevation-z2 full-width-table"
+        matSort
+        [matSortActive]="'reservationStart'"
+        [matSortDirection]="'desc'"
       >
         <!-- Typ i nazwa Column -->
         <ng-container matColumnDef="typeName">
@@ -61,16 +164,24 @@
 
         <!-- Data i godzina Column -->
         <ng-container matColumnDef="dateTime">
-          <th mat-header-cell *matHeaderCellDef>Data i godzina</th>
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+            mat-sort-header="reservationStart"
+          >
+            Data i godzina
+          </th>
           <td mat-cell *matCellDef="let res">
-            <div class="fw-bold">
-              <i class="fa-solid fa-calendar-week"></i>
-              {{ res.reservationStart | date : "yyyy-MM-dd" }}
-            </div>
-            <div class="text-muted small">
-              <i class="fa-regular fa-clock"></i>
-              {{ res.reservationStart | date : "HH:mm" }} -
-              {{ res.reservationEnd | date : "HH:mm" }}
+            <div class="date-col-container">
+              <div class="date-cell-date">
+                <i class="fa-solid fa-calendar-week"></i>
+                {{ res.reservationStart | date : "yyyy-MM-dd" }}
+              </div>
+              <div class="date-cell-time">
+                <i class="fa-regular fa-clock"></i>
+                {{ res.reservationStart | date : "HH:mm" }} -
+                {{ res.reservationEnd | date : "HH:mm" }}
+              </div>
             </div>
           </td>
         </ng-container>
@@ -78,7 +189,9 @@
         <!-- Lokalizacja Column -->
         <ng-container matColumnDef="location">
           <th mat-header-cell *matHeaderCellDef>Lokalizacja</th>
-          <td mat-cell *matCellDef="let res">{{ res.floorName }}</td>
+          <td mat-cell *matCellDef="let res" class="location-col-container">
+            {{ res.floorName }}
+          </td>
         </ng-container>
 
         <!-- Status Column -->
@@ -101,31 +214,39 @@
         <!-- Akcje Column -->
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef>Dostępne działania</th>
-          <td mat-cell *matCellDef="let res" class="action-col-container">
-            <!-- <button *ngIf="!res.isConfirmed" mat-raised-button color="primary">
-        <mat-icon>check</mat-icon> Potwierdź
-      </button>
-      <button mat-raised-button color="warn">
-        <mat-icon>delete</mat-icon> Anuluj
-      </button> -->
+          <td mat-cell *matCellDef="let res">
             <!-- ! -->
-            <button
-              *ngIf="!res.isConfirmed"
-              class="table-btn btn-confirm"
-              title="Potwierdź rezerwację"
-            >
-              <i class="fa-regular fa-square-check"></i> Potwierdź
-            </button>
-            <button class="table-btn btn-delete" title="Anuluj rezerwację">
-              <i class="fa-solid fa-square-xmark"></i> Anuluj
-            </button>
+            <div class="action-btns-container">
+              <button
+                *ngIf="!res.isConfirmed"
+                class="table-btn btn-confirm"
+                title="Potwierdź rezerwację"
+                [disabled]="!isConfirmBtnAvailable(res)"
+                (click)="confirmReservation(res)"
+              >
+                <i class="fa-regular fa-square-check"></i> Potwierdź
+              </button>
+              <button
+                class="table-btn btn-delete"
+                title="Anuluj rezerwację"
+                [disabled]="res.reservationEnd < now"
+                (click)="cancelReservation(res)"
+              >
+                <i class="fa-solid fa-square-xmark"></i> Anuluj
+              </button>
+            </div>
+
             <!-- ! -->
           </td></ng-container
         >
 
         <!-- Header & Row Declarations -->
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns"
+          [ngClass]="{ 'reservation-ended': row.reservationEnd < now }"
+        ></tr>
       </table>
     </div>
   </section>
