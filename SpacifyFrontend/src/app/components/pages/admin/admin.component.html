@@ -1,1 +1,102 @@
-<p>Dostępny tylko dla administratora!</p>
+<div id="container">
+  <header id="admin-panel-header">
+    <h1>Panel administratora</h1>
+    <p class="subtitle">
+      Zarządzaj użytkownikami, stanowiskami pracy i salami konferencyjnymi.
+    </p>
+  </header>
+
+  <section id="h2-control-section">
+    <h2>Zarządzaj stanowiskami pracy</h2>
+    <div id="admin-controls">
+      <button
+        mat-stroked-button
+        (click)="enableAddMode()"
+        [ngClass]="{ disabled: currentMode === 'add' }"
+      >
+        Dodaj stanowisko
+      </button>
+      <button
+        mat-stroked-button
+        (click)="enableEditMode()"
+        [ngClass]="{ disabled: currentMode === 'edit' }"
+      >
+        Edytuj stanowiska
+      </button>
+      <button
+        mat-stroked-button
+        (click)="enableDeleteMode()"
+        [ngClass]="{ disabled: currentMode === 'delete' }"
+      >
+        Usuń stanowiska
+      </button>
+    </div>
+  </section>
+
+  <!-- Mapa biura -->
+  <div id="planContainer">
+    <div id="planTopSection">
+      <div class="topTitle" id="planTopTitle">
+        <i class="fa-solid fa-location-dot"></i>
+        <h2>Plan biura</h2>
+      </div>
+      <div id="floorBtns">
+        <mat-button-toggle-group
+          name="floorToggle"
+          [(value)]="selectedFloorId"
+          (change)="onFloorChange($event.value)"
+          class="floor-toggle-group"
+          [hideSingleSelectionIndicator]="true"
+        >
+          <mat-button-toggle
+            *ngFor="let floor of floors"
+            [value]="floor.id"
+            class="floor-toggle"
+          >
+            {{ floor.name }}
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
+    </div>
+
+    <div id="planSection">
+      <div #floorPlan class="floorPlanContainer"></div>
+    </div>
+  </div>
+
+  <div
+    *ngIf="showTooltip"
+    class="tooltip"
+    [style.left.px]="tooltipPosition.x"
+    [style.top.px]="tooltipPosition.y"
+  >
+    <label for="deskNumber">Numer stanowiska:</label>
+    <input
+      id="deskNumber"
+      type="number"
+      [(ngModel)]="newWorkstationDeskNumber"
+      placeholder="Wpisz numer"
+    />
+    <div class="tooltip-actions">
+      <button
+        mat-raised-button
+        color="primary"
+        *ngIf="currentMode === 'add'"
+        (click)="confirmAddWorkstation()"
+      >
+        Dodaj
+      </button>
+      <button
+        mat-raised-button
+        color="primary"
+        *ngIf="currentMode === 'edit'"
+        (click)="confirmEditWorkstation()"
+      >
+        Zapisz
+      </button>
+      <button mat-raised-button color="warn" (click)="cancelTooltip()">
+        Anuluj
+      </button>
+    </div>
+  </div>
+</div>

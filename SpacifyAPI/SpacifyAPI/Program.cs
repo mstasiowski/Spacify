@@ -5,12 +5,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SpacifyAPI.Data;
+using SpacifyAPI.Helpers;
 using SpacifyAPI.Interfaces;
 using SpacifyAPI.Middlewares;
 using SpacifyAPI.Services;
 using SpacifyAPI.Tasks;
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 
 namespace SpacifyAPI
 {
@@ -103,6 +105,38 @@ namespace SpacifyAPI
             builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
             builder.Services.AddProblemDetails();
 
+            // Rate limiting 150 request for 1 minute
+            builder.Services.AddRateLimiter(options =>
+            {
+                options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+                    RateLimitPartition.GetFixedWindowLimiter(
+                        partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                        factory: key => new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = 150, // maksymalnie 150 ¿¹dañ na IP w ci¹gu minuty
+                            Window = TimeSpan.FromMinutes(1), // czas okna 1 minuta
+                            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                            QueueLimit = 0
+                        }));
+
+                // Obs³uga przekroczenia limitu
+                options.OnRejected = async (context, token) =>
+                {
+                    context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+                    context.HttpContext.Response.ContentType = "application/json";
+
+                    var problem = new ProblemDetails
+                    {
+                        Status = 429,
+                        Title = "Too many requests",
+                        Type = "https://httpstatuses.com/429",
+                        Detail = "You have exceeded the allowed number of requests. Please try again later."
+                    };
+
+                    await context.HttpContext.Response.WriteAsJsonAsync(problem, cancellationToken: token);
+                };
+            });
+
             //Add database context
             builder.Services.AddDbContext<SpacifyDbContext>(options =>
             {
@@ -173,6 +207,7 @@ namespace SpacifyAPI
                 await next();
             });
 
+            app.UseRateLimiter();
 
             app.UseHttpsRedirection();
             app.UseCors("AllowAngularFrontend");

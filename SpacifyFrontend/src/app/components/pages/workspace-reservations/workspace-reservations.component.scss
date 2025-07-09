@@ -1,3 +1,5 @@
+@use "@angular/material" as mat;
+
 $blue: #3b82f6;
 $blue-light: #dbeafe;
 $gray: #4a5565;
@@ -9,8 +11,10 @@ $background: #f9fbfd;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
   gap: 5rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 #h1-section {
@@ -209,7 +213,39 @@ $background: #f9fbfd;
   justify-content: flex-end;
   align-items: center;
   padding-right: 2rem;
+
+  @include mat.button-toggle-overrides(
+    (
+      background-color: rgb(96, 135, 218),
+      selected-state-background-color: rgb(78, 122, 215),
+      selected-state-text-color: white,
+      text-color: rgb(150, 182, 252),
+      shape: 999px,
+      divider-color: rgb(53, 101, 203),
+    )
+  );
 }
+
+// !!
+::ng-deep .mat-button-toggle {
+  box-shadow: 0 0px 14px rgba(0, 0, 0, 0.656);
+  transition: box-shadow 0.3s ease;
+}
+// ::ng-deep .mat-button-toggle {
+//   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); // delikatny cień
+//   transition: box-shadow 0.3s ease, transform 0.2s ease;
+
+//   &:hover {
+//     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+//     transform: translateY(-1px); // lekki efekt „unoszenia”
+//   }
+
+//   &.mat-button-toggle-checked {
+//     box-shadow: 0 6px 12px rgba(53, 101, 203, 0.35); // cień w kolorze motywu
+//   }
+// }
+
+// !
 
 #planSection {
   width: 100%;

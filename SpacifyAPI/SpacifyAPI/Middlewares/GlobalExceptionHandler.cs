@@ -26,6 +26,8 @@ namespace SpacifyAPI.Middlewares
                 ReservationAlreadyExistsException => (StatusCodes.Status409Conflict, exception.Message),
                 UnauthorizedAccessToDataException => (StatusCodes.Status401Unauthorized, exception.Message),
                 ForbiddenAccessToData =>(StatusCodes.Status403Forbidden, exception.Message),
+                BadHttpRequestException badHttpRequestEx when badHttpRequestEx.Message.Contains("Request body too large") =>
+                (StatusCodes.Status413PayloadTooLarge, "Request body too large (max 1 MB)."),
                 _ => (StatusCodes.Status500InternalServerError, "An unexpected error occurred.")
             };
 

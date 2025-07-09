@@ -254,11 +254,7 @@ namespace SpacifyAPI.Services
                 AccessToken = CreateToken(dbUser)
             };
 
-            //return new TokenResponse
-            //{
-            //    AccessToken = CreateToken(dbUser),
-            //    RefreshToken = await GenerateAndSaveRefreshTokenAsync(dbUser)
-            //};
+            
         }
 
 
@@ -296,12 +292,7 @@ namespace SpacifyAPI.Services
 
         private async Task<string> GenerateAndSaveRefreshTokenAsync(User user)
         {
-            //Kod bez hasha
-            //var refreshToken = GenerateRefreshToken();
-            //user.RefreshToken = refreshToken;
-            //user.RefreshTokenExpirationTime = DateTime.UtcNow.AddDays(7);
-            //await _context.SaveChangesAsync();
-            //return refreshToken;
+            
 
             var refreshToken = GenerateRefreshToken();
             var hashedRefreshToken = HashRefreshToken(refreshToken);
@@ -323,20 +314,7 @@ namespace SpacifyAPI.Services
 
             return user;
 
-            //var user = await _context.Users.FindAsync(userId);
-
-            ///
-            //if (user is null || user.RefreshToken != refreshToken || user.RefreshTokenExpirationTime <= DateTime.UtcNow)
-            //{
-            //    return null;
-            //}
-
-            //if (user is null || user.RefreshToken != HashRefreshToken(refreshToken) || user.RefreshTokenExpirationTime <= DateTime.UtcNow)
-            //{
-            //    return null;
-            //}
-
-            //return user;
+           
         }
 
         private string HashRefreshToken(string input)
