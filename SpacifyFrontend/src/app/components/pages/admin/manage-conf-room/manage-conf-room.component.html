@@ -1,0 +1,192 @@
+<div
+  id="container
+"
+>
+  <div class="toggleBtns">
+    <button
+      type="button"
+      (click)="selectedForm = 'create'"
+      [class.active]="selectedForm === 'create'"
+      class="toggle-btns"
+    >
+      Dodaj salę
+    </button>
+    <button
+      type="button"
+      (click)="selectedForm = 'edit'"
+      [class.active]="selectedForm === 'edit'"
+      class="toggle-btns"
+    >
+      Edytuj salę
+    </button>
+    <button
+      type="button"
+      (click)="selectedForm = 'delete'"
+      [class.active]="selectedForm === 'delete'"
+      class="toggle-btns"
+    >
+      Usuń salę
+    </button>
+  </div>
+
+  <!--Dodawanie sali konferencyjnej  -->
+  <form
+    [formGroup]="createConferenceRoomForm"
+    (ngSubmit)="onCreateConferenceRoom()"
+    id="createConferenceRoomForm"
+    *ngIf="selectedForm === 'create'"
+  >
+    <div class="formControl">
+      <label for="name">Nazwa sali</label>
+      <input
+        type="text"
+        formControlName="name"
+        placeholder="Podaj nazwę sali np. Warszawa"
+      />
+    </div>
+
+    <div class="formControl">
+      <label for="equipmentDetails"> Wyposażenie sali</label>
+      <input
+        type="text"
+        formControlName="equipmentDetails"
+        placeholder=" Podaj wyposażenie sali np. Projektor, WIFI "
+      />
+    </div>
+
+    <div class="formControl">
+      <label for="imageUrl">Link do zdjęcia sali</label>
+      <input
+        type="text"
+        formControlName="imageUrl"
+        placeholder="Podaj adres zdjęcia sali"
+      />
+    </div>
+
+    <div class="formControl">
+      <label for="capacity"> Pojemność sali</label>
+      <input
+        type="number"
+        min="1"
+        max="120"
+        formControlName="capacity"
+        placeholder=" Podaj pojemność sali od 1 do 120."
+      />
+    </div>
+
+    <div class="formControl">
+      <label for="floorId"> Wybierz piętro</label>
+      <select formControlName="floorId">
+        <option value="" selected>wybierz piętro</option>
+        <option *ngFor="let floor of floors" [value]="floor.id">
+          {{ floor.name }}
+        </option>
+      </select>
+    </div>
+
+    <button
+      type="submit"
+      [disabled]="createConferenceRoomForm.invalid"
+      class="submitBtn"
+    >
+      Dodaj salę
+    </button>
+  </form>
+
+  <!--Edytowanie sali konferencyjnej  -->
+  <form
+    [formGroup]="editConferenceRoomForm"
+    (ngSubmit)="onEditConferenceRoom()"
+    id="editConferenceRoomForm"
+    *ngIf="selectedForm === 'edit'"
+  >
+    <div class="formControl">
+      <label for="chooseConfRoom"> Wybierz sale</label>
+      <select formControlName="chooseConfRoom" id="chooseConfRoom">
+        <option *ngFor="let confRoom of conferenceRooms" [value]="confRoom.id">
+          {{ confRoom.name }}
+        </option>
+      </select>
+    </div>
+
+    <div class="formControl">
+      <label for="name">Nazwa sali</label>
+      <input
+        type="text"
+        formControlName="name"
+        placeholder="Podaj nazwę sali np. Warszawa"
+      />
+    </div>
+
+    <div class="formControl">
+      <label for="equipmentDetails"> Wyposażenie sali</label>
+      <input
+        type="text"
+        formControlName="equipmentDetails"
+        placeholder=" Podaj wyposażenie sali np. Projektor, WIFI "
+      />
+    </div>
+
+    <div class="formControl">
+      <label for="imageUrl">Link do zdjęcia sali</label>
+      <input
+        type="text"
+        formControlName="imageUrl"
+        placeholder="Podaj adres zdjęcia sali"
+      />
+    </div>
+
+    <div class="formControl">
+      <label for="capacity"> Pojemność sali</label>
+      <input
+        type="number"
+        min="1"
+        max="120"
+        formControlName="capacity"
+        placeholder=" Podaj pojemność sali od 1 do 120."
+      />
+    </div>
+
+    <div class="formControl">
+      <label for="floorId"> Wybierz piętro</label>
+      <select formControlName="floorId">
+        <option *ngFor="let floor of floors" [value]="floor.id">
+          {{ floor.name }}
+        </option>
+      </select>
+    </div>
+
+    <button
+      type="submit"
+      [disabled]="editConferenceRoomForm.invalid"
+      class="submitBtn"
+    >
+      Edytuj salę
+    </button>
+  </form>
+
+  <!-- Usuwanie sali konferencyjnej -->
+  <form
+    [formGroup]="deleteConferenceRoomForm"
+    (ngSubmit)="onDeleteConferenceRoom()"
+    id="deleteConferenceRoomForm"
+    *ngIf="selectedForm === 'delete'"
+  >
+    <div class="formControl">
+      <label for="chooseConfRoom"> Wybierz salę</label>
+      <select formControlName="chooseConfRoom" id="chooseConfRoom">
+        <option *ngFor="let confRoom of conferenceRooms" [value]="confRoom.id">
+          {{ confRoom.name }}
+        </option>
+      </select>
+    </div>
+
+    <button
+      type="submit"
+      [disabled]="editConferenceRoomForm.invalid"
+      class="submitBtn"
+    >
+      Usuń salę
+    </button>
+  </form>
+</div>

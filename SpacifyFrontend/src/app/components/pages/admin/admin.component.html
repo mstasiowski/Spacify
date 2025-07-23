@@ -6,10 +6,12 @@
     </p>
   </header>
 
-  <section id="h2-control-section">
+  <!-- !Przyciski do wykorzystania -->
+  <!-- <section id="h2-control-section">
     <h2>Zarządzaj stanowiskami pracy</h2>
     <div id="admin-controls">
       <button
+        class="workstation-control-btns"
         mat-stroked-button
         (click)="enableAddMode()"
         [ngClass]="{ disabled: currentMode === 'add' }"
@@ -17,6 +19,7 @@
         Dodaj stanowisko
       </button>
       <button
+        class="workstation-control-btns"
         mat-stroked-button
         (click)="enableEditMode()"
         [ngClass]="{ disabled: currentMode === 'edit' }"
@@ -24,6 +27,7 @@
         Edytuj stanowiska
       </button>
       <button
+        class="workstation-control-btns"
         mat-stroked-button
         (click)="enableDeleteMode()"
         [ngClass]="{ disabled: currentMode === 'delete' }"
@@ -31,11 +35,12 @@
         Usuń stanowiska
       </button>
     </div>
-  </section>
+  </section> -->
+  <!-- !Przyciski do wykorzystania -->
 
   <!-- Mapa biura -->
-  <div id="planContainer">
-    <div id="planTopSection">
+  <div class="functionalityContainer">
+    <div class="functionalityTopSection">
       <div class="topTitle" id="planTopTitle">
         <i class="fa-solid fa-location-dot"></i>
         <h2>Plan biura</h2>
@@ -58,6 +63,40 @@
         </mat-button-toggle-group>
       </div>
     </div>
+
+    <!-- ! nowe przyciski zmiany trybu-->
+    <div id="h2-control-section">
+      <h2>Zarządzaj stanowiskami pracy</h2>
+      <div class="control-btns">
+        <button
+          type="button"
+          (click)="enableAddMode()"
+          [class.active]="currentMode === 'add'"
+          class="workstation-control-btn"
+        >
+          Dodaj stanowisko
+        </button>
+
+        <button
+          type="button"
+          (click)="enableEditMode()"
+          [class.active]="currentMode === 'edit'"
+          class="workstation-control-btn"
+        >
+          Edytuj stanowisko
+        </button>
+
+        <button
+          type="button"
+          (click)="enableDeleteMode()"
+          [class.active]="currentMode === 'delete'"
+          class="workstation-control-btn"
+        >
+          Usuń stanowisko
+        </button>
+      </div>
+    </div>
+    <!-- ! nowe przyciski zmiany trybu -->
 
     <div id="planSection">
       <div #floorPlan class="floorPlanContainer"></div>
@@ -98,5 +137,17 @@
         Anuluj
       </button>
     </div>
+  </div>
+
+  <!-- ! -->
+  <div class="functionalityContainer">
+    <div class="functionalityTopSection">
+      <div class="topTitle">
+        <i class="fa-solid fa-people-group"></i>
+        <h2>Zarządzanie salami konferencyjnymi</h2>
+      </div>
+    </div>
+
+    <app-manage-conf-room></app-manage-conf-room>
   </div>
 </div>

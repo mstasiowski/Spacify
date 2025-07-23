@@ -55,7 +55,7 @@
 #h2-control-section h2 {
   font-weight: 500;
   // align-self: flex-start;
-  margin-top: 5rem;
+  // margin-top: 5rem;
   color: #2d3748; // dark gray
   font-family: "Montserrat", "Segoe UI", Arial, sans-serif;
 }
@@ -71,16 +71,18 @@
   }
 }
 
-#planContainer {
+.functionalityContainer {
   // margin-top: 2rem;
   width: 100%;
 
   padding: 2rem;
-  background-color: #d5e8f61d;
-  box-shadow: 0 4px 12px rgba(97, 148, 184, 0.245);
+  // background-color: #d5e8f61d;
+  // box-shadow: 0 4px 12px rgba(97, 148, 184, 0.245);
+  background-color: #f0f7ff; // jasny, czysty błękit
+  box-shadow: 0 4px 14px rgba(0, 80, 180, 0.15);
   border-radius: 1.5rem;
 
-  #planTopSection {
+  .functionalityTopSection {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -95,29 +97,31 @@
       font-size: 1.5rem;
       padding: 0.5rem;
       padding-right: 2rem;
-      background-color: rgb(200, 222, 240);
+      // background-color: rgb(200, 222, 240);
+      // background-color: #e1edfb;
       border-radius: 1.5rem 4.5rem 4.5rem 1.5rem;
+      color: #0a4ea8;
+      background: linear-gradient(90deg, #e1ecf7, #d6e9ff);
+      box-shadow: 0 2px 6px rgba(10, 76, 145, 0.2);
 
       i {
-        color: rgb(10, 110, 187);
+        // color: rgb(10, 110, 187);
       }
 
       h2 {
         font-weight: bold;
-        color: black;
+        // color: black;
       }
     }
   }
 
+  //INFO od stylów przycisków
   .floor-toggle {
     @include mat.button-toggle-overrides(
       (
-        // background-color: rgb(96, 135, 218),
-        selected-state-background-color: rgb(15, 85, 189),
+        selected-state-background-color: #0f55bd,
         selected-state-text-color: white,
-        state-layer-color: #2196f3 // text-color: rgb(150, 182, 252),
-        // shape: 999px,
-        // divider-color: rgb(53, 101, 203),
+        state-layer-color: #1565c0,
       )
     );
   }
@@ -139,7 +143,7 @@
 }
 
 //!
-
+//INFO od stylów przycisków
 button.disabled {
   background-color: rgb(15, 85, 189);
   color: white;
@@ -149,14 +153,53 @@ button.disabled {
       outlined-outline-width: 2px,
       outlined-outline-color: rgb(10, 69, 159),
       // outlined-label-text-color: red,
-      // opcjonalnie zmiana koloru tekstu,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+      // opcjonalnie zmiana koloru tekstu,,,,,,,,,,,,,,,,,
     )
   );
 }
 
-.floor-toggle {
-  @include mat.button-toggle-overrides(());
+// !nowe przyciski zmiany trybu
+
+.control-btns {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  // margin: 1rem 0;
 }
+
+.workstation-control-btn {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+
+  color: #0a4ea8;
+  border: none;
+  border-radius: 1rem;
+  border: 0.1rem solid #0a4ea8;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.workstation-control-btns:hover {
+  background: linear-gradient(90deg, #edf5ff 0%, #dceafb 100%);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.workstation-control-btn.active {
+  background: linear-gradient(90deg, #2c72e3 0%, #0a4ea8 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  font-weight: 600;
+  border: none;
+}
+
+.workstation-control-btn:active {
+  transform: scale(0.97);
+}
+
+// !nowe przyciski zmiany trybu
 
 .tooltip {
   position: absolute;
@@ -242,6 +285,55 @@ button.disabled {
     .floorPlanContainer {
       height: 400px;
       min-height: 300px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .functionalityTopSection {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  //INFO od stylów przycisków
+  .workstation-control-btns {
+    font-size: 12px !important;
+  }
+
+  #admin-controls {
+    @include mat.button-overrides(
+      (
+        filled-label-text-size: 20px,
+      )
+    );
+  }
+}
+
+@media (max-width: 360px) {
+  #h2-control-section h2 {
+    font-size: 1.2rem;
+    text-align: center;
+  }
+
+  ::ng-deep .mat-button-toggle-label-content {
+    font-size: 0.5rem;
+  }
+
+  .functionalityTopSection {
+    .topTitle {
+      // font-size: 1rem !important;
+      // padding: 0.3rem 1rem;
+      // background-color: red !important;
+      // flex-direction: column;
+      text-align: center;
+
+      i {
+        font-size: 1rem;
+      }
+      h2 {
+        font-size: 1rem;
+        text-align: left;
+      }
     }
   }
 }

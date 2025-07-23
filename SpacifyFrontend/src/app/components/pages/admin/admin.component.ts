@@ -27,6 +27,7 @@ import { NotificationService } from '../../../services/notification.service';
 import { FloorService } from '../../../services/floor.service';
 import { takeUntil } from 'rxjs';
 import { CreateWorkstationRequest } from '../../../models/request/create-workstation-request';
+import { ManageConfRoomComponent } from './manage-conf-room/manage-conf-room.component';
 
 @Component({
   selector: 'app-admin',
@@ -36,6 +37,7 @@ import { CreateWorkstationRequest } from '../../../models/request/create-worksta
     MatButtonToggleModule,
     MatDividerModule,
     FormsModule,
+    ManageConfRoomComponent, // Import the component here
   ],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.scss',
@@ -274,14 +276,15 @@ export class AdminComponent
       // Kliknięcie na stanowisko
       if (targetName && targetName.startsWith('workstation-')) {
         const workstationId = parseInt(targetName.split('-')[1]);
-        if (this.selectedWorkstationId === workstationId) {
-          // Jeśli kliknięto ponownie, odznacz stanowisko
-          this.selectedWorkstationId = undefined;
-        } else {
-          // Zaznacz stanowisko
-          this.selectedWorkstationId = workstationId;
-        }
-        this.updateOfficeMap();
+        // if (this.selectedWorkstationId === workstationId) {
+        //   // Jeśli kliknięto ponownie, odznacz stanowisko
+        //   this.selectedWorkstationId = undefined;
+        // } else {
+        //   // Zaznacz stanowisko
+        //   this.selectedWorkstationId = workstationId;
+        // }
+        // this.updateOfficeMap();
+        this.selectWorkstation(workstationId);
       } else {
         // Kliknięcie poza stanowiskiem
         this.selectedWorkstationId = undefined;
@@ -485,7 +488,7 @@ export class AdminComponent
         this.layer.draw();
       });
 
-      console.log(index, workstation);
+      // console.log(index, workstation);
 
       //!
     });
@@ -654,6 +657,7 @@ export class AdminComponent
   }
 
   confirmEditWorkstation(): void {
+    console.log('wybrane', this.selectedWorkstationId);
     if (
       this.newWorkstationDeskNumber !== null &&
       this.newWorkstationDeskNumber > 0 &&
