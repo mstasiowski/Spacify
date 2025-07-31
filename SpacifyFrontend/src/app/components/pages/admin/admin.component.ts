@@ -28,6 +28,8 @@ import { FloorService } from '../../../services/floor.service';
 import { takeUntil } from 'rxjs';
 import { CreateWorkstationRequest } from '../../../models/request/create-workstation-request';
 import { ManageConfRoomComponent } from './manage-conf-room/manage-conf-room.component';
+import { ManageFloorComponent } from './manage-floor/manage-floor.component';
+import { ManageUserComponent } from './manage-user/manage-user.component';
 
 @Component({
   selector: 'app-admin',
@@ -37,7 +39,9 @@ import { ManageConfRoomComponent } from './manage-conf-room/manage-conf-room.com
     MatButtonToggleModule,
     MatDividerModule,
     FormsModule,
-    ManageConfRoomComponent, // Import the component here
+    ManageConfRoomComponent,
+    ManageFloorComponent,
+    ManageUserComponent,
   ],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.scss',
@@ -694,5 +698,15 @@ export class AdminComponent
     this.newWorkstationDeskNumber = null;
     this.newWorkstationPosition = null;
     this.selectedWorkstationId = undefined;
+  }
+
+  getFloorsFromChildComponent(floors: FloorResponse[]) {
+    this.floors = floors;
+    console.log('Pobrano piętra z komponentu dziecka:', this.floors);
+    if (this.floors.length > 0) {
+      this.selectedFloorId = this.floors[0].id;
+      this.imageUrl = this.floors[0].imageUrl || '';
+      this.loadFloorData();
+    }
   }
 }

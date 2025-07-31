@@ -1,0 +1,60 @@
+<div id="container">
+  <div class="toggle-btns-container">
+    <button
+      type="button"
+      (click)="selectedForm = 'getUserInformation'"
+      [class.active]="selectedForm === 'getUserInformation'"
+      class="toggle-btn"
+    >
+      Wyświetl użytkownika
+    </button>
+  </div>
+
+  <form
+    [formGroup]="getUserInformationForm"
+    (ngSubmit)="onGetUserInformationSubmit()"
+    id="getUserInformationForm"
+    *ngIf="selectedForm === 'getUserInformation'"
+  >
+    <div class="formControl">
+      <label for="userInfo"> Wybierz użytkownika</label>
+      <select formControlName="userId" id="userInfo">
+        <option value="" selected>Użytkownicy</option>
+        <option *ngFor="let user of users" [value]="user.id">
+          {{ user.surname }} {{ user.name }} - {{ user.username }}
+        </option>
+      </select>
+    </div>
+
+    <button
+      type="submit"
+      [disabled]="getUserInformationForm.invalid"
+      class="submitBtn"
+    >
+      Pobierz informacje
+    </button>
+  </form>
+
+  <div *ngIf="selectedForm === 'getUserInformation' && user" id="userInfo">
+    <h3>Informacje o użytkowniku:</h3>
+    <p>ID: {{ user.id }}</p>
+    <p>Imię: {{ user.name }}</p>
+    <p>Nazwisko: {{ user.surname }}</p>
+    <p>Nazwa użytkownika: {{ user.username }}</p>
+    <p>Email: {{ user.email }}</p>
+    <p>Rola: {{ user.role }}</p>
+    <p>Status: {{ user.isBlocked ? "Zablokowany" : "Aktywny" }}</p>
+    <p *ngIf="user.isBlocked">
+      Konto Zablokowane do:
+      {{ user.accountBlockedUntill | date : "dd/MM/yyyy" }}
+    </p>
+    <p>Liczba nieudanych prób logowania: {{ user.failedLoginAttempts }}</p>
+    <p>Konto utworzone: {{ user.createdAt | date : "dd/MM/yyyy HH:mm:ss" }}</p>
+    <p *ngIf="user.lastLoginAt">
+      Ostatnie logowanie: {{ user.lastLoginAt | date : "dd/MM/yyyy HH:mm:ss" }}
+    </p>
+    <p *ngIf="user.updatedAt">
+      Konto zaktualizowane: {{ user.updatedAt | date : "dd/MM/yyyy HH:mm:ss" }}
+    </p>
+  </div>
+</div>

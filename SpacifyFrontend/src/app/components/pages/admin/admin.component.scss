@@ -8,6 +8,7 @@
   gap: 2rem;
   padding: 2rem;
   max-width: 1200px;
+  margin: 0 auto;
   border: 1px solid black;
 }
 
@@ -153,21 +154,21 @@ button.disabled {
       outlined-outline-width: 2px,
       outlined-outline-color: rgb(10, 69, 159),
       // outlined-label-text-color: red,
-      // opcjonalnie zmiana koloru tekstu,,,,,,,,,,,,,,,,,
+      // opcjonalnie zmiana koloru tekstu,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
     )
   );
 }
 
 // !nowe przyciski zmiany trybu
 
-.control-btns {
+.toggle-btns-container {
   display: flex;
   justify-content: center;
   gap: 1rem;
   // margin: 1rem 0;
 }
 
-.workstation-control-btn {
+.toggle-btn {
   padding: 0.75rem 1.5rem;
   font-size: 1rem;
   font-weight: 500;
@@ -181,13 +182,13 @@ button.disabled {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
-.workstation-control-btns:hover {
+.toggle-btn:hover {
   background: linear-gradient(90deg, #edf5ff 0%, #dceafb 100%);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
   transform: translateY(-2px);
 }
 
-.workstation-control-btn.active {
+.toggle-btn.active {
   background: linear-gradient(90deg, #2c72e3 0%, #0a4ea8 100%);
   color: white;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
@@ -195,7 +196,7 @@ button.disabled {
   border: none;
 }
 
-.workstation-control-btn:active {
+.toggle-btn:active {
   transform: scale(0.97);
 }
 
@@ -289,15 +290,19 @@ button.disabled {
   }
 }
 
+@media (max-width: 500px) {
+  //INFO od stylów przycisków
+
+  .toggle-btn {
+    font-size: 12px !important;
+    padding: 0.5rem 1rem;
+  }
+}
+
 @media (max-width: 480px) {
   .functionalityTopSection {
     flex-direction: column;
     gap: 1.5rem;
-  }
-
-  //INFO od stylów przycisków
-  .workstation-control-btns {
-    font-size: 12px !important;
   }
 
   #admin-controls {
@@ -309,12 +314,24 @@ button.disabled {
   }
 }
 
-@media (max-width: 360px) {
-  #h2-control-section h2 {
-    font-size: 1.2rem;
-    text-align: center;
+@media (max-width: 410px) {
+  .topTitle {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .toggle-btns-container {
+    flex-direction: column;
+    align-items: center;
   }
 
+  #h2-control-section h2 {
+    text-align: center;
+  }
+}
+
+@media (max-width: 360px) {
   ::ng-deep .mat-button-toggle-label-content {
     font-size: 0.5rem;
   }

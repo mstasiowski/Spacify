@@ -67,12 +67,12 @@
     <!-- ! nowe przyciski zmiany trybu-->
     <div id="h2-control-section">
       <h2>Zarządzaj stanowiskami pracy</h2>
-      <div class="control-btns">
+      <div class="toggle-btns-container">
         <button
           type="button"
           (click)="enableAddMode()"
           [class.active]="currentMode === 'add'"
-          class="workstation-control-btn"
+          class="toggle-btn"
         >
           Dodaj stanowisko
         </button>
@@ -81,7 +81,7 @@
           type="button"
           (click)="enableEditMode()"
           [class.active]="currentMode === 'edit'"
-          class="workstation-control-btn"
+          class="toggle-btn"
         >
           Edytuj stanowisko
         </button>
@@ -90,7 +90,7 @@
           type="button"
           (click)="enableDeleteMode()"
           [class.active]="currentMode === 'delete'"
-          class="workstation-control-btn"
+          class="toggle-btn"
         >
           Usuń stanowisko
         </button>
@@ -150,4 +150,35 @@
 
     <app-manage-conf-room></app-manage-conf-room>
   </div>
+  <!-- ! -->
+
+  <!-- ! -->
+  <div class="functionalityContainer">
+    <div class="functionalityTopSection">
+      <div class="topTitle">
+        <i class="fa-solid fas fa-layer-group"></i>
+        <h2>Zarządzanie piętrami biura</h2>
+      </div>
+    </div>
+
+    <app-manage-floor
+      (floorEdited)="getFloorsFromChildComponent($event)"
+    ></app-manage-floor>
+  </div>
+
+  <!-- ! -->
+
+  <!-- ! -->
+  <div class="functionalityContainer">
+    <div class="functionalityTopSection">
+      <div class="topTitle">
+        <i class="fa-solid fa-user-astronaut"></i>
+        <h2>Zarządzanie użytkownikami</h2>
+      </div>
+    </div>
+
+    <app-manage-user></app-manage-user>
+  </div>
+
+  <!-- ! -->
 </div>

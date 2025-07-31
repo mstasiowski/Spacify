@@ -113,7 +113,7 @@ export class ManageConfRoomComponent extends Unsubscribe implements OnInit {
         },
         error: (error) => {
           this.notificationService.showError(
-            'Failed to load conference rooms. Please try again later.'
+            'Błąd podczas pobierania sali konferencyjnej. Proszę spróbować ponownie później.'
           );
         },
       });
@@ -277,6 +277,10 @@ export class ManageConfRoomComponent extends Unsubscribe implements OnInit {
       .subscribe((selectedConfRoomId: number) => {
         console.log('Selected Conference Room ID:', selectedConfRoomId);
 
+        if (!selectedConfRoomId) {
+          return;
+        }
+
         const selectedConfRoom = this.conferenceRooms.find(
           (confRoom) => confRoom.id === +selectedConfRoomId
         );
@@ -291,6 +295,10 @@ export class ManageConfRoomComponent extends Unsubscribe implements OnInit {
           });
         } else {
           console.warn('Selected conference room not found in the list.');
+          this.notificationService.showError(
+            'Wybrana sala konferencyjna nie została znaleziona.',
+            `ID: ${selectedConfRoomId}`
+          );
         }
       });
   }

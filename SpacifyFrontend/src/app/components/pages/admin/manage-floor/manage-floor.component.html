@@ -1,0 +1,127 @@
+<div id="container">
+  <div class="toggle-btns-container">
+    <button
+      type="button"
+      (click)="selectedForm = 'create'"
+      [class.active]="selectedForm === 'create'"
+      class="toggle-btn"
+    >
+      Dodaj piętro
+    </button>
+    <button
+      type="button"
+      (click)="selectedForm = 'edit'"
+      [class.active]="selectedForm === 'edit'"
+      class="toggle-btn"
+    >
+      Edytuj piętro
+    </button>
+    <button
+      type="button"
+      (click)="selectedForm = 'delete'"
+      [class.active]="selectedForm === 'delete'"
+      class="toggle-btn"
+    >
+      Usuń piętro
+    </button>
+  </div>
+
+  <!-- Dodawanie nowego piętra  -->
+  <form
+    [formGroup]="createFloorForm"
+    (ngSubmit)="onCreateFloor()"
+    id="createFloorForm"
+    *ngIf="selectedForm === 'create'"
+  >
+    <div class="formControl">
+      <label for="createFloorName">Nazwa piętra</label>
+      <input
+        type="text"
+        formControlName="name"
+        placeholder="Podaj nazwę piętra np. Piętro 1"
+      />
+    </div>
+
+    <div class="formControl">
+      <label for="createFloorImageUrl">Link do zdjęcia piętra</label>
+      <input
+        type="text"
+        formControlName="imageUrl"
+        placeholder="Podaj adres zdjęcia mapy piętra"
+      />
+    </div>
+
+    <button
+      type="submit"
+      [disabled]="createFloorForm.invalid"
+      class="submitBtn"
+    >
+      Dodaj piętro
+    </button>
+  </form>
+
+  <!-- Edytowanie piętra  -->
+  <form
+    [formGroup]="editFloorForm"
+    (ngSubmit)="onEditFloor()"
+    id="editFloorForm"
+    *ngIf="selectedForm === 'edit'"
+  >
+    <div class="formControl">
+      <label for="editFloorId">Wybrane piętro</label>
+      <select formControlName="id">
+        <option value="" disabled selected>Wybierz piętro</option>
+        <option *ngFor="let floor of floors" [value]="floor.id">
+          {{ floor.name }}
+        </option>
+      </select>
+    </div>
+
+    <div class="formControl">
+      <label for="editFloorName">Nazwa piętra</label>
+      <input
+        type="text"
+        formControlName="name"
+        placeholder="Podaj nazwę piętra np. Piętro 1"
+      />
+    </div>
+
+    <div class="formControl">
+      <label for="editFloorImageUrl">Link do zdjęcia piętra</label>
+      <input
+        type="text"
+        formControlName="imageUrl"
+        placeholder="Podaj adres zdjęcia mapy piętra"
+      />
+    </div>
+
+    <button type="submit" [disabled]="editFloorForm.invalid" class="submitBtn">
+      Edytuj piętro
+    </button>
+  </form>
+  <!-- Usuwanie piętra -->
+  <form
+    [formGroup]="deleteFloorForm"
+    (ngSubmit)="onDeleteFloor()"
+    id="deleteFloorForm"
+    *ngIf="selectedForm === 'delete'"
+  >
+    <div class="formControl">
+      <label for="deleteFloorId">Wybrane piętro</label>
+      <select formControlName="id">
+        <option value="" disabled selected>Wybierz piętro</option>
+        <option *ngFor="let floor of floors" [value]="floor.id">
+          {{ floor.name }}
+        </option>
+      </select>
+    </div>
+
+    <button
+      type="submit"
+      [disabled]="deleteFloorForm.invalid"
+      class="submitBtn"
+    >
+      Usuń piętro
+    </button>
+  </form>
+</div>

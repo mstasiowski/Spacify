@@ -2,12 +2,12 @@
   id="container
 "
 >
-  <div class="toggleBtns">
+  <div class="toggle-btns-container">
     <button
       type="button"
       (click)="selectedForm = 'create'"
       [class.active]="selectedForm === 'create'"
-      class="toggle-btns"
+      class="toggle-btn"
     >
       Dodaj salę
     </button>
@@ -15,7 +15,7 @@
       type="button"
       (click)="selectedForm = 'edit'"
       [class.active]="selectedForm === 'edit'"
-      class="toggle-btns"
+      class="toggle-btn"
     >
       Edytuj salę
     </button>
@@ -23,7 +23,7 @@
       type="button"
       (click)="selectedForm = 'delete'"
       [class.active]="selectedForm === 'delete'"
-      class="toggle-btns"
+      class="toggle-btn"
     >
       Usuń salę
     </button>
