@@ -8,7 +8,7 @@ export interface UserResponseForAdmin {
   username: string;
   role: UserRole;
   failedLoginAttempts: number;
-  accountBlockedUntill: Date | null;
+  accountBlockedUntil: Date | null;
   isBlocked: boolean;
   createdAt: Date;
   updatedAt?: Date | null;

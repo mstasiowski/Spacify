@@ -1,1 +1,110 @@
-<p>settings works!</p>
+<div id="container">
+  <h1 id="title">Ustawienia użytkownika:</h1>
+
+  <form
+    [formGroup]="changeEmailForm"
+    (ngSubmit)="onChangeEmail(changeEmailForm.value)"
+    class="settings-form"
+  >
+    <div class="formControl">
+      <span class="formtitle">Email</span>
+      <label for="currentEmail">Aktualny adres e-mail:</label>
+      <input
+        id="currentEmail"
+        type="email"
+        formControlName="currentEmail"
+        readonly
+      />
+    </div>
+
+    <div class="formControl">
+      <label for="newEmail">Nowy adres e-mail:</label>
+      <input
+        id="newEmail"
+        formControlName="newEmail"
+        placeholder="Wprowadź nowy adres e-mail"
+      />
+    </div>
+
+    <button
+      type="submit"
+      class="submitBtn"
+      [disabled]="changeEmailForm.invalid"
+    >
+      Zmień e-mail
+    </button>
+  </form>
+
+  <form
+    [formGroup]="changePasswordForm"
+    (ngSubmit)="onChangePassword(changePasswordForm.value)"
+    class="settings-form"
+  >
+    <div class="formControl">
+      <span class="formtitle">Hasło</span>
+      <label for="current-Password">Aktualne hasło:</label>
+      <input
+        id="current-Password"
+        type="password"
+        formControlName="currentPassword"
+        placeholder="Wprowadź aktualne hasło"
+      />
+      <div
+        class="error"
+        *ngIf="
+          changePasswordForm.get('currentPassword')?.touched &&
+          changePasswordForm.get('currentPassword')?.errors
+        "
+      >
+        <span
+          *ngIf="changePasswordForm.get('currentPassword')?.errors?.['required']"
+        >
+          *To pole jest wymagane.
+        </span>
+      </div>
+    </div>
+    <div class="formControl">
+      <label for="new-Password">Nowe hasło:</label>
+      <input
+        id="new-Password"
+        type="password"
+        formControlName="newPassword"
+        placeholder="Wprowadź nowe hasło"
+      />
+
+      <div
+        class="error"
+        *ngIf="
+          changePasswordForm.get('newPassword')?.touched &&
+          changePasswordForm.get('newPassword')?.errors
+        "
+      >
+        <span
+          *ngIf="changePasswordForm.get('newPassword')?.errors?.['weakPassword']"
+        >
+          *Hasło jest za słabe. Musi zawierać duże i małe litery, cyfry, znaki
+          specjalne i mieć minimum 12 znaków.
+        </span>
+        <span
+          *ngIf="changePasswordForm.get('newPassword')?.errors?.['required']"
+        >
+          *To pole jest wymagane.
+        </span>
+      </div>
+    </div>
+
+    <!-- //info - Duże i male Litery
+//info - cyfry
+//info - znaki specjalne
+//info - minimum 12 znaków -->
+    <!-- return isValid ? null : { weakPassword: true }; -->
+
+    <button
+      type="submit"
+      class="submitBtn"
+      [disabled]="changePasswordForm.invalid"
+    >
+      Zmień hasło
+    </button>
+  </form>
+</div>

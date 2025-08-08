@@ -14,7 +14,7 @@ import { RouterModule } from '@angular/router';
   styleUrl: './navbar.component.scss',
 })
 export class NavbarComponent extends Unsubscribe implements OnInit {
-  constructor(private authService: AuthService) {
+  constructor(public authService: AuthService) {
     super();
   }
 

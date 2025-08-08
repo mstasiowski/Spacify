@@ -448,12 +448,12 @@ export class WorkspaceReservationsComponent
       this.layer.add(circle);
 
       const label = new Konva.Text({
-        x: xPos - 25,
-        y: yPos - 20,
+        x: xPos - 35,
+        y: yPos - 30,
         text: workstation.deskNumber
           ? workstation.deskNumber.toString()
           : 'Brak numeru',
-        fontSize: 14,
+        fontSize: 24,
         fontFamily: 'Arial',
         fontStyle: 'bold',
         fill: isSelected
@@ -462,7 +462,7 @@ export class WorkspaceReservationsComponent
           ? this.reservedWorkstationColor
           : this.freeWorkstationColor,
         stroke: 'black',
-        strokeWidth: 0.5,
+        strokeWidth: 1,
         listening: false,
       });
 

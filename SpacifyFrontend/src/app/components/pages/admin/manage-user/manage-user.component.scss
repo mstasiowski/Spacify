@@ -5,11 +5,9 @@
   justify-content: center;
 }
 
-#getAllUsersNamesForm,
 #getUserInformationForm,
 #blockUserForm,
 #deleteUserForm,
-#changeUserPasswordForm,
 #changeUserInformationForm {
   display: flex;
   flex-direction: column;
@@ -136,6 +134,74 @@
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
+  font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+    "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+
+  h3 {
+    align-self: center;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #2563eb;
+  }
+}
+
+.status-active {
+  color: #27ae60;
+}
+.status-blocked {
+  color: #e74c3c;
+}
+
+#blockedUserInfo {
+  color: #e74c3c;
+  text-align: center;
+  width: 100%;
+}
+
+#unlockBtn {
+  align-self: center;
+}
+
+.delete-confirm-btns {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+
+  p {
+    margin: 0 0 0.5rem 0;
+    font-weight: 600;
+  }
+
+  #deleteUserConfirmationBtnsContainer {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  #deleteUserTextWarning {
+    color: #d3424e;
+  }
+
+  .submitBtn.confirm {
+    background: #d3424e;
+    color: #fff;
+  }
+
+  .submitBtn.confirm:hover {
+    background: #e74c3c;
+    color: #fff;
+  }
+
+  .submitBtn.cancel {
+    background: #0a4ea8;
+    color: white;
+  }
+  .submitBtn.cancel:hover {
+    background: #155ebe;
+    color: #fff;
+  }
 }
 
 @media (max-width: 500px) {

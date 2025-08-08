@@ -6,10 +6,8 @@
   align-items: center;
   justify-content: center;
   gap: 2rem;
-  padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
-  border: 1px solid black;
 }
 
 #admin-panel-header {
@@ -38,6 +36,10 @@
     font-family: "Segoe UI", Arial, sans-serif;
     opacity: 0.95;
   }
+}
+
+.toggle-btn.mainBtn {
+  padding: 0.6rem 1.2rem;
 }
 
 #h2-control-section {
@@ -154,7 +156,7 @@ button.disabled {
       outlined-outline-width: 2px,
       outlined-outline-color: rgb(10, 69, 159),
       // outlined-label-text-color: red,
-      // opcjonalnie zmiana koloru tekstu,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+      // opcjonalnie zmiana koloru tekstu,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
     )
   );
 }
@@ -287,6 +289,12 @@ button.disabled {
       height: 400px;
       min-height: 300px;
     }
+  }
+}
+
+@media (max-width: 630px) {
+  .toggle-btns-container.mainBtnsContainer {
+    flex-wrap: wrap;
   }
 }
 

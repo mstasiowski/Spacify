@@ -6,13 +6,15 @@
   </button>
 
   <div class="user-menu" (click)="toggleDropdown()" tabindex="0">
-    <span class="username">{{ currentUser?.username }}</span>
+    <span class="username">{{ authService.userSignal()?.username }}</span>
 
     <div class="dropdown" *ngIf="isDropdownOpen">
       <div class="dropdown-header">
-        <div class="user-role">{{ translateRoles(currentUser?.role) }}</div>
+        <div class="user-role">
+          {{ translateRoles(authService.userSignal()?.role) }}
+        </div>
 
-        <div class="user-email">{{ currentUser?.email }}</div>
+        <div class="user-email">{{ authService.userSignal()?.email }}</div>
       </div>
       <div class="dropdown-separator"></div>
       <a routerLink="/settings" class="dropdown-item">

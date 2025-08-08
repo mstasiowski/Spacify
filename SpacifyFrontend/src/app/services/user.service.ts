@@ -58,7 +58,7 @@ export class UserService {
     return this.http.delete<void>(url);
   }
 
-  blockUserUntill(
+  blockUserUntil(
     userId: string,
     blockUserReq: BlockUserRequest
   ): Observable<UserResponseForAdmin> {

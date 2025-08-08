@@ -121,6 +121,20 @@ export class AuthService {
     return this.decodeUserFromToken(accessToken);
   }
 
+  updateUserEmail(newEmail: string): void {
+    const currentSignal = this.userSignal();
+    if (currentSignal) {
+      this.userSignal.set({ ...currentSignal, email: newEmail });
+    }
+  }
+
+  updateUserRole(newRole: UserRole): void {
+    const currentSignal = this.userSignal();
+    if (currentSignal) {
+      this.userSignal.set({ ...currentSignal, role: newRole });
+    }
+  }
+
   refreshAndFetchUser(): Observable<User> {
     return this.refreshToken().pipe(
       switchMap((tokenRes: TokenResponse) => {
@@ -145,18 +159,4 @@ export class AuthService {
       })
     );
   }
-
-  //Info <Do usunięcia>
-
-  getConferenceRoom(): Observable<any> {
-    const url = `https://localhost:7105/conferenceRooms`;
-    return this.http.get<any>(url);
-  }
-
-  getWorkstations(): Observable<any> {
-    const url = `https://localhost:7105/workstations`;
-    return this.http.get<any>(url);
-  }
-
-  //Info </Do usunięcia>
 }

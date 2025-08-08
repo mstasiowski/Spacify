@@ -2,14 +2,44 @@
   <div class="toggle-btns-container">
     <button
       type="button"
-      (click)="selectedForm = 'getUserInformation'"
+      (click)="changeForm('getUserInformation')"
       [class.active]="selectedForm === 'getUserInformation'"
       class="toggle-btn"
     >
       Wyświetl użytkownika
     </button>
+
+    <!-- (click)="selectedForm = 'getUserInformation'" -->
+
+    <button
+      type="button"
+      (click)="changeForm('blockUser')"
+      [class.active]="selectedForm === 'blockUser'"
+      class="toggle-btn"
+    >
+      Zablokuj użytkownika
+    </button>
+
+    <button
+      type="button"
+      (click)="changeForm('changeUserInformation')"
+      [class.active]="selectedForm === 'changeUserInformation'"
+      class="toggle-btn"
+    >
+      Edytuj użytkownika
+    </button>
+
+    <button
+      type="button"
+      (click)="changeForm('deleteUser')"
+      [class.active]="selectedForm === 'deleteUser'"
+      class="toggle-btn"
+    >
+      Usuń użytkownika
+    </button>
   </div>
 
+  <!-- info getUserInformation -->
   <form
     [formGroup]="getUserInformationForm"
     (ngSubmit)="onGetUserInformationSubmit()"
@@ -19,7 +49,7 @@
     <div class="formControl">
       <label for="userInfo"> Wybierz użytkownika</label>
       <select formControlName="userId" id="userInfo">
-        <option value="" selected>Użytkownicy</option>
+        <option value="">Użytkownicy</option>
         <option *ngFor="let user of users" [value]="user.id">
           {{ user.surname }} {{ user.name }} - {{ user.username }}
         </option>
@@ -36,25 +66,244 @@
   </form>
 
   <div *ngIf="selectedForm === 'getUserInformation' && user" id="userInfo">
-    <h3>Informacje o użytkowniku:</h3>
-    <p>ID: {{ user.id }}</p>
-    <p>Imię: {{ user.name }}</p>
-    <p>Nazwisko: {{ user.surname }}</p>
-    <p>Nazwa użytkownika: {{ user.username }}</p>
-    <p>Email: {{ user.email }}</p>
-    <p>Rola: {{ user.role }}</p>
-    <p>Status: {{ user.isBlocked ? "Zablokowany" : "Aktywny" }}</p>
-    <p *ngIf="user.isBlocked">
-      Konto Zablokowane do:
-      {{ user.accountBlockedUntill | date : "dd/MM/yyyy" }}
+    <h3>Informacje o użytkowniku</h3>
+    <p><strong>ID:</strong> {{ user.id }}</p>
+    <p><strong>Imię:</strong> {{ user.name }}</p>
+    <p><strong>Nazwisko:</strong> {{ user.surname }}</p>
+    <p><strong>Nazwa użytkownika:</strong> {{ user.username }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <p>
+      <strong>Rola:</strong>
+      {{
+        user.role === userRoles.Administrator
+          ? "Administrator"
+          : user.role === userRoles.Employee
+          ? "Pracownik"
+          : "Lider zespołu"
+      }}
     </p>
-    <p>Liczba nieudanych prób logowania: {{ user.failedLoginAttempts }}</p>
-    <p>Konto utworzone: {{ user.createdAt | date : "dd/MM/yyyy HH:mm:ss" }}</p>
+    <p>
+      <strong>Status konta:</strong>
+      <span [ngClass]="user.isBlocked ? 'status-blocked' : 'status-active'">
+        {{ user.isBlocked ? "Zablokowany" : "Aktywny" }}
+      </span>
+    </p>
+    <p *ngIf="user.isBlocked">
+      <strong>Konto Zablokowane do:</strong>
+      {{ user.accountBlockedUntil | date : "dd/MM/yyyy HH:mm" }}
+    </p>
+    <p>
+      <strong>Liczba nieudanych prób logowania:</strong>
+      {{ user.failedLoginAttempts }}
+    </p>
+    <p>
+      <strong>Konto utworzone:</strong>
+      {{ user.createdAt | date : "dd/MM/yyyy HH:mm:ss" }}
+    </p>
     <p *ngIf="user.lastLoginAt">
-      Ostatnie logowanie: {{ user.lastLoginAt | date : "dd/MM/yyyy HH:mm:ss" }}
+      <strong>Ostatnie logowanie:</strong>
+      {{ user.lastLoginAt | date : "dd/MM/yyyy HH:mm:ss" }}
     </p>
     <p *ngIf="user.updatedAt">
-      Konto zaktualizowane: {{ user.updatedAt | date : "dd/MM/yyyy HH:mm:ss" }}
+      <strong>Konto zaktualizowane:</strong>
+      {{ user.updatedAt | date : "dd/MM/yyyy HH:mm:ss" }}
     </p>
   </div>
+  <!-- info getUserInformation -->
+
+  <!-- info blockUser -->
+  <form
+    [formGroup]="blockUserForm"
+    (ngSubmit)="onBlockUserSubmit()"
+    id="blockUserForm"
+    *ngIf="selectedForm === 'blockUser'"
+  >
+    <div class="formControl">
+      <label for="userId">Wybierz użytkownika</label>
+      <select formControlName="userId" id="userId">
+        <option value="" selected>Użytkownicy</option>
+        <option *ngFor="let user of users" [value]="user.id">
+          {{ user.surname }} {{ user.name }} - {{ user.username }}
+        </option>
+      </select>
+    </div>
+
+    <div class="formControl">
+      <label for="durationValue">Czas blokady</label>
+      <input
+        type="number"
+        formControlName="durationValue"
+        id="durationValue"
+        placeholder="Wprowadź czas"
+      />
+    </div>
+
+    <div class="formControl">
+      <label for="durationType">Jednostka czasu</label>
+      <select formControlName="durationType" id="durationType">
+        <option value="" selected>Wybierz jednostkę</option>
+        <option *ngFor="let type of durationTypeValues" [value]="type">
+          {{
+            type === durationType.Minutes
+              ? "Minuty"
+              : type === durationType.Hours
+              ? "Godziny"
+              : "Dni"
+          }}
+        </option>
+      </select>
+    </div>
+
+    <button type="submit" [disabled]="blockUserForm.invalid" class="submitBtn">
+      Zablokuj użytkownika
+    </button>
+  </form>
+
+  <div
+    id="unblockUserForm"
+    *ngIf="selectedForm == 'blockUser' && user && user.isBlocked"
+  >
+    <div class="formControl">
+      <h4 id="blockedUserInfo"><strong>Konto jest już zablokowane</strong></h4>
+      <p>
+        <strong>Blokada do:</strong>
+        {{ user.accountBlockedUntil | date : "dd/MM/yyyy HH:mm" }}
+      </p>
+
+      <button
+        type="button"
+        class="submitBtn"
+        id="unlockBtn"
+        (click)="onUnblockUser()"
+      >
+        Odblokuj użytkownika
+      </button>
+    </div>
+  </div>
+
+  <!-- info blockUser -->
+
+  <!-- info deleteUser -->
+  <form
+    [formGroup]="deleteUserForm"
+    (ngSubmit)="onDeleteUser()"
+    id="deleteUserForm"
+    *ngIf="selectedForm === 'deleteUser'"
+  >
+    <div class="formControl">
+      <label for="userId">Wybierz użytkownika</label>
+      <select formControlName="userId" id="userId">
+        <option value="" selected>Wybierz użytkownika</option>
+        <option *ngFor="let user of users" [value]="user.id">
+          {{ user.surname }}
+          {{ user.name }}
+          -
+          {{ user.username }}
+        </option>
+      </select>
+    </div>
+
+    <button type="submit" [disabled]="deleteUserForm.invalid" class="submitBtn">
+      Usuń użytkownika
+    </button>
+  </form>
+
+  <div *ngIf="confirmDeleteUserId" class="delete-confirm-btns">
+    <h4>
+      Czy na pewno chcesz <b id="deleteUserTextWarning">usunąć</b> użytkownika:
+      {{ user?.surname }} {{ user?.name }}?
+    </h4>
+    <div id="deleteUserConfirmationBtnsContainer">
+      <button class="submitBtn confirm" (click)="confirmDeleteUser(true)">
+        Tak
+      </button>
+      <button class="submitBtn cancel" (click)="confirmDeleteUser(false)">
+        Nie
+      </button>
+    </div>
+  </div>
+  <!-- info deleteUser -->
+
+  <!-- info editUserInformation -->
+  <form
+    [formGroup]="changeUserInformationForm"
+    (ngSubmit)="onChangeUserInformationSubmit()"
+    *ngIf="selectedForm === 'changeUserInformation'"
+    id="changeUserInformationForm"
+  >
+    <div class="formControl">
+      <label for="userId">Wybierz użytkownika</label>
+      <select formControlName="userId" id="userId">
+        <option value="" selected>Użytkownicy</option>
+        <option *ngFor="let user of users" [value]="user.id">
+          {{ user.surname }} {{ user.name }} - {{ user.username }}
+        </option>
+      </select>
+    </div>
+
+    <div class="formControl">
+      <label for="name">Imię</label>
+      <input
+        type="text"
+        formControlName="name"
+        id="name"
+        placeholder="Podaj imię"
+      />
+    </div>
+
+    <div class="formControl">
+      <label for="surname">Nazwisko</label>
+      <input
+        type="text"
+        formControlName="surname"
+        id="surname"
+        placeholder="Podaj nazwisko"
+      />
+    </div>
+
+    <div class="formControl">
+      <label for="email">Email</label>
+      <input
+        type="email"
+        formControlName="email"
+        id="email"
+        placeholder="Podaj email"
+      />
+    </div>
+
+    <div class="formControl">
+      <label for="username">Nazwa użytkownika</label>
+      <input
+        type="text"
+        formControlName="username"
+        id="username"
+        placeholder="Podaj nazwę użytkownika"
+      />
+    </div>
+
+    <div class="formControl">
+      <label for="role">Rola</label>
+      <select formControlName="role" id="role">
+        <option value="" selected>Wybierz rolę</option>
+        <option *ngFor="let role of userRolesValues" [value]="role">
+          {{
+            role === userRoles.Administrator
+              ? "Administrator"
+              : role === userRoles.Employee
+              ? "Pracownik"
+              : "Lider zespołu"
+          }}
+        </option>
+      </select>
+    </div>
+
+    <button
+      type="submit"
+      [disabled]="changeUserInformationForm.invalid"
+      class="submitBtn"
+    >
+      Zaktualizuj informacje o użytkowniku
+    </button>
+  </form>
+  <!-- info editUserInformation -->
 </div>

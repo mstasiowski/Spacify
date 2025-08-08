@@ -66,7 +66,7 @@ export class AdminComponent
   selectedFloorId!: number;
   selectedWorkstationId?: number;
 
-  @ViewChild('floorPlan', { static: true }) floorContainerRef!: ElementRef;
+  @ViewChild('floorPlan', { static: false }) floorContainerRef!: ElementRef;
   private stage!: Konva.Stage;
   private layer!: Konva.Layer;
   private backgroundImage?: Konva.Image;
@@ -84,6 +84,20 @@ export class AdminComponent
   // Flaga do sprawdzenia czy stage jest już zainicjalizowany
   private isStageInitialized = false;
 
+  selectWhatToManage: 'workstation' | 'confRoom' | 'floor' | 'user' = 'user';
+
+  onSelectWhatToManage(value: 'workstation' | 'confRoom' | 'floor' | 'user') {
+    if (this.selectWhatToManage === 'workstation' && value !== 'workstation') {
+      this.isStageInitialized = false;
+      this.stage?.destroy();
+    }
+    this.selectWhatToManage = value;
+
+    if (value === 'workstation') {
+      setTimeout(() => this.initializeStage(), 0);
+    }
+  }
+
   ngOnInit(): void {
     // Najpierw załaduj dane o piętrach
     this.loadFloors();
@@ -94,10 +108,10 @@ export class AdminComponent
   }
 
   ngAfterViewInit(): void {
-    //! Poczekaj chwilę, żeby DOM się stabilizował
-    setTimeout(() => {
-      this.initializeStage();
-    }, 100);
+    // //! Poczekaj chwilę, żeby DOM się stabilizował
+    // setTimeout(() => {
+    //   this.initializeStage();
+    // }, 100);
   }
 
   private loadFloors(): void {
@@ -125,6 +139,11 @@ export class AdminComponent
 
   private initializeStage(): void {
     if (this.isStageInitialized) return;
+
+    if (!this.floorContainerRef || !this.floorContainerRef.nativeElement) {
+      setTimeout(() => this.initializeStage(), 50);
+      return;
+    }
 
     const container = this.floorContainerRef.nativeElement;
     const containerWidth = container.offsetWidth;
@@ -451,15 +470,15 @@ export class AdminComponent
       this.layer.add(circle);
 
       const label = new Konva.Text({
-        x: xPos - 20,
-        y: yPos - 20,
+        x: xPos - 35,
+        y: yPos - 30,
         text: workstation.deskNumber?.toString() || 'Brak numeru',
-        fontSize: 12,
+        fontSize: 24,
         fontFamily: 'Arial',
         fontStyle: 'bold',
         fill: this.workstationColor,
         stroke: 'black',
-        strokeWidth: 0.5,
+        strokeWidth: 1,
         listening: false,
       });
 

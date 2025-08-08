@@ -61,35 +61,6 @@ export class DashboardComponent extends Unsubscribe implements OnInit {
       });
   }
 
-  getConferenceAction() {
-    this.authService
-      .getConferenceRoom()
-      .pipe(takeUntil(this.unsubscribe$))
-      .subscribe({
-        next: (res) => {
-          console.log(res);
-        },
-        error: (res) => {
-          console.log('To jest error /conferencerooms', res);
-        },
-      });
-  }
-
-  getWorkstation() {
-    this.authService
-      .getWorkstations()
-      .pipe(takeUntil(this.unsubscribe$))
-      .subscribe({
-        next: (res) => {
-          console.log(res);
-          this.router.navigateByUrl('/workstation-reservation');
-        },
-        error: (res) => {
-          console.log('To jest error /workstations', res);
-        },
-      });
-  }
-
   getUserInformation() {
     console.log(this.currentUser);
   }

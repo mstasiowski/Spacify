@@ -212,6 +212,7 @@ namespace SpacifyAPI
             app.UseHttpsRedirection();
             app.UseCors("AllowAngularFrontend");
             app.UseAuthentication();
+            app.UseMiddleware<BlockedUserMiddleware>();
             app.UseAuthorization();
 
             // Middleware do obs³ugi wyj¹tków
