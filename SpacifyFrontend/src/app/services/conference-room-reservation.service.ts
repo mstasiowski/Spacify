@@ -5,6 +5,7 @@ import { ConferenceRoomReservationResponse } from '../models/response/conference
 import { Observable } from 'rxjs';
 import { CreateConferenceRoomReservationRequest } from '../models/request/create-conf-room-reservation-request';
 import { ModifyConfRoomReservationRequest } from '../models/request/modify-conf-room-reservation-request';
+import { AvailableConfRoomsReservationResponse } from '../models/response/Available-conference-rooms-reservation-response';
 
 @Injectable({
   providedIn: 'root',
@@ -43,6 +44,11 @@ export class ConferenceRoomReservationService {
       .set('endDate', endDate.toISOString());
 
     return this.http.get<ConferenceRoomReservationResponse[]>(url, { params });
+  }
+
+  getAvailableConfRoomsCount(): Observable<AvailableConfRoomsReservationResponse> {
+    const url = `${this.apiUrl}/conferenceroom/reservation/rooms/available`;
+    return this.http.get<AvailableConfRoomsReservationResponse>(url);
   }
 
   createConfRoomReservation(

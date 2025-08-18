@@ -5,6 +5,8 @@ import { WorkstationReservationResponse } from '../models/response/workstation-r
 import { Observable } from 'rxjs';
 import { CreateWorkstationReservationRequest } from '../models/request/create-workstation-reservation-request';
 import { ModifyWorkstationReservationRequest } from '../models/request/modify-workstation-reservation-request';
+import { DashboardResTimeResponse } from '../models/response/dashboard-reservation-time-response';
+import { AvailableWorkstationsReservationResponse } from '../models/response/Available-workstations-reservation-response';
 
 @Injectable({
   providedIn: 'root',
@@ -70,6 +72,16 @@ export class WorkstationReservationService {
     const url = `${this.apiUrl}/workstation/reservations/floor/${floorId}`;
     const params = new HttpParams().set('date', date.toISOString());
     return this.http.get<WorkstationReservationResponse[]>(url, { params });
+  }
+
+  getAvailableWorkstationCount(): Observable<AvailableWorkstationsReservationResponse> {
+    const url = `${this.apiUrl}/workstation/available`;
+    return this.http.get<AvailableWorkstationsReservationResponse>(url);
+  }
+
+  getDashboardReservationWatch(): Observable<DashboardResTimeResponse> {
+    const url = `${this.apiUrl}/workstation/dashboard/reservation/time-range`;
+    return this.http.get<DashboardResTimeResponse>(url);
   }
 
   createWorkstationReservation(

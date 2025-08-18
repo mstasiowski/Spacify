@@ -28,6 +28,13 @@ export class FloorService {
     return this.http.get<FloorResponse[]>(url);
   }
 
+  getUpcomingReservations(days: number): Observable<FloorResponse[]> {
+    const url = `${this.apiUrl}/floors/user-upcoming-reservations`;
+    return this.http.get<FloorResponse[]>(url, {
+      params: { days: days.toString() },
+    });
+  }
+
   createFloor(newFloor: CreateFloorRequest): Observable<FloorResponse> {
     const url = `${this.apiUrl}/floor`;
     return this.http.post<FloorResponse>(url, newFloor);

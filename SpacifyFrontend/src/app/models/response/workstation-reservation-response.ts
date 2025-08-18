@@ -4,7 +4,7 @@ export interface WorkstationReservationResponse {
   workstationId: number;
   reservationStart: Date;
   reservationEnd: Date;
-  createdAt: string;
+  createdAt: Date;
   updatedAt?: string | null;
   isConfirmed: boolean;
 }

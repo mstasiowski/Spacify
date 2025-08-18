@@ -172,6 +172,7 @@ namespace SpacifyAPI
 
             //Tasks
             builder.Services.AddHostedService<WorkstationReservationCleanupService>();
+            builder.Services.AddHostedService<ConferenceRoomReservationCleanupService>();
             builder.Services.AddHostedService<RefreshTokenCleanupService>();
 
             // max request body size

@@ -61,6 +61,24 @@ namespace SpacifyAPI.Controllers
 
         }
 
+        [Authorize]
+        [HttpGet("rooms/available")]
+        public async Task<ActionResult<AvailableConfRoomReservationResponse>> GetNumberOfAvailableConferenceRoomsForNow()
+        {
+            var availableConfRooms = await _conferenceRoomReservationService.GetNumberOfAvailableConferenceRoomsForNowAsync();
+            return Ok(availableConfRooms);
+        }
+
+        [Authorize]
+        [HttpGet("dashboard/upcomingreservation")]
+        public async Task<ActionResult<List<ConferenceRoomReservationResponse>>> GetUpcomingReservations(Guid userId)
+        {
+            var dbUpcomingReservations = await _conferenceRoomReservationService
+                .GetUpcomingReservationsAsync(userId);
+
+            return Ok(dbUpcomingReservations);
+        }
+
         [Authorize(Roles = $"{RoleNames.Administrator},{RoleNames.Leader}")]
         [HttpPost]
         public async Task<ActionResult<ConferenceRoomReservationResponse>> CreateConfRoomReservation(CreateConferenceRoomReservationRequest reservationRequest)

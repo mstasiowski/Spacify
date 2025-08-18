@@ -146,7 +146,6 @@ $ConferenceRoomColor: linear-gradient(135deg, $purple, #b35ee7);
   font-family: "Montserrat", "Segoe UI", Arial, sans-serif;
 }
 
-// TODO Wybór typu rezerwacji - przyciski toggle
 .custom-toggle-group {
   display: flex;
   justify-content: space-evenly;
@@ -209,7 +208,6 @@ $ConferenceRoomColor: linear-gradient(135deg, $purple, #b35ee7);
     width: 45%;
   }
 }
-// TODO Wybór typu rezerwacji - przyciski toggle
 
 .no-reservations-info-container {
   padding: 2rem 0;
@@ -262,54 +260,6 @@ $ConferenceRoomColor: linear-gradient(135deg, $purple, #b35ee7);
   border-left: 0.1rem solid #f5d3d3;
   border-right: 0.1rem solid #f5d3d3;
 }
-
-// !
-// #reservation-type-toggle {
-//   width: 100%;
-//   display: flex;
-//   justify-content: center;
-//   align-items: center;
-//   background-color: rgb(248, 247, 247);
-//   padding: 0.5rem;
-//   border-radius: 0.5rem;
-// }
-
-// .reservation-toggle-group {
-//   @include mat.button-toggle-overrides(
-//     (
-//       background-color: #f5f6fa,
-//       // bardzo jasny szary
-//       selected-state-background-color: #3b82f6,
-//       // kontrastujący niebieski
-//       text-color: #444950,
-//       // ciemny szary tekst
-//       selected-state-text-color: #fff,
-//       // biały tekst po zaznaczeniu
-//       shape: 0.7rem,
-//       // zaokrąglenie
-//       state-layer-color: #3b82f6,
-//       // niebieski akcent na kliknięcie
-//       hover-state-layer-opacity: 0.08,
-//       focus-state-layer-opacity: 0.13,
-//     )
-//   );
-
-//   // @media (max-width: 600px) {
-//   //   .mat-button-toggle {
-//   //     font-size: 0.85rem;
-//   //     padding: 0.3rem 0.8rem;
-//   //     min-width: 80px;
-//   //   }
-//   // }
-
-//   // @media (min-width: 601px) {
-//   //   .mat-button-toggle {
-//   //     font-size: 1rem;
-//   //     padding: 0.5rem 1.5rem;
-//   //     min-width: 120px;
-//   //   }
-//   // }
-// }
 
 #reservations-table {
   background-color: white;

@@ -10,8 +10,14 @@ namespace SpacifyAPI.Interfaces
         Task<ConferenceRoomReservationResponse> GetConfRoomReservationByIdAsync(int reservationId);
         Task<List<ConferenceRoomReservationResponse>> GetUserConfRoomReservationsAsync(Guid userId);
         Task<List<ConferenceRoomReservationResponse>> GetConfReservationsByDateTimeRangeAsync(DateTimeOffset startDate, DateTimeOffset endDate);
+        Task<AvailableConfRoomReservationResponse> GetNumberOfAvailableConferenceRoomsForNowAsync();
+        Task<List<UpcomingReservationResponse>> GetUpcomingReservationsAsync(Guid userId);
+
         Task<ConferenceRoomReservationResponse> CreateConfRoomReservationAsync(CreateConferenceRoomReservationRequest request);
         Task<ConferenceRoomReservationResponse> UpdateConfRoomReservationAsync(int reservationId,ModifyConfRoomReservationRequest request);
+
+        Task RemoveExpiredUnconfirmedConferenceRoomReservationsAsync();
+
         Task DeleteConfRoomsReservationAsync(int id);
         Task<ConferenceRoomReservationResponse> ConfirmConfRoomReservationAsync(int reservationId, Guid userId);
     }

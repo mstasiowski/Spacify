@@ -124,6 +124,95 @@ namespace SpacifyAPI.Services
             return reservations.Select(r => MapToResponse(r)).ToList();
         }
 
+        public async Task<AvailableWorkstationReservationResponse> GetTheNumberOfAvailableWorkstationsForNowAsync()
+        {
+            var now = DateTimeOffset.Now;  // <== lokalny czas z offsetem
+            var hourLater = now.AddHours(1);
+
+            if (now.Hour >= 18)
+            {
+                if (now.DayOfWeek == DayOfWeek.Friday)
+                {
+                    int daysUntilMonday = ((int)DayOfWeek.Monday - (int)now.DayOfWeek + 7) % 7;
+                    if (daysUntilMonday == 0) daysUntilMonday = 7;
+                    var monday8am = now.Date.AddDays(daysUntilMonday).AddHours(8);
+                    now = new DateTimeOffset(monday8am, now.Offset);
+                    hourLater = now.AddHours(1);
+                }
+                else if (now.DayOfWeek == DayOfWeek.Saturday || now.DayOfWeek == DayOfWeek.Sunday)
+                {
+                    int daysUntilMonday = ((int)DayOfWeek.Monday - (int)now.DayOfWeek + 7) % 7;
+                    var monday8am = now.Date.AddDays(daysUntilMonday).AddHours(8);
+                    now = new DateTimeOffset(monday8am, now.Offset);
+                    hourLater = now.AddHours(1);
+                }
+                else
+                {
+                    var nextDay8am = now.Date.AddDays(1).AddHours(8);
+                    now = new DateTimeOffset(nextDay8am, now.Offset);
+                    hourLater = now.AddHours(1);
+                }
+            }
+            else if (now.DayOfWeek == DayOfWeek.Saturday || now.DayOfWeek == DayOfWeek.Sunday)
+            {
+                int daysUntilMonday = ((int)DayOfWeek.Monday - (int)now.DayOfWeek + 7) % 7;
+                var monday8am = now.Date.AddDays(daysUntilMonday).AddHours(8);
+                now = new DateTimeOffset(monday8am, now.Offset);
+                hourLater = now.AddHours(1);
+            }
+
+            var workstationsCount = await _context.Workstations.CountAsync();
+
+            var occupiedWorkstations = await _context.WorkstationReservations
+                .Where(r => r.ReservationStart < hourLater && r.ReservationEnd > now)
+                .Select(r => r.WorkstationId)
+                .Distinct()
+                .CountAsync();
+
+            //return workstationsCount - occupiedWorkstations;
+
+            return new AvailableWorkstationReservationResponse
+            {
+                AvailableWorkstationsRes = workstationsCount - occupiedWorkstations,
+                TotalWorkstationsRes = workstationsCount
+            };
+        }
+
+        public Task<TimeRangeResponse> GetTargetTimeRangeAsync()
+        {
+            var now = DateTimeOffset.Now; // lokalny czas z offsetem
+            DateTimeOffset start = now;
+            DateTimeOffset end = now.AddHours(1);
+
+            bool isWeekend = now.DayOfWeek == DayOfWeek.Saturday || now.DayOfWeek == DayOfWeek.Sunday;
+            bool after18 = now.Hour >= 18;
+
+            if (after18 || isWeekend)
+            {
+                if ((now.DayOfWeek == DayOfWeek.Friday && after18) || isWeekend)
+                {
+                    int daysUntilMonday = ((int)DayOfWeek.Monday - (int)now.DayOfWeek + 7) % 7;
+                    if (daysUntilMonday == 0) daysUntilMonday = 7;
+                    var mondayDateTime = now.Date.AddDays(daysUntilMonday).AddHours(8);
+                    start = new DateTimeOffset(mondayDateTime, now.Offset);
+                }
+                else
+                {
+                    var nextDayDateTime = now.Date.AddDays(1).AddHours(8);
+                    start = new DateTimeOffset(nextDayDateTime, now.Offset);
+                }
+
+                end = start.AddHours(1);
+            }
+
+            return Task.FromResult(new TimeRangeResponse
+            {
+                Start = start,
+                End = end
+            });
+        }
+
+
         public async Task<WorkstationReservationResponse> CreateWorkstationReservationAsync(CreateWorkstationReservationRequest newReservation)
         {
            if(newReservation == null)
@@ -359,7 +448,6 @@ namespace SpacifyAPI.Services
             };
         }
 
-        ///Temat .net jobów trzeba by było dodać do tego że co 15-20 min usuwa te rezerwacje
         public async Task RemoveExpiredUnconfirmedReservationsAsync()
         {
             var now = DateTimeOffset.UtcNow;
@@ -497,6 +585,8 @@ namespace SpacifyAPI.Services
             };
         }
 
-       
+        
+
+
     }
 }

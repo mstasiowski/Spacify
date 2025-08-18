@@ -53,6 +53,22 @@ namespace SpacifyAPI.Controllers
             return Ok(floors);
         }
 
+
+        [Authorize]
+        [HttpGet("/floors/user-upcoming-reservations")]
+        public async Task<ActionResult<List<FloorResponse>>> GetFloorsWithUserUpcomingReservations([FromQuery] int days)
+        {
+
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim))
+            {
+                throw new UnauthorizedAccessToDataException("User ID not found in token.");
+            }
+
+            var floors = await _floorService.GetFloorsWithUserUpcomingReservationsAsync(userIdClaim, days);
+            return Ok(floors);
+        }
+
         [Authorize(Roles = RoleNames.Administrator)]
         [HttpPost]
         public async Task<ActionResult<FloorResponse>> CreateFloor(CreateFloorRequest floor)

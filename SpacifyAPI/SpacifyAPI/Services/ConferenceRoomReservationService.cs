@@ -73,6 +73,101 @@ namespace SpacifyAPI.Services
             return dbConfReservation.Select(MapToResponse).ToList();
         }
 
+        public async Task<AvailableConfRoomReservationResponse> GetNumberOfAvailableConferenceRoomsForNowAsync()
+        {
+            var now = DateTimeOffset.Now;  // lokalny czas z offsetem
+            var hourLater = now.AddHours(1);
+
+            if (now.Hour >= 18)
+            {
+                if (now.DayOfWeek == DayOfWeek.Friday)
+                {
+                    int daysUntilMonday = ((int)DayOfWeek.Monday - (int)now.DayOfWeek + 7) % 7;
+                    if (daysUntilMonday == 0) daysUntilMonday = 7;
+                    var monday8am = now.Date.AddDays(daysUntilMonday).AddHours(8);
+                    now = new DateTimeOffset(monday8am, now.Offset);
+                    hourLater = now.AddHours(1);
+                }
+                else if (now.DayOfWeek == DayOfWeek.Saturday || now.DayOfWeek == DayOfWeek.Sunday)
+                {
+                    int daysUntilMonday = ((int)DayOfWeek.Monday - (int)now.DayOfWeek + 7) % 7;
+                    var monday8am = now.Date.AddDays(daysUntilMonday).AddHours(8);
+                    now = new DateTimeOffset(monday8am, now.Offset);
+                    hourLater = now.AddHours(1);
+                }
+                else
+                {
+                    var nextDay8am = now.Date.AddDays(1).AddHours(8);
+                    now = new DateTimeOffset(nextDay8am, now.Offset);
+                    hourLater = now.AddHours(1);
+                }
+            }
+            else if (now.DayOfWeek == DayOfWeek.Saturday || now.DayOfWeek == DayOfWeek.Sunday)
+            {
+                int daysUntilMonday = ((int)DayOfWeek.Monday - (int)now.DayOfWeek + 7) % 7;
+                var monday8am = now.Date.AddDays(daysUntilMonday).AddHours(8);
+                now = new DateTimeOffset(monday8am, now.Offset);
+                hourLater = now.AddHours(1);
+            }
+
+            var totalConferenceRooms = await _context.ConferenceRooms.CountAsync();
+
+            var occupiedConferenceRooms = await _context.ConferenceRoomReservations
+                .Where(r => r.ReservationStart < hourLater && r.ReservationEnd > now)
+                .Select(r => r.ConferenceRoomId)
+                .Distinct()
+                .CountAsync();
+
+            //return totalConferenceRooms - occupiedConferenceRooms;
+
+            return new AvailableConfRoomReservationResponse
+            {
+                AvailableConfRoomsRes = totalConferenceRooms - occupiedConferenceRooms,
+                TotalConfRoomsRes = totalConferenceRooms
+            };
+        }
+
+        public async Task<List<UpcomingReservationResponse>> GetUpcomingReservationsAsync(Guid userId)
+        {
+            var now = DateTimeOffset.Now;
+            var threeDaysLater = now.AddDays(3);
+
+            var workstationReservations = await _context.WorkstationReservations
+                .Where(r => r.UserId == userId &&
+                            r.ReservationStart >= now &&
+                            r.ReservationStart <= threeDaysLater)
+                .Select(r => new UpcomingReservationResponse
+                {
+                    Type = "Workstation",
+                    ResourceId = r.WorkstationId,
+                    Start = r.ReservationStart,
+                    End = r.ReservationEnd,
+                    IsConfirmed = r.IsConfirmed
+                })
+                .ToListAsync();
+
+            var conferenceReservations = await _context.ConferenceRoomReservations
+                .Where(r => r.UserId == userId &&
+                            r.ReservationStart >= now &&
+                            r.ReservationStart <= threeDaysLater)
+                .Select(r => new UpcomingReservationResponse
+                {
+                    Type = "ConferenceRoom",
+                    ResourceId = r.ConferenceRoomId,
+                    Start = r.ReservationStart,
+                    End = r.ReservationEnd,
+                    IsConfirmed = r.IsConfirmed
+                })
+                .ToListAsync();
+
+            var allReservations = workstationReservations
+                .Concat(conferenceReservations)
+                .OrderBy(r => r.Start)
+                .ToList();
+
+            return allReservations;
+        }
+
         public async Task<ConferenceRoomReservationResponse> CreateConfRoomReservationAsync(CreateConferenceRoomReservationRequest request)
         {
             if(request == null)
@@ -196,6 +291,25 @@ namespace SpacifyAPI.Services
             return MapToResponse(dbExistingReservation);
 
         }
+
+
+        public async Task RemoveExpiredUnconfirmedConferenceRoomReservationsAsync()
+        {
+            var now = DateTimeOffset.UtcNow;
+
+            var expiredReservations = await _context.ConferenceRoomReservations
+                .Where(r => !r.IsConfirmed && r.ReservationStart <= now)
+                .ToListAsync();
+
+            if (!expiredReservations.Any())
+            {
+                return; // Brak niepotwierdzonych, wygasłych rezerwacji
+            }
+
+            _context.ConferenceRoomReservations.RemoveRange(expiredReservations);
+            await _context.SaveChangesAsync();
+        }
+
 
         public async Task DeleteConfRoomsReservationAsync(int id)
         {

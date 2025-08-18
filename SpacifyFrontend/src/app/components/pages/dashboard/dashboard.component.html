@@ -1,51 +1,118 @@
 <ng-container *ngIf="authService.userSignal()">
-  <button
-    type="button"
-    (click)="refreshAction()"
-    class="bg-red-500 border border-black text-sm text-white rounded-sm p-2 m-2"
-  >
-    Refresh
-  </button>
+  <div id="container">
+    <header id="dashboard-header">
+      <h1>Panel sterowania</h1>
+      <p class="subtitle">
+        Witaj ponownie, {{ authService.userSignal()?.name }}!
+      </p>
+    </header>
 
-  <button
-    type="button"
-    class="bg-green-500 border border-black text-sm text-white rounded-sm p-2 m-2"
-  >
-    Conference
-  </button>
+    <section id="dashboard-informations">
+      <div
+        class="dashboard-block"
+        *ngFor="let block of dashboardInformations; let i = index"
+        [ngClass]="block.type"
+      >
+        <div class="block-content">
+          <h2 [ngClass]="block.type">{{ block.label }}</h2>
+          <h3>{{ block.value }}</h3>
+        </div>
 
-  <button
-    type="button"
-    class="bg-pink-500 border border-black text-sm text-white rounded-sm p-2 m-2"
-  >
-    Workstations
-  </button>
+        <div class="block-icon" [ngClass]="block.type">
+          <i [class]="block.icon"></i>
+        </div>
+      </div>
+    </section>
 
-  <button
-    type="button"
-    (click)="getUserInformation()"
-    class="bg-orange-500 border border-black text-sm text-white rounded-sm p-2 m-2"
-  >
-    get user signal
-  </button>
+    <div id="dashboard-panel">
+      <section id="upcoming-reservations">
+        <div class="reservation-header-container">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <h2>Nadchodzące rezerwacje</h2>
+        </div>
 
-  <button
-    type="button"
-    (click)="logoutAction()"
-    class="bg-blue-500 border border-black text-sm text-white rounded-sm p-2 m-2"
-  >
-    logout
-  </button>
+        <div id="no-reservations" *ngIf="upcomingDetail.length === 0">
+          <p>W nabliższym czasie nie ma żadnych rezerwacji.</p>
+        </div>
 
-  <button
-    type="button"
-    (click)="getReservations()"
-    class="bg-yellow-500 border border-black text-sm text-white rounded-sm p-2 m-2"
-  >
-    Rezerwacje
-  </button>
+        <ul>
+          <li *ngFor="let reservation of upcomingDetail">
+            <i
+              [ngClass]="[
+                'reservation-type-icon',
+                reservation.objectName.toLowerCase().startsWith('biurko')
+                  ? 'workspace-bg'
+                  : 'conference-room-bg'
+              ]"
+              [class]="
+                reservation.objectName.toLowerCase().startsWith('biurko')
+                  ? 'fa-solid fa-desktop'
+                  : 'fa-solid fa-users'
+              "
+            ></i>
+
+            <div class="reservation-container">
+              <div class="top-reservation-section">
+                <h3>{{ reservation.objectName }}</h3>
+                <p>|</p>
+                {{ reservation.floorName ? reservation.floorName : "" }}
+              </div>
+              <div class="bottom-reservation-section">
+                <div class="reservation-date-container">
+                  <i class="fa-solid fa-location"></i>
+                  {{ reservation.reservationStart | date : "dd.MM.yyyy" }}
+                </div>
+
+                <div class="reservation-time-container">
+                  <i class="fa-regular fa-clock"></i>
+                  {{ reservation.reservationStart | date : "HH:mm" }} do
+                  {{ reservation.reservationEnd | date : "HH:mm" }}
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <section id="quick-actions">
+        <div class="quick-actions-header">
+          <i class="fa-solid fa-wave-square"></i>
+          <span>Szybkie działania</span>
+        </div>
+        <div class="quick-actions-list">
+          <button
+            class="quick-action workspace"
+            type="button"
+            routerLink="/workstation-reservation"
+          >
+            <i class="fa-solid fa-desktop"></i>
+            Zarezerwuj biurko
+            <i class="fa-solid fa-chevron-right arrow"></i>
+          </button>
+          <button
+            *ngIf="
+              this.authService.userSignal()?.role === userRoleEnum.Leader ||
+              this.authService.userSignal()?.role === userRoleEnum.Administrator
+            "
+            class="quick-action confroom"
+            type="button"
+            routerLink="/conferenceroom-reservation"
+          >
+            <i class="fa-solid fa-users"></i>
+            Zarezerwuj salę konferencyjną
+            <i class="fa-solid fa-chevron-right arrow"></i>
+          </button>
+          <button
+            class="quick-action bookings"
+            type="button"
+            routerLink="/my-reservations"
+          >
+            <i class="fa-solid fa-calendar"></i>
+            Zarządzaj moimi rezerwacjami
+            <i class="fa-solid fa-chevron-right arrow"></i>
+          </button>
+        </div>
+      </section>
+    </div>
+  </div>
 </ng-container>
-
-<br />
-<br />
-<!-- Todo test serwisu workstation reservation -->

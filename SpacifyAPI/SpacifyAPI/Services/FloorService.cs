@@ -61,14 +61,12 @@ namespace SpacifyAPI.Services
                 }));
         }
 
-        //TEEEEEST
         public async Task<List<FloorResponse>> GetAllFloorsWithUserReservationsAsync(string userIdClaim)
         {
-            //var userIdClaim = _httpContextAccessor.HttpContext?.User.FindFirst("sub")?.Value;
 
             if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out Guid userId))
             {
-                throw new UnauthorizedAccessException("User is not authenticated.");
+                throw new UnauthorizedAccessToDataException("User is not authenticated.");
             }
 
             var floors = await _context.Floors
@@ -133,7 +131,96 @@ namespace SpacifyAPI.Services
             }).ToList();
         }
 
-        //TEEEEEST
+
+        public async Task<List<FloorResponse>> GetFloorsWithUserUpcomingReservationsAsync(string userIdClaim, int daysAhead)
+        {
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out Guid userId))
+            {
+                throw new UnauthorizedAccessToDataException("User is not authenticated.");
+
+            }
+
+            if (daysAhead <= 0)
+            {
+                throw new BadRequestException($"Days ahead must be greater than zero.{nameof(daysAhead)}");
+            }
+
+            var now = DateTimeOffset.Now;
+            var endDate = now.AddDays(daysAhead);
+
+            var floors = await _context.Floors
+                .Include(f => f.Workstations!)
+                    .ThenInclude(w => w.WorkstationReservations)
+                .Include(f => f.ConferenceRooms!)
+                    .ThenInclude(cr => cr.ConferenceRoomReservations)
+                .ToListAsync();
+
+            if (floors == null || floors.Count == 0)
+            {
+                throw new NotFoundException("No floors found in the database.");
+            }
+
+            return floors.Select(f => new FloorResponse
+            {
+                Id = f.Id,
+                Name = f.Name,
+                ImageUrl = f.ImageUrl,
+                Workstations = f.Workstations?.Select(w => new WorkstationResponse
+                {
+                    Id = w.Id,
+                    DeskNumber = w.DeskNumber,
+                    PositionX = w.PositionX,
+                    PositionY = w.PositionY,
+                    FloorId = w.FloorId,
+                    WorkstationReservations = w.WorkstationReservations?
+                        .Where(r => r.UserId == userId &&
+                                    r.ReservationStart >= now &&
+                                    r.ReservationStart <= endDate)
+                        .OrderBy(r => r.ReservationStart)
+                        .Select(r => new WorkstationReservationResponse
+                        {
+                            Id = r.Id,
+                            UserId = r.UserId,
+                            WorkstationId = r.WorkstationId,
+                            ReservationStart = r.ReservationStart,
+                            ReservationEnd = r.ReservationEnd,
+                            CreatedAt = r.CreatedAt,
+                            UpdatedAt = r.UpdatedAt,
+                            IsConfirmed = r.IsConfirmed
+                        }).ToList()
+                }).Where(w => w.WorkstationReservations != null && w.WorkstationReservations.Any()).ToList(),
+                ConferenceRooms = f.ConferenceRooms?.Select(cr => new ConferenceRoomResponse
+                {
+                    Id = cr.Id,
+                    Name = cr.Name,
+                    EquipmentDetails = cr.EquipmentDetails,
+                    ImageUrl = cr.ImageUrl,
+                    Capacity = cr.Capacity,
+                    FloorId = cr.FloorId,
+                    ConferenceRoomReservations = cr.ConferenceRoomReservations?
+                        .Where(r => r.UserId == userId &&
+                                    r.ReservationStart >= now &&
+                                    r.ReservationStart <= endDate)
+                        .OrderBy(r => r.ReservationStart)
+                        .Select(r => new ConferenceRoomReservationResponse
+                        {
+                            Id = r.Id,
+                            UserId = r.UserId,
+                            ConferenceRoomId = r.ConferenceRoomId,
+                            ReservationStart = r.ReservationStart,
+                            ReservationEnd = r.ReservationEnd,
+                            CreatedAt = r.CreatedAt,
+                            IsConfirmed = r.IsConfirmed
+                        }).ToList()
+                }).Where(cr => cr.ConferenceRoomReservations != null && cr.ConferenceRoomReservations.Any()).ToList()
+            })
+            // Usunięcie pięter bez rezerwacji
+            .Where(f =>
+                (f.Workstations != null && f.Workstations.Any()) ||
+                (f.ConferenceRooms != null && f.ConferenceRooms.Any()))
+            .ToList();
+        }
+
 
 
         public async Task<FloorResponse> GetFloorByIdAsync(int id)

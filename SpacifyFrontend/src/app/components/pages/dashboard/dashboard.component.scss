@@ -1,1 +1,411 @@
+$blue: #3b82f6;
+$blue-light: #dbeafe;
+$gray: #4a5565;
+$background: #f9fbfd;
+$red: #f44336;
+$green: #22c55e;
+$orange: #f59e42;
+$purple: #764ba2;
 
+$workspaceColor: linear-gradient(135deg, $blue, #5e5ee7);
+$ConferenceRoomColor: linear-gradient(135deg, $purple, #b35ee7);
+
+#container {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+#dashboard-header {
+  text-align: left;
+  font-family: sans-serif;
+  // margin-top: 2rem;
+  // margin-left: 2rem;
+  margin: 2rem 0rem 0rem 2.5rem;
+
+  h1 {
+    font-size: 2.3rem;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: 1.2px;
+    // font-family: "Montserrat", "Segoe UI", Arial, sans-serif;
+    color: #3c3f42;
+  }
+
+  .subtitle {
+    margin-top: 0.1rem;
+    font-size: 1.15rem;
+    color: #4a5565;
+    font-weight: 400;
+    letter-spacing: 0.2px;
+    opacity: 0.95;
+  }
+}
+
+#dashboard-informations {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+
+  .dashboard-block {
+    background: linear-gradient(135deg, $blue 0%, #764ba2 100%);
+    color: white;
+    padding: 25px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &.all {
+      background: linear-gradient(135deg, $blue, #60a5fa); // niebieski
+    }
+
+    &.workstationsStats {
+      background: linear-gradient(135deg, #22c55e, #86efac);
+    }
+
+    &.confRoomsStats {
+      background: linear-gradient(135deg, #a320af, #c760b9);
+    }
+
+    &.upcomingReservationsStats {
+      background: linear-gradient(135deg, $orange, #fcd34d);
+    }
+
+    &.dashboardWatch {
+      background: linear-gradient(135deg, $red, #e75e77);
+    }
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    .block-icon {
+      font-size: 2rem;
+      opacity: 0.9;
+      min-width: 40px;
+    }
+
+    .block-content {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      // align-items: center;
+      flex-direction: column;
+      gap: 0.5rem;
+      // border: 1px solid black;
+      width: 100%;
+      text-align: left;
+
+      h3 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 500;
+        line-height: 1.2;
+        white-space: pre-line;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: 1.2rem;
+        opacity: 0.9;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+#dashboard-panel {
+  display: flex;
+  // justify-content: center;
+  justify-content: space-around;
+  align-items: flex-start;
+  gap: 2rem;
+  width: 100%;
+}
+
+#upcoming-reservations {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  width: 45%;
+  background-color: white;
+  border-radius: 1rem;
+  border: 1px solid rgb(235, 235, 235);
+  padding: 1.5rem;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.07);
+
+  .reservation-header-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    color: #3c3f42;
+    border-bottom: 2px solid rgb(255, 209, 5);
+    padding-bottom: 0.7rem;
+
+    width: 100%;
+    font-size: 1.5rem;
+    font-weight: 700;
+
+    i {
+      color: rgb(255, 209, 5);
+    }
+  }
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    border-bottom: 1px solid rgb(235, 235, 235);
+    padding: 1.2rem 0;
+    color: #4a5565;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .top-reservation-section {
+    display: flex;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+  }
+
+  .workspace-bg {
+    background: $workspaceColor;
+  }
+
+  .conference-room-bg {
+    background: $ConferenceRoomColor;
+  }
+
+  .reservation-type-icon {
+    font-size: 1.3rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 0.7rem;
+    color: white;
+    // margin-right: 0.7rem;
+  }
+
+  .bottom-reservation-section {
+    margin-top: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 1rem;
+  }
+}
+
+#quick-actions {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.07);
+  border: 1px solid rgb(235, 235, 235);
+  padding: 1.5rem;
+  width: 45%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+
+  .quick-actions-header {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #3c3f42;
+    // border-bottom: 1px solid #e5e7eb;
+    border-bottom: 2px solid $blue;
+    padding-bottom: 0.7rem;
+
+    i {
+      color: $blue;
+      font-size: 1.3rem;
+    }
+  }
+
+  .quick-actions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+
+  .quick-action {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-size: 1.08rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 0.7rem;
+    padding: 0.85rem 1.2rem;
+    background: $blue-light;
+    color: #222;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.07);
+
+    i {
+      font-size: 1.15rem;
+    }
+
+    .arrow {
+      margin-left: auto;
+      color: #4a5565;
+      font-size: 1rem;
+    }
+
+    &.workspace {
+      background: $workspaceColor;
+      color: #fff;
+      i,
+      .arrow {
+        color: #fff;
+      }
+      &:hover {
+        background: linear-gradient(135deg, #2563eb, #5e5ee7);
+      }
+    }
+    &.confroom {
+      background: linear-gradient(135deg, #a320af, #c760b9);
+
+      color: #fff;
+      i,
+      .arrow {
+        color: #fff;
+      }
+      &:hover {
+        background: linear-gradient(135deg, #9100aa, #a320af);
+      }
+    }
+    &.bookings {
+      background: $blue-light;
+      color: #222;
+      i {
+        color: $blue;
+      }
+      .arrow {
+        color: #4a5565;
+      }
+      &:hover {
+        background: #e0e7ef;
+      }
+    }
+  }
+}
+
+@media (max-width: 715px) {
+  #upcoming-reservations {
+    width: 100%;
+    padding: 1rem;
+
+    .reservation-type-icon {
+      font-size: 1rem;
+      width: 2rem;
+      height: 2rem;
+    }
+    .reservation-header-container {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+    }
+    .top-reservation-section {
+      font-size: 1rem;
+    }
+  }
+
+  #quick-actions {
+    max-width: 100%;
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 560px) {
+  #quick-actions .quick-action {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  #dashboard-panel {
+    flex-direction: column;
+  }
+
+  #dashboard-header {
+    margin: 2rem 0rem 0rem 0;
+  }
+
+  #upcoming-reservations {
+    padding: 0.7rem;
+    .reservation-header-container {
+      font-size: 1rem;
+      margin-bottom: 0.7rem;
+    }
+    ul {
+      gap: 1rem;
+    }
+    li {
+      gap: 0.7rem;
+      padding: 0.7rem 0;
+    }
+
+    .top-reservation-section {
+      font-size: 0.95rem;
+    }
+    .bottom-reservation-section {
+      font-size: 0.95rem;
+      gap: 0.5rem;
+    }
+  }
+
+  #quick-actions {
+    width: 100%;
+    padding: 0.7rem;
+    .quick-actions-header {
+      font-size: 1.05rem;
+      padding-bottom: 0.5rem;
+    }
+    .quick-action {
+      font-size: 0.98rem;
+      padding: 0.7rem 0.7rem;
+    }
+  }
+}
+
+@media (max-width: 350px) {
+  #upcoming-reservations {
+    // padding: 0.3rem;
+    .reservation-header-container {
+      font-size: 0.95rem;
+    }
+
+    .top-reservation-section {
+      font-size: 0.85rem;
+    }
+  }
+}

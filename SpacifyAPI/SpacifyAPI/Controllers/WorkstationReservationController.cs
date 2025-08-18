@@ -7,6 +7,7 @@ using SpacifyAPI.Helpers;
 using SpacifyAPI.Interfaces;
 using SpacifyAPI.Models.Requests;
 using SpacifyAPI.Models.Responses;
+using SpacifyAPI.Services;
 using System.Security.Claims;
 
 namespace SpacifyAPI.Controllers
@@ -78,6 +79,22 @@ namespace SpacifyAPI.Controllers
         {
             var dbReservation = await _workstationReservationService.GetWorkstationReservationsByFloorAndDateAsync(floorId, date);
             return Ok(dbReservation);
+        }
+
+        [Authorize]
+        [HttpGet("/workstation/available")]
+        public async Task<ActionResult<AvailableWorkstationReservationResponse>> GetTheNumberOfAvailableWorkstationsForNow()
+        {
+            var availableWorkstations = await _workstationReservationService.GetTheNumberOfAvailableWorkstationsForNowAsync();
+            return Ok(availableWorkstations);
+        }
+
+        [Authorize]
+        [HttpGet("/workstation/dashboard/reservation/time-range")]
+        public async Task<ActionResult<TimeRangeResponse>> GetTimeRange()
+        {
+            var result = await _workstationReservationService.GetTargetTimeRangeAsync();
+            return Ok(result);
         }
 
         [Authorize]
