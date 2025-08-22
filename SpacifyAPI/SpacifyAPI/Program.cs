@@ -28,7 +28,7 @@ namespace SpacifyAPI
             {
                 options.AddPolicy("AllowAngularFrontend", policy =>
                 {
-                    policy.WithOrigins("https://localhost:4200", "http://localhost:4200")
+                    policy.WithOrigins("https://localhost:4200")
                           .AllowAnyMethod()
                           .AllowAnyHeader()
                           .AllowCredentials();

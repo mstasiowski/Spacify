@@ -88,9 +88,7 @@ export class WorkspaceReservationsComponent
     this.getFloors();
     this.getUsers();
 
-    //TODO formularz rezerwacji
     this.formInit();
-    //TODO
   }
 
   ngAfterViewInit(): void {
@@ -147,23 +145,6 @@ export class WorkspaceReservationsComponent
       this.updateOfficeMap();
     }
 
-    //Todo temp info
-    this.stage.on('click', (e) => {
-      if (e.target === this.stage) {
-        const pointer = this.stage.getPointerPosition();
-        if (pointer) {
-          const pos = this.stage.position();
-          const scaleX = this.stage.width() / this.originalImageSize.width;
-          const scaleY = this.stage.height() / this.originalImageSize.height;
-          const originalX = (pointer.x - pos.x) / scaleX;
-          const originalY = (pointer.y - pos.y) / scaleY;
-          alert(`X: ${originalX.toFixed(2)}, Y: ${originalY.toFixed(2)}`);
-        }
-      }
-    });
-
-    //Todo temp info
-
     //Todo tooltip
     this.tooltipLayer = new Konva.Layer();
     this.stage.add(this.tooltipLayer);
@@ -209,44 +190,7 @@ export class WorkspaceReservationsComponent
       end: defaultEnd,
     } = getDefaultReservationTimes();
 
-    console.log('Default reservation times:', {
-      defaultDate,
-      defaultStart,
-      defaultEnd,
-    });
-
     this.selectedDate = defaultDate;
-
-    //Info ustawianie domyślnych godzin
-    // const now = new Date();
-    // const currentHour = now.getHours();
-
-    // // Domyślna godzina rozpoczęcia to najbliższa pełna godzina w przyszłości (ale nie wcześniej niż 8, nie później niż 17)
-    // const startHour = Math.min(Math.max(currentHour + 1, 8), 17);
-
-    // // Domyślna godzina zakończenia to godzina później (ale maksymalnie do 18)
-    // const endHour = Math.min(startHour + 1, 18);
-
-    // const today = new Date();
-    // const defaultStart = new Date(
-    //   today.getFullYear(),
-    //   today.getMonth(),
-    //   today.getDate(),
-    //   startHour,
-    //   0,
-    //   0,
-    //   0
-    // );
-    // const defaultEnd = new Date(
-    //   today.getFullYear(),
-    //   today.getMonth(),
-    //   today.getDate(),
-    //   endHour,
-    //   0,
-    //   0,
-    //   0
-    // );
-    //Info </> ustawianie domyślnych godzin
 
     this.reservationForm = this.fb.group(
       {
@@ -303,7 +247,6 @@ export class WorkspaceReservationsComponent
   tooltipLayer!: Konva.Layer;
   tooltip!: Konva.Label;
 
-  // selectedDate: Date = new Date();
   selectedDate: Date | null = null; // Allow null for better handling in date picker
 
   freeWorkstationColor: string = '#00FF00';
@@ -382,7 +325,6 @@ export class WorkspaceReservationsComponent
   drawWorkstations() {
     if (!this.layer || !this.stage) return;
 
-    //! Testowy warunek
     if (
       !this.originalImageSize ||
       !this.originalImageSize.width ||
@@ -390,7 +332,6 @@ export class WorkspaceReservationsComponent
     ) {
       return;
     }
-    //! Testowy warunek
 
     const scaleX = this.stage.width() / this.originalImageSize.width;
     const scaleY = this.stage.height() / this.originalImageSize.height;
@@ -559,10 +500,6 @@ export class WorkspaceReservationsComponent
     if (!this.selectedDate || !startDate || !endDate || !this.selectedFloorId)
       return;
 
-    // console.log('==========================');
-    // console.log('StartDate', startDate);
-    // console.log('endDate', endDate);
-
     this.reservationService
       .GetReservationsByDateTimeRange(startDate, endDate)
       .pipe(takeUntil(this.unsubscribe$))
@@ -573,8 +510,6 @@ export class WorkspaceReservationsComponent
             floorWorkstationIds.includes(r.workstationId)
           );
           this.updateOfficeMap();
-          // console.log('Wykonano odświeżenie rezerwacji i mapy');
-          // console.log(res);
         },
         error(err) {
           console.log(err);
@@ -635,7 +570,6 @@ export class WorkspaceReservationsComponent
       .subscribe({
         next: (res) => {
           this.users = res;
-          // console.log('Users fetched:', this.users);
         },
         error: (err) => {
           console.error('Error fetching users:', err);

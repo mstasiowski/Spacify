@@ -1,10 +1,7 @@
-// Todo navbar
-
 $blue: #3b82f6;
 $gray: #4a5565;
 $gray-light: #f9fafb;
 $gray-lighter: #f3f4f6;
-// $shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 $shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.1);
 
 .hamburger {
@@ -95,6 +92,8 @@ $shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.1);
         width: 100%;
         text-align: left;
         cursor: pointer;
+        user-select: none;
+        -webkit-user-drag: none;
 
         i {
           color: $gray;

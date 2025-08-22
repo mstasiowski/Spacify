@@ -34,16 +34,19 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         component: DashboardComponent,
+        title: 'Spacify | Panel Główny',
         canActivate: [authenticationGuard],
       },
       {
         path: 'workstation-reservation',
         component: WorkspaceReservationsComponent,
+        title: 'Spacify | Rezerwacja stanowiska',
         canActivate: [authenticationGuard],
       },
       {
         path: 'conferenceroom-reservation',
         component: ConferenceRoomReservationComponent,
+        title: 'Spacify | Rezerwacja sali',
         canActivate: [
           authenticationGuard,
           roleGuard([UserRole.Administrator, UserRole.Leader]),
@@ -52,16 +55,19 @@ export const routes: Routes = [
       {
         path: 'my-reservations',
         component: MyReservationsComponent,
+        title: 'Spacify | Moje rezerwacje',
         canActivate: [authenticationGuard],
       },
       {
         path: 'admin',
         component: AdminComponent,
+        title: 'Spacify | Panel administracyjny',
         canActivate: [authenticationGuard, roleGuard([UserRole.Administrator])],
       },
       {
         path: 'settings',
         component: SettingsComponent,
+        title: 'Spacify | Ustawienia',
         canActivate: [authenticationGuard],
       },
     ],

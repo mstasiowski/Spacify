@@ -12,11 +12,7 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
 import { authInterceptor } from './services/interceptors/auth.interceptor';
 
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import {
-  MatMomentDateModule,
-  MomentDateAdapter,
-} from '@angular/material-moment-adapter';
+import { MomentDateAdapter } from '@angular/material-moment-adapter';
 import {
   DateAdapter,
   MAT_DATE_FORMATS,
@@ -30,6 +26,7 @@ registerLocaleData(localePl);
 
 import 'moment/locale/pl';
 import * as moment from 'moment';
+import { Title } from '@angular/platform-browser';
 
 moment.locale('pl');
 
@@ -49,6 +46,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
+    Title,
     provideHttpClient(withInterceptors([authInterceptor])),
     provideAnimations(),
     { provide: LOCALE_ID, useValue: 'pl' },

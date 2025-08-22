@@ -16,7 +16,6 @@ namespace SpacifyAPI.Data
         public DbSet<WorkstationReservation> WorkstationReservations { get; set; } = null!;
         public DbSet<ConferenceRoomReservation> ConferenceRoomReservations { get; set; } = null!;
         public DbSet<User> Users { get; set; } = null!;
-        public DbSet<LogActivity> LogActivities { get; set; } = null!;
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -35,12 +34,7 @@ namespace SpacifyAPI.Data
                 .HasForeignKey(crr => crr.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // User -> LogActivities
-            //modelBuilder.Entity<User>()
-            //    .HasMany<LogActivity>()
-            //    .WithOne()
-            //    .HasForeignKey(l => l.UserId)
-            //    .OnDelete(DeleteBehavior.Cascade);
+            
 
             // Floor -> Workstations
             modelBuilder.Entity<Floor>()

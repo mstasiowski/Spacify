@@ -352,7 +352,6 @@ export class ConferenceRoomReservationComponent
       .subscribe({
         next: (rooms: ConferenceRoomResponse[]) => {
           this.filteredRooms = rooms;
-          // console.log('Załadowane sale konferencyjne:', this.filteredRooms);
           this.calculateAvailableCapacity();
           this.setInfoBlocks();
         },
@@ -372,21 +371,11 @@ export class ConferenceRoomReservationComponent
       .subscribe({
         next: (rooms: ConferenceRoomResponse[]) => {
           this.filteredRooms = rooms;
-          // console.log(
-          //   `Załadowane sale konferencyjne z piętra o id:${floorId}:`,
-          //   this.filteredRooms
-          // );
 
           this.calculateAvailableCapacity();
           this.setInfoBlocks();
         },
         error: (error) => {
-          // if (error.status === 404) {
-          //   console.warn('Brak sal konferencyjnych na tym piętrze.');
-          //   return;
-          // } else {
-          //   console.error('Błąd podczas ładowania sal konferencyjnych:', error);
-          // }
           this.notificationService.showError(
             'Wystąpił błąd podczas ładowania sal konferencyjnych. Spróbuj ponownie później.',
             `Status: ${error.status}`
@@ -418,16 +407,9 @@ export class ConferenceRoomReservationComponent
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe({
         next: (reservations: ConferenceRoomReservationResponse[]) => {
-          // this.reservations = reservations.map((res) => ({
-          //   ...res,
-          //   reservationStart: new Date(res.reservationStart + 'Z'),
-          //   reservationEnd: new Date(res.reservationEnd + 'Z'),
-          // }));
           this.reservations = reservations;
-          // console.log('Załadowane rezerwacje:', this.reservations);
           this.calculateAvailableCapacity();
           this.setInfoBlocks();
-          // console.log('CAPACITY', this.availableCapacity);
         },
         error: (error) => {
           this.notificationService.showError(
@@ -564,8 +546,6 @@ export class ConferenceRoomReservationComponent
         reservationEnd: reservationEnd.toISOString(),
       };
 
-      console.log('Tworzenie rezerwacji:', newReservation);
-
       this.reservationService
         .createConfRoomReservation(newReservation)
         .pipe(
@@ -591,213 +571,8 @@ export class ConferenceRoomReservationComponent
               `Status: ${error.status}`
             );
             console.log(error);
-            console.log(this.confRoomReservationForm.valid);
-            console.log(this.confRoomReservationForm.value);
           },
         });
     }
   }
-
-  //? Generowane
-  // reservationForm: FormGroup;
-  // conferenceRooms: ConferenceRoomResponse[] = [];
-  // filteredRooms: ConferenceRoomResponse[] = [];
-  // reservations: ConferenceRoomReservationResponse[] = [];
-  // selectedDate: Date = new Date();
-  // selectedReservation: any = null;
-  // Info tiles data
-  // currentHour = new Date().getHours();
-  // availableRooms = 0;
-  // totalCapacity = 0;
-  // nextAvailableDate = new Date();
-  // reservationTime = '8:00 - 18:00';
-  // floors!: FloorResponse[]; // Przykładowe piętra
-  // timeSlots = this.generateTimeSlots();
-  // infoTiles: { icon: string; value: string | number; label: string }[] = [];
-  // constructor(
-  //   private fb: FormBuilder,
-  //   private conferenceRoomService: ConferenceRoomService,
-  //   private reservationService: ConferenceRoomReservationService,
-  //   private floorService: FloorService
-  // ) {
-  //   super();
-  //   this.reservationForm = this.fb.group({
-  //     date: [new Date().toISOString().split('T')[0], Validators.required],
-  //     startTime: ['', Validators.required],
-  //     endTime: ['', Validators.required],
-  //     floor: ['', Validators.required],
-  //   });
-  // }
-  // ngOnInit() {
-  //   this.loadFloors();
-  //   this.loadReservations();
-  //   this.setNextAvailableDate();
-  //   this.setInfoTiles();
-  // }
-  // setInfoTiles() {
-  //   this.infoTiles = [
-  //     {
-  //       icon: 'fas fa-door-open',
-  //       value: this.availableRooms,
-  //       label: 'Dostępne sale',
-  //     },
-  //     {
-  //       icon: 'fas fa-users',
-  //       value: this.totalCapacity,
-  //       label: 'Maksymalna pojemność',
-  //     },
-  //     {
-  //       icon: 'fas fa-calendar-day',
-  //       value: this.formatDate(this.nextAvailableDate),
-  //       label: 'Następny wolny dzień',
-  //     },
-  //     {
-  //       icon: 'fas fa-clock',
-  //       value: this.reservationTime,
-  //       label: 'Godziny rezerwacji',
-  //     },
-  //   ];
-  // }
-  // loadConferenceRooms() {
-  //   this.conferenceRoomService.getConferenceRooms().subscribe((rooms: any) => {
-  //     this.conferenceRooms = rooms;
-  //     this.filteredRooms = rooms;
-  //     this.calculateInfoTiles();
-  //   });
-  // }
-  // loadFloors() {
-  //   this.floorService
-  //     .getFloors()
-  //     .pipe(takeUntil(this.unsubscribe$))
-  //     .subscribe({
-  //       next: (floors) => {
-  //         this.floors = floors;
-  //         this.reservationForm.patchValue({ floor: this.floors[0]?.id });
-  //         console.log('Załadowane piętra:', this.floors);
-  //         this.onFormChange(); // Load rooms for the first floor
-  //       },
-  //       error: (error) => {
-  //         console.error('Błąd podczas ładowania pięter:', error);
-  //       },
-  //     });
-  // }
-  // loadReservations() {
-  //   const startDate = new Date(this.selectedDate);
-  //   startDate.setHours(0, 0, 0, 0);
-  //   const endDate = new Date(this.selectedDate);
-  //   endDate.setHours(23, 59, 59, 999);
-  //   this.reservationService
-  //     .getConfRoomByDateTimeRange(startDate, endDate)
-  //     .subscribe((reservations) => {
-  //       this.reservations = reservations;
-  //     });
-  // }
-  // onFormChange() {
-  //   const formValue = this.reservationForm.value;
-  //   if (formValue.floor) {
-  //     this.conferenceRoomService
-  //       .getConfRoomsByFloor(formValue.floor)
-  //       .subscribe((rooms: any) => {
-  //         this.filteredRooms = rooms;
-  //       });
-  //   } else {
-  //     this.filteredRooms = this.conferenceRooms;
-  //   }
-  //   if (formValue.date) {
-  //     this.selectedDate = new Date(formValue.date);
-  //     this.loadReservations();
-  //   }
-  // }
-  // isRoomAvailable(roomId: number, startTime: string, endTime: string): boolean {
-  //   const requestStart = new Date(
-  //     `${this.reservationForm.value.date}T${startTime}`
-  //   );
-  //   const requestEnd = new Date(
-  //     `${this.reservationForm.value.date}T${endTime}`
-  //   );
-  //   return !this.reservations.some((reservation) => {
-  //     if (reservation.conferenceRoomId !== roomId) return false;
-  //     const resStart = new Date(reservation.reservationStart);
-  //     const resEnd = new Date(reservation.reservationEnd);
-  //     return requestStart < resEnd && requestEnd > resStart;
-  //   });
-  // }
-  // getReservationForRoom(
-  //   roomId: number
-  // ): ConferenceRoomReservationResponse | null {
-  //   return this.reservations.find((r) => r.conferenceRoomId === roomId) || null;
-  // }
-  // selectRoom(room: ConferenceRoomResponse) {
-  //   const formValue = this.reservationForm.value;
-  //   if (formValue.date && formValue.startTime && formValue.endTime) {
-  //     if (
-  //       this.isRoomAvailable(room.id, formValue.startTime, formValue.endTime)
-  //     ) {
-  //       this.selectedReservation = {
-  //         room: room,
-  //         date: formValue.date,
-  //         startTime: formValue.startTime,
-  //         endTime: formValue.endTime,
-  //       };
-  //     }
-  //   }
-  // }
-  // confirmReservation() {
-  //   if (this.selectedReservation) {
-  //     const request: CreateConferenceRoomReservationRequest = {
-  //       userId: 'current-user-id', // Pobierz z aktualnego użytkownika
-  //       conferenceRoomId: this.selectedReservation.room.id,
-  //       reservationStart: new Date(
-  //         `${this.selectedReservation.date}T${this.selectedReservation.startTime}`
-  //       ).toISOString(),
-  //       reservationEnd: new Date(
-  //         `${this.selectedReservation.date}T${this.selectedReservation.endTime}`
-  //       ).toISOString(),
-  //     };
-  //     this.reservationService.createWorkstationReservation(request).subscribe(
-  //       (response) => {
-  //         console.log('Rezerwacja utworzona:', response);
-  //         this.selectedReservation = null;
-  //         this.loadReservations();
-  //         this.reservationForm.reset();
-  //       },
-  //       (error) => {
-  //         console.error('Błąd podczas tworzenia rezerwacji:', error);
-  //       }
-  //     );
-  //   }
-  // }
-  // cancelReservation() {
-  //   this.selectedReservation = null;
-  // }
-  // private generateTimeSlots(): string[] {
-  //   const slots = [];
-  //   for (let hour = 8; hour < 18; hour++) {
-  //     slots.push(`${hour.toString().padStart(2, '0')}:00`);
-  //     slots.push(`${hour.toString().padStart(2, '0')}:30`);
-  //   }
-  //   slots.push('18:00');
-  //   return slots;
-  // }
-  // private calculateInfoTiles() {
-  //   this.availableRooms = this.conferenceRooms.length;
-  //   this.totalCapacity = this.conferenceRooms.reduce(
-  //     (sum, room) => sum + room.capacity,
-  //     0
-  //   );
-  // }
-  // private setNextAvailableDate() {
-  //   this.nextAvailableDate = new Date();
-  //   this.nextAvailableDate.setDate(this.nextAvailableDate.getDate() + 1);
-  // }
-  // formatDate(date: Date): string {
-  //   return date.toLocaleDateString('pl-PL', {
-  //     day: 'numeric',
-  //     month: 'long',
-  //   });
-  // }
-  // getFloorName(floorId: number): string {
-  //   return `Piętro ${floorId}`;
-  // }
-  //? /generowane
 }

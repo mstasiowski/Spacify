@@ -1,9 +1,10 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { Unsubscribe } from './helpers/unsubscribe.class';
 import { AuthService } from './services/auth.service';
-import { EMPTY, switchMap, takeUntil } from 'rxjs';
+import { EMPTY, filter, switchMap, takeUntil } from 'rxjs';
 import { UserService } from './services/user.service';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-root',
@@ -12,7 +13,6 @@ import { UserService } from './services/user.service';
   styleUrl: './app.component.scss',
 })
 export class AppComponent extends Unsubscribe implements OnInit {
-  title = 'Spacify';
   authService = inject(AuthService);
   userService = inject(UserService);
 
@@ -21,43 +21,11 @@ export class AppComponent extends Unsubscribe implements OnInit {
       .refreshAndFetchUser()
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe({
-        next: (user) => {
-          console.log('Zalogowano jako:');
-          console.log(this.authService.userSignal());
-        },
+        next: (user) => {},
         error: (err) => {
           console.error('Błąd logowania lub pobierania użytkownika:', err);
           this.authService.userSignal.set(null);
         },
       });
   }
-
-  //Info To jest orginał
-  // this.authService
-  // .refreshToken()
-  // .pipe(takeUntil(this.unsubscribe$))
-  // .subscribe({
-  //   next: (res) => {
-  //     let user = this.authService.getUserInfo();
-  //     //Todo tu coś chyba trzeba poprawic
-  //     if (user?.id)
-  //       this.userService
-  //         .getUserById(user?.id)
-  //         .pipe(takeUntil(this.unsubscribe$))
-  //         .subscribe({
-  //           next: (res) => {
-  //             this.authService.userSignal.set(res);
-  //             console.log(this.authService.userSignal());
-  //           },
-  //           error: (res) => {},
-  //         });
-  //     //Todo </>
-  //   },
-  //   error: (err) => {
-  //     console.log(err);
-  //     this.authService.userSignal.set(null);
-  //   },
-  // });
-
-  //Info </>
 }

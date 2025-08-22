@@ -58,7 +58,6 @@ export class SettingsComponent extends Unsubscribe implements OnInit {
     if (user != undefined) {
       this.currentUser = user;
       this.changeEmailForm.patchValue({ currentEmail: user.email });
-      console.log('Current user:', this.currentUser.email);
     }
   }
 

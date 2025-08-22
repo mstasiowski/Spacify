@@ -168,8 +168,6 @@ export class AdminComponent
     this.layer = new Konva.Layer();
     this.stage.add(this.layer);
 
-    console.log('Mapa zainicjalizowana:', this.stage);
-
     // Dodaj obsługę zoomowania
     this.setupZoomHandling();
 
@@ -484,8 +482,6 @@ export class AdminComponent
 
       this.layer.add(label);
 
-      //!
-
       //? Obsługa hovera
       circle.on('mouseover', () => {
         let hoverColor: string = this.workstationColor;
@@ -510,10 +506,6 @@ export class AdminComponent
         this.stage.container().style.cursor = 'default'; // Przywróć domyślny kursor
         this.layer.draw();
       });
-
-      // console.log(index, workstation);
-
-      //!
     });
 
     this.layer.draw();
@@ -636,8 +628,6 @@ export class AdminComponent
     const floor = this.floors.find((f) => f.id === floorId);
     this.imageUrl = floor?.imageUrl || '';
 
-    console.log('Zmiana piętra:', { floorId, imageUrl: this.imageUrl });
-
     this.getWorkstationsByFloor();
   }
 
@@ -680,7 +670,6 @@ export class AdminComponent
   }
 
   confirmEditWorkstation(): void {
-    console.log('wybrane', this.selectedWorkstationId);
     if (
       this.newWorkstationDeskNumber !== null &&
       this.newWorkstationDeskNumber > 0 &&
@@ -721,7 +710,6 @@ export class AdminComponent
 
   getFloorsFromChildComponent(floors: FloorResponse[]) {
     this.floors = floors;
-    console.log('Pobrano piętra z komponentu dziecka:', this.floors);
     if (this.floors.length > 0) {
       this.selectedFloorId = this.floors[0].id;
       this.imageUrl = this.floors[0].imageUrl || '';

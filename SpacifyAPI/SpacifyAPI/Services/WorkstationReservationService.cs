@@ -5,7 +5,6 @@ using SpacifyAPI.Exceptions;
 using SpacifyAPI.Interfaces;
 using SpacifyAPI.Models.Requests;
 using SpacifyAPI.Models.Responses;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SpacifyAPI.Services
 {
@@ -126,55 +125,25 @@ namespace SpacifyAPI.Services
 
         public async Task<AvailableWorkstationReservationResponse> GetTheNumberOfAvailableWorkstationsForNowAsync()
         {
-            var now = DateTimeOffset.Now;  // <== lokalny czas z offsetem
-            var hourLater = now.AddHours(1);
+            // Pobieramy docelowy przedział czasowy
+            var timeRange = await GetTargetTimeRangeAsync();
+            var startTime = timeRange.Start;
+            var endTime = timeRange.End;
 
-            if (now.Hour >= 18)
-            {
-                if (now.DayOfWeek == DayOfWeek.Friday)
-                {
-                    int daysUntilMonday = ((int)DayOfWeek.Monday - (int)now.DayOfWeek + 7) % 7;
-                    if (daysUntilMonday == 0) daysUntilMonday = 7;
-                    var monday8am = now.Date.AddDays(daysUntilMonday).AddHours(8);
-                    now = new DateTimeOffset(monday8am, now.Offset);
-                    hourLater = now.AddHours(1);
-                }
-                else if (now.DayOfWeek == DayOfWeek.Saturday || now.DayOfWeek == DayOfWeek.Sunday)
-                {
-                    int daysUntilMonday = ((int)DayOfWeek.Monday - (int)now.DayOfWeek + 7) % 7;
-                    var monday8am = now.Date.AddDays(daysUntilMonday).AddHours(8);
-                    now = new DateTimeOffset(monday8am, now.Offset);
-                    hourLater = now.AddHours(1);
-                }
-                else
-                {
-                    var nextDay8am = now.Date.AddDays(1).AddHours(8);
-                    now = new DateTimeOffset(nextDay8am, now.Offset);
-                    hourLater = now.AddHours(1);
-                }
-            }
-            else if (now.DayOfWeek == DayOfWeek.Saturday || now.DayOfWeek == DayOfWeek.Sunday)
-            {
-                int daysUntilMonday = ((int)DayOfWeek.Monday - (int)now.DayOfWeek + 7) % 7;
-                var monday8am = now.Date.AddDays(daysUntilMonday).AddHours(8);
-                now = new DateTimeOffset(monday8am, now.Offset);
-                hourLater = now.AddHours(1);
-            }
+            // Liczba wszystkich stanowisk
+            var totalWorkstations = await _context.Workstations.CountAsync();
 
-            var workstationsCount = await _context.Workstations.CountAsync();
-
+            // Liczba zajętych stanowisk w tym przedziale
             var occupiedWorkstations = await _context.WorkstationReservations
-                .Where(r => r.ReservationStart < hourLater && r.ReservationEnd > now)
+                .Where(r => r.ReservationStart < endTime && r.ReservationEnd > startTime)
                 .Select(r => r.WorkstationId)
                 .Distinct()
                 .CountAsync();
 
-            //return workstationsCount - occupiedWorkstations;
-
             return new AvailableWorkstationReservationResponse
             {
-                AvailableWorkstationsRes = workstationsCount - occupiedWorkstations,
-                TotalWorkstationsRes = workstationsCount
+                AvailableWorkstationsRes = totalWorkstations - occupiedWorkstations,
+                TotalWorkstationsRes = totalWorkstations
             };
         }
 
@@ -186,8 +155,14 @@ namespace SpacifyAPI.Services
 
             bool isWeekend = now.DayOfWeek == DayOfWeek.Saturday || now.DayOfWeek == DayOfWeek.Sunday;
             bool after18 = now.Hour >= 18;
+            bool before8 = now.Hour < 8;
 
-            if (after18 || isWeekend)
+            if(before8)
+            {
+                start = start.Date.AddHours(8);
+                end = start.AddHours(1);
+            }
+            else if (after18 || isWeekend)
             {
                 if ((now.DayOfWeek == DayOfWeek.Friday && after18) || isWeekend)
                 {
@@ -203,13 +178,17 @@ namespace SpacifyAPI.Services
                 }
 
                 end = start.AddHours(1);
+            }else
+            {
+                start = now;
+                end = now.AddHours(1);
             }
 
-            return Task.FromResult(new TimeRangeResponse
-            {
-                Start = start,
-                End = end
-            });
+                return Task.FromResult(new TimeRangeResponse
+                {
+                    Start = start,
+                    End = end
+                });
         }
 
 

@@ -75,50 +75,17 @@ namespace SpacifyAPI.Services
 
         public async Task<AvailableConfRoomReservationResponse> GetNumberOfAvailableConferenceRoomsForNowAsync()
         {
-            var now = DateTimeOffset.Now;  // lokalny czas z offsetem
-            var hourLater = now.AddHours(1);
-
-            if (now.Hour >= 18)
-            {
-                if (now.DayOfWeek == DayOfWeek.Friday)
-                {
-                    int daysUntilMonday = ((int)DayOfWeek.Monday - (int)now.DayOfWeek + 7) % 7;
-                    if (daysUntilMonday == 0) daysUntilMonday = 7;
-                    var monday8am = now.Date.AddDays(daysUntilMonday).AddHours(8);
-                    now = new DateTimeOffset(monday8am, now.Offset);
-                    hourLater = now.AddHours(1);
-                }
-                else if (now.DayOfWeek == DayOfWeek.Saturday || now.DayOfWeek == DayOfWeek.Sunday)
-                {
-                    int daysUntilMonday = ((int)DayOfWeek.Monday - (int)now.DayOfWeek + 7) % 7;
-                    var monday8am = now.Date.AddDays(daysUntilMonday).AddHours(8);
-                    now = new DateTimeOffset(monday8am, now.Offset);
-                    hourLater = now.AddHours(1);
-                }
-                else
-                {
-                    var nextDay8am = now.Date.AddDays(1).AddHours(8);
-                    now = new DateTimeOffset(nextDay8am, now.Offset);
-                    hourLater = now.AddHours(1);
-                }
-            }
-            else if (now.DayOfWeek == DayOfWeek.Saturday || now.DayOfWeek == DayOfWeek.Sunday)
-            {
-                int daysUntilMonday = ((int)DayOfWeek.Monday - (int)now.DayOfWeek + 7) % 7;
-                var monday8am = now.Date.AddDays(daysUntilMonday).AddHours(8);
-                now = new DateTimeOffset(monday8am, now.Offset);
-                hourLater = now.AddHours(1);
-            }
+            var timeRange = await _workstationReservationService.GetTargetTimeRangeAsync();
+            var startTime = timeRange.Start;
+            var endTime = timeRange.End;
 
             var totalConferenceRooms = await _context.ConferenceRooms.CountAsync();
 
             var occupiedConferenceRooms = await _context.ConferenceRoomReservations
-                .Where(r => r.ReservationStart < hourLater && r.ReservationEnd > now)
+                .Where(r => r.ReservationStart < endTime && r.ReservationEnd > startTime)
                 .Select(r => r.ConferenceRoomId)
                 .Distinct()
                 .CountAsync();
-
-            //return totalConferenceRooms - occupiedConferenceRooms;
 
             return new AvailableConfRoomReservationResponse
             {

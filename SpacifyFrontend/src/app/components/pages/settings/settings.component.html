@@ -17,11 +17,20 @@
       />
     </div>
 
+    <input
+      type="email"
+      name="username"
+      [value]="currentUser?.email"
+      autocomplete="username"
+      hidden
+    />
+
     <div class="formControl">
       <label for="newEmail">Nowy adres e-mail:</label>
       <input
         id="newEmail"
         formControlName="newEmail"
+        autocomplete="email"
         placeholder="Wprowadź nowy adres e-mail"
       />
     </div>
@@ -40,6 +49,14 @@
     (ngSubmit)="onChangePassword(changePasswordForm.value)"
     class="settings-form"
   >
+    <input
+      type="email"
+      name="username"
+      [value]="currentUser?.email"
+      autocomplete="username"
+      hidden
+    />
+
     <div class="formControl">
       <span class="formtitle">Hasło</span>
       <label for="current-Password">Aktualne hasło:</label>
@@ -47,6 +64,7 @@
         id="current-Password"
         type="password"
         formControlName="currentPassword"
+        autocomplete="current-password"
         placeholder="Wprowadź aktualne hasło"
       />
       <div
@@ -69,6 +87,7 @@
         id="new-Password"
         type="password"
         formControlName="newPassword"
+        autocomplete="new-password"
         placeholder="Wprowadź nowe hasło"
       />
 
