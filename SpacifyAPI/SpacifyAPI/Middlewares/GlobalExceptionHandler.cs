@@ -15,7 +15,7 @@ namespace SpacifyAPI.Middlewares
 
         public async ValueTask<bool> TryHandleAsync(HttpContext context, Exception exception, CancellationToken cancellationToken)
         {
-            _logger.LogError(exception, "An unhandled exception occurred.");
+            _logger.LogError(exception, "| An exception occurred. |");
 
             context.Response.ContentType = "application/json";
 

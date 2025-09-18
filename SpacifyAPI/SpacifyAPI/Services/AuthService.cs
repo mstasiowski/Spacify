@@ -131,7 +131,7 @@ namespace SpacifyAPI.Services
                 dbUser.LastFailedLoginAt = DateTimeOffset.UtcNow;
                 dbUser.IsBlocked = dbUser.FailedLoginAttempts == 5;
 
-                dbUser.AccountBlockedUntil = dbUser.IsBlocked ? DateTimeOffset.UtcNow.AddMinutes(5) : null;
+                dbUser.AccountBlockedUntil = dbUser.IsBlocked ? DateTimeOffset.UtcNow.AddMinutes(15) : null;
 
                 await _context.SaveChangesAsync();
 

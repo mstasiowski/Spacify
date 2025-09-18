@@ -200,13 +200,16 @@ namespace SpacifyAPI
                     "style-src 'self' 'unsafe-inline'; " +  // Style z backendu i inline (dla dev)
                     "img-src 'self' data:; " +              // Obrazy z backendu oraz base64
                     "font-src 'self'; " +                   // Fonty tylko z backendu
-                    "connect-src 'self' http://localhost:4200; " +  // Dozwolone po³¹czenia z frontendem Angular
+                    "connect-src 'self' https://localhost:4200; " +  // Dozwolone po³¹czenia z frontendem Angular
                     "frame-ancestors 'none';";            // Blokuje osadzanie w iframe (ochrona przed clickjackingiem)
 
                 context.Response.Headers.Append("Content-Security-Policy", cspPolicy);
 
                 await next();
             });
+
+            // Middleware do obs³ugi wyj¹tków
+            app.UseExceptionHandler();
 
             app.UseRateLimiter();
 
@@ -216,8 +219,7 @@ namespace SpacifyAPI
             app.UseMiddleware<BlockedUserMiddleware>();
             app.UseAuthorization();
 
-            // Middleware do obs³ugi wyj¹tków
-            app.UseExceptionHandler();
+            
 
             app.MapControllers();
 
