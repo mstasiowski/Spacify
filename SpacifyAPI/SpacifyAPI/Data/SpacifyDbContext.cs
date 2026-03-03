@@ -16,6 +16,9 @@ namespace SpacifyAPI.Data
         public DbSet<WorkstationReservation> WorkstationReservations { get; set; } = null!;
         public DbSet<ConferenceRoomReservation> ConferenceRoomReservations { get; set; } = null!;
         public DbSet<User> Users { get; set; } = null!;
+        public DbSet<Announcement> Announcements { get; set; } = null!;
+        public DbSet<Tag> Tags { get; set; } = null!;
+        public DbSet<AnnouncementTag> AnnouncementTags { get; set; } = null!;
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -68,6 +71,25 @@ namespace SpacifyAPI.Data
             modelBuilder.Entity<User>()
                 .Property(u => u.Role)
                 .HasConversion<string>();
+
+
+            // Combination of AnnouncementId and TagId as primary key for AnnouncementTag
+            modelBuilder.Entity<AnnouncementTag>()
+                .HasKey(at => new { at.AnnouncementId, at.TagId });
+
+            // Announcement -> AnnouncementTags
+            modelBuilder.Entity<AnnouncementTag>()
+                .HasOne(at => at.Announcement)
+                .WithMany(a => a.AnnouncementTags)
+                .HasForeignKey(at => at.AnnouncementId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Tag -> AnnouncementTags
+            modelBuilder.Entity<AnnouncementTag>()
+                .HasOne(at => at.Tag)
+                .WithMany(t => t.AnnouncementTags)
+                .HasForeignKey(at => at.TagId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
