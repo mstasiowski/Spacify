@@ -90,6 +90,13 @@ namespace SpacifyAPI.Data
                 .WithMany(t => t.AnnouncementTags)
                 .HasForeignKey(at => at.TagId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Unique index on Tag.Name for better performance and to enforce unique tag names
+            modelBuilder.Entity<Tag>(entity =>
+            {
+                entity.HasIndex(t => t.Name)
+                      .IsUnique();
+            });
         }
     }
 }

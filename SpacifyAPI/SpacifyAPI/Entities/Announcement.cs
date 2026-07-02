@@ -11,6 +11,7 @@ namespace SpacifyAPI.Entities
         public string Description { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
         public DateTime? ModifiedAt { get; set; }
+        public DateTime? ExpirationDate { get; set; }
         [Required]
         public string AllowedRoles { get; set; } // Comma-separated roles allowed to view this announcement
 

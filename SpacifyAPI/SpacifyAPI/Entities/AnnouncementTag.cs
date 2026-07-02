@@ -13,9 +13,9 @@ namespace SpacifyAPI.Entities
         public Tag Tag { get; set; }
 
         [Required]
-        public DateTime AssignedAt { get; set; } = DateTime.UtcNow;
+        public DateTime AssignedAt { get; set; } = DateTime.UtcNow; //statystyka ile razy w danym czasie taki tag był używany
         [Required]
-        public int DisplayOrder { get; set; } = 0;
+        public int DisplayOrder { get; set; } = 0; //the order in which specific tags are displayed
 
     }
 }

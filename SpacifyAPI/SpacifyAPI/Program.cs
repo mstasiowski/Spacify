@@ -169,6 +169,7 @@ namespace SpacifyAPI
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IWorkstationReservationService, WorkstationReservationService>();
             builder.Services.AddScoped<IConferenceRoomReservationService, ConferenceRoomReservationService>();
+            builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
 
             //Tasks
             builder.Services.AddHostedService<WorkstationReservationCleanupService>();

@@ -1,14 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SpacifyAPI.Entities
+namespace SpacifyAPI.Models.Responses
 {
-    public class Tag
+    public class TagResponse
     {
         public int Id { get; set; }
-        [Required]
         public string Name { get; set; }
         public string Color { get; set; }
-
-        public ICollection<AnnouncementTag> AnnouncementTags { get; set; } = new HashSet<AnnouncementTag>();
     }
 }
