@@ -9,7 +9,7 @@ Spacify to aplikacja do zarządzania przestrzenią biurową umożliwiająca reze
 * modyfikowanie,
 * usuwanie.
 
-*Aplikacja skutecznie udziela dostępu do określonych zasobów dzięki przydzielonym rolom:*
+**Aplikacja skutecznie udziela dostępu do określonych zasobów dzięki przydzielonym rolom:**
 1. Pracownik
 2. Lider zespołu
 3. Administrator
@@ -19,7 +19,7 @@ Spacify to aplikacja do zarządzania przestrzenią biurową umożliwiająca reze
 ## [Eng]
 Spacify is an office space management system that allows for the booking of workstations and conference rooms.
 
-*The system enables the management of rooms and workstations by allowing you to:*
+**The system enables the management of rooms and workstations by allowing you to:**
 * add them,
 * view them,
 * modify them,
