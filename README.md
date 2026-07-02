@@ -1,11 +1,11 @@
 # Spacify
 
-##[PL]
+## [PL]
 Spacify to aplikacja do zarządzania przestrzenią biurową umożliwiająca rezerwowanie stanowisk pracy oraz sal konferencyjnych.
 
 ---
 
-**System pozwala na zarządzanie salami i stanowiskami pracy poprzez ich:**
+** System pozwala na zarządzanie salami i stanowiskami pracy poprzez ich: **
 - Dodawanie
 - Odczytywanie
 - modyfikowanie
@@ -13,12 +13,12 @@ Spacify to aplikacja do zarządzania przestrzenią biurową umożliwiająca reze
 
 ---
 
-**Aplikacja skutecznie udziela dostępu do określonych zasobów dzięki przydzielonym rolą
+** Aplikacja skutecznie udziela dostępu do określonych zasobów dzięki przydzielonym rolą **
 1. Pracownik
 2. Lider zespołu
 3. Administrator
 
-##[Eng]
+## [Eng]
 Spacify is an office space management system that allows for the booking of workstations and conference rooms.
 
 ---
